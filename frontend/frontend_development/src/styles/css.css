@@ -1,0 +1,970 @@
+.pointer {
+  cursor: pointer;
+}
+
+table {
+  margin: 0 auto;
+  border-collapse: collapse;
+  width: 80%; /* or any desired width */
+}
+
+table,
+th,
+td {
+  border-bottom: 1px solid rgba(0, 0, 0, 0.2);
+  text-align: center;
+  vertical-align: middle;
+  padding: 8px;
+}
+
+td svg {
+  display: block;
+  margin: 0 auto;
+}
+
+.modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.6);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.modal-content {
+  background-color: #fff;
+  padding: 20px;
+  border-radius: 5px;
+  max-width: 80%;
+  
+  overflow: scroll;
+  max-height: 80%;
+  z-index: 1001;
+}
+
+.close {
+  position: absolute;
+  top: 5px;
+  right: 10px;
+  font-size: 24px;
+  cursor: pointer;
+}
+
+.user-list {
+  border: 1px solid #ccc;
+  max-height: 200px;
+  overflow-y: auto;
+}
+
+.user-list > div {
+  padding: 8px 12px;
+  cursor: pointer;
+}
+
+.user-list > div.selected {
+  background-color: #007bff;
+  color: white;
+}
+
+.user-list > div:hover {
+  background-color: #eee;
+}
+
+.innerDiv {
+  width: 300px; /* Replace with your desired width */
+  max-height: 400px; /* Replace with your desired height */
+  overflow: auto; /* This will add scrollbars if the content overflows */
+}
+.flex{
+  display: flex;
+}
+
+
+
+/*GENERATED CSS, CONSIDER REPLACING*/
+
+/* General form styling */
+form.flex {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  /* Adjusts the space between form elements */
+  max-width: 400px;
+  /* Adjust as needed */
+  margin: auto;
+}
+
+/* Style for input fields and select box */
+
+/* General input and select styles */
+input,
+select {
+  padding: 8px 12px;
+  border: none;
+  /* Remove all borders */
+  border-bottom: 2px solid #ccc;
+  /* Grey bottom border */
+  border-radius: 0;
+  /* Remove border-radius for a sharp bottom edge */
+  font-size: 16px;
+  background-color: transparent;
+  box-sizing: border-box;
+  /* Ensures padding does not affect width */
+}
+
+/* Style for input placeholders */
+input::placeholder {
+  color: #aaa;
+  /* Light grey color for placeholders */
+}
+
+/* Hover and focus styles for inputs and selects */
+input:hover,
+select:hover,
+input:focus,
+select:focus {
+  border-bottom: 2px solid #333;
+  /* Darker grey or black on hover/focus */
+  outline: none;
+  /* Removes the outline to maintain a minimalist design */
+}
+
+/* Style for labels */
+form.flex label {
+
+  margin-bottom: 5px;
+}
+
+/* Style for the submit button */
+form.flex button[type="submit"] {
+  background-color: #4CAF50;
+  /* Button color */
+  color: white;
+  padding: 10px 15px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 16px;
+}
+
+/* Hover style for the submit button */
+form.flex button[type="submit"]:hover {
+  background-color: #45a049;
+}
+
+/* Message paragraph styling */
+p {
+  color: #333;
+  font-size: 14px;
+}
+
+.innerDiv li{
+  list-style: none;
+}
+.innerDiv {
+  padding: 10px;
+  width: auto;
+}
+
+
+
+/* General Styles */
+body {
+  font-family: Arial, sans-serif;
+  line-height: 1.6;
+}
+
+/* Button Styles */
+button {
+  background-color: #4CAF50;
+  color: white;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 16px;
+  margin: 10px 10px;
+}
+
+button:hover {
+  background-color: #45a049;
+}
+
+/* Input and Textarea Styles */
+/* Input and Textarea Styles */
+input[type="text"]
+ {
+  width: 100%;
+  padding: 10px;
+  margin: 8px 0;
+  display: inline-block;
+  border: none;
+  /* Removes the default border */
+  border-bottom: 2px solid #ccc;
+  /* Grey bottom border */
+  box-sizing: border-box;
+  background-color: transparent;
+  /* Ensures the background is transparent */
+}
+
+input[type="text"]:focus {
+  border-bottom: 2px solid #333;
+  /* Darker grey or black on focus */
+  outline: none;
+  /* Removes the outline to maintain a minimalist design */
+}
+
+textarea {
+  height: 100px;
+  resize: vertical;
+}
+
+textarea {
+  width: 100%;
+  height: 150px;
+  padding: 12px;
+  box-sizing: border-box;
+  border: 2px solid #e0e0e0;
+  border-radius: 4px;
+  background-color: white;
+  font-size: 14px;
+  color: #333;
+  resize: none;
+  transition: border-color 0.3s ease-in-out;
+}
+
+textarea:focus {
+  border-color: #555;
+  outline: none;
+}
+
+textarea::placeholder {
+  color: #aaa;
+}
+
+label {
+  display: block;
+  margin-top: 20px;
+}
+
+/* Category List Styles */
+.innerDiv {
+  margin: 20px 0;
+  margin-bottom: 5px;
+    border: 1px solid #ccc;
+      border-radius: 4px;
+      box-sizing: border-box;
+      text-align: left;
+}
+
+.innerDiv div,
+.innerDiv li {
+  padding: 5px 10px;
+  cursor: pointer;
+}
+
+.innerDiv ul {
+  list-style-type: none;
+  padding-left: 20px;
+}
+
+
+
+
+
+/* Flex Container */
+.flex {
+  display: flex;
+  justify-content: space-evenly;
+  gap: 20px;
+}
+
+.available-categories,
+.selected-categories {
+  flex: 1;
+}
+
+/* Checkbox Styles */
+[type="checkbox"] {
+  margin-right: 10px;
+}
+
+[type="checkbox"]+label {
+  cursor: pointer;
+}
+
+/* Adjust spacing and margins as needed */
+
+
+.centered-wrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  /* This ensures that the wrapper takes at least the full viewport height */
+  text-align: center;
+  /* Centers text for any direct child text nodes */
+  padding: 20px;
+  /* Adds some padding around the content */
+  padding-bottom: 100px;
+}
+
+
+/*GENERATED CSS, CONSIDER REPLACING*/
+
+
+h1, h2, h3, h4,h5,h6 {
+  font-family: Montserrat, sans-serif !important;
+}
+
+
+.image-gallery{
+  display: flex;
+  flex-wrap: wrap;
+}
+
+.info-holder{
+  padding-left: 10px;
+ border-left: solid lightgray 1px; 
+}
+
+.image-holder{
+    display: flex;
+    justify-content: space-evenly;
+    align-items: center;
+}
+
+.card-link{
+  text-decoration: none !important;
+}
+.category-card{
+  
+}
+.card-overlay{
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  /* background-color: rgba(0, 0, 0, 0.5); */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  opacity: 0;
+  transition: opacity 0.5s ease-in-out;
+  background: #2f00ff;
+}
+.card-overlay:hover{
+  opacity: 0.05;
+}
+
+
+
+/*GENERATED EDITOR CSS*/
+
+.editor-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  justify-content: center;
+  /* Adjust as needed */
+}
+
+.editor-item {
+  cursor: pointer;
+  border: 1px solid #ccc;
+  /* Style as needed */
+  border-radius: 8px;
+  /* Adjust for rounded corners */
+  padding: 16px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  /* Adjust as needed */
+  background-color: white;
+  transition: background-color 0.3s;
+  /* Smooth background color transition */
+}
+
+.editor-item.selected {
+  background-color: #e9e9e9;
+  /* Adjust as needed */
+}
+
+.editor-image {
+  /* Adjust width and height as needed */
+  width: 50px;
+  height: 50px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.editor-image img {
+  max-width: 100%;
+  border-radius: 50%;
+  /* Makes the image round */
+}
+
+.editor-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.editor-name {
+  margin: 0;
+}
+
+.editor-description {
+  margin: 0;
+  font-size: 0.8rem;
+  color: #666;
+}
+
+
+.display-config{
+      display: flex;
+        justify-content: center;
+}
+
+.category-container-wrapper{
+  min-width: 1100px;
+  width:85%;
+}
+
+.comment{
+  position: relative;
+  text-align: left;
+  list-style: none;
+}
+
+.collapseComment{
+    height: 100%;
+      position: absolute;
+      left: -15px;
+}
+.innerCollapseComment{
+  width: 1.2px;
+  background: #bcbcbc;
+  height: 100%; 
+  margin-left: 5px;
+  margin-right: 5px;
+
+}
+.just-left{
+  justify-content: left !important;
+
+  gap: 5px;
+}
+.align-items-center{
+  align-items: center !important;
+}
+.align-items-top{
+  align-items: top !important;
+
+}
+
+.inner-comment{
+  padding: 10px; 
+  border-radius: 15px; 
+  box-shadow: rgba(100, 100, 111, 0.2) 0px 7px 29px 0px;
+  margin-bottom: 20px;
+  display: flex;
+  flex-direction: column;
+}
+
+.comment-name{
+  margin-top: 2px; 
+      margin-bottom: 2px;
+}
+
+.reply-comment{
+  background: none;
+  color: blue;
+  font-size: 16px;
+  padding:0px;
+  margin:0px; 
+  margin-right: 35px;
+
+}
+.reply-comment:hover{
+  background: none;
+  color: blue;
+  font-size: 16px;
+  padding:0px;
+
+  text-decoration: underline;
+}
+
+.comment-text{
+  margin-top: 0px;
+  white-space: pre-wrap;
+
+}
+
+.collapsed-comment{
+  box-shadow: 0 7px 29px 0 hsla(240, 5%, 41%, .2);
+    margin-bottom: 15px;
+    border-radius: 15px;
+    padding-left: 10px;
+}
+
+.resource-canvas{
+  text-align: left;
+  padding:20px;
+  border-radius: 5px;
+  border: 1px solid #ccc;
+  max-height: 94vh;
+  overflow-y: auto;
+  overflow-x: auto;
+  width: 100%;
+}
+
+.resource-options{
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+  box-shadow: rgba(100, 100, 111, 0.2) 0px 7px 29px 0px;
+  padding: 10px;
+  flex-direction: column;
+  gap: 10px;
+  margin: 25px; 
+  border-radius: 15px;
+}
+.small-label{
+  margin-top: 2px; 
+}
+
+.make-new{
+  background-color: white;
+    /* White background */
+    border: 1px solid #ccc;
+    /* Light grey border */
+    color: #333;
+    /* Dark text color */
+    padding: 8px 15px;
+    /* Padding around the text */
+    font-size: 14px;
+    /* Medium font size */
+    font-weight: bold;
+    /* Bold font */
+    border-radius: 4px;
+    /* Rounded corners */
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+    /* Slight shadow */
+    cursor: pointer;
+    /* Pointer cursor on hover */
+    display: inline-flex;
+    /* Use flexbox for alignment */
+    align-items: center;
+    /* Align items vertically */
+    justify-content: center;
+    /* Center content horizontally */
+    gap: 5px;
+    /* Space between icon and text */
+    outline: none;
+    /* Remove default focus outline */
+    text-decoration: none;
+    
+    margin-top: 15px;
+}
+
+.innerCatHolder{
+  display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+}
+
+.user-comments-resource-holder{
+  box-shadow: rgba(149, 157, 165, 0.2) 0px 8px 24px;
+    margin: 30px 0px;
+}
+
+.crh-title{
+  padding: 20px;
+   
+    box-shadow: rgba(33, 35, 38, 0.1) 0px 10px 10px -10px;
+}
+
+.crh-title:hover{
+  box-shadow: rgba(17, 17, 26, 0.05) 0px 4px 16px, rgba(17, 17, 26, 0.05) 0px 8px 32px;
+}
+
+
+.icon-button {
+    background-color: #3a70ff; /* Light Blue Background */
+    border: none;
+    border-radius: 50%;
+    width: 50px;
+    height: 50px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: rgba(0, 0, 0, 0.25) 0px 14px 28px, rgba(0, 0, 0, 0.22) 0px 10px 10px;
+}
+
+.plus-icon {
+    color: white;
+    font-size: 20px; /* Adjust size as needed */
+    font-weight: bold;
+}
+
+.element{
+  box-shadow: rgba(0, 0, 0, 0.16) 0px 1px 4px;
+}
+
+.newRowElement:hover{
+  border: solid #3a70ff 1px  !important; 
+  box-shadow: #3a70ff 0px 0px 0px 1px inset, #3a70ff 0px 0px 0px 1px;
+}
+
+.ql-align-center{
+  text-align: center;
+}
+.ql-align-right{
+  text-align: right;
+}
+.ql-align-left{
+  text-align: left;
+}
+
+
+.container {
+  position: relative;
+  width: 100%;
+  height: 50px; /* Adjust based on your needs */
+  
+}
+
+.draggableButton {
+  position: absolute;
+  cursor: pointer;
+  margin: 0px !important
+}
+
+
+.element>p>p {
+  margin: 0px;
+}
+.element>p {
+  margin: 0px;
+}
+
+
+.pressable-link{
+  text-decoration: underline;
+  color: blue;
+}
+
+.pressable-link:hover{
+ 
+  color: darkblue;
+  cursor: pointer;
+}
+
+nav > a:hover{
+  cursor: pointer;
+  transform: scale(1.1);  
+
+}
+
+.profile-box{
+
+
+
+  padding: 20px;
+  border-radius: 0px 0px 15px 15px;
+  box-shadow: rgba(100, 100, 111, 0.2) 0px 7px 29px 0px;
+  margin-bottom: 20px;
+}
+
+.outer-profile-box{
+
+  margin-top: 50px;
+}
+
+.profile-box-title{
+      height: 100px;
+        background-image: url("https://res.cloudinary.com/ralfpatric/image/upload/v1561027306/Pycipedia/assets/subcategories/S%C3%A4ng%20och%20s%C3%B6mn/1200x169%20%28x2%29/Nattningsrutiner_1200x169x2_xtldtj.jpg");
+        background-repeat: no-repeat;
+        background-size: cover;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+
+}
+
+
+.edit-button{
+  background-color: #4CAF50;
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+    margin: 10px 10px;
+}
+
+.resource-elements{
+  display: flex;
+    justify-content: center;
+    align-items: center;
+    transform-origin: left top;
+        width: fit-content;
+        gap: 10px;
+}
+
+.resource-scaler-buttons {
+  position: fixed;
+  /* Position the buttons absolutely within their parent */
+  bottom: 50px;
+  /* Align to the top of the parent */
+  right: 50px;
+  /* Align to the left of the parent */
+  display: flex;
+  flex-direction: column;
+  /* Stack buttons vertically */
+  gap: 0.5rem;
+  /* Optional: add some space between buttons */
+  align-items: center;
+}
+
+
+/* Styles for buttons that are clickable but not yet selected */
+.clickable-button {
+  box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+  transition: background-color 0.3s ease;
+  cursor: pointer;
+  margin: 5px;
+  padding: 8px 16px;
+  border: none;
+  background-color: #f0f0f0;
+  /* Light grey background */
+  color: #333;
+  /* Dark text color for contrast */
+}
+
+.clickable-button:hover {
+  background-color: #e0e0e0;
+  /* Slightly darker on hover for visual feedback */
+}
+
+/* Styles for buttons that have been selected */
+.chosen-button {
+  background-color: #007bff;
+  /* Blue background to indicate selection */
+  color: white;
+  /* White text color for contrast */
+  box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+  margin: 5px;
+  padding: 8px 16px;
+  border: none;
+  cursor: pointer;
+}
+
+.clickable-a{
+  display: block;
+  color: darkblue;
+  text-decoration: 'underline';
+
+}
+
+.clickable-a:hover{
+cursor: pointer;
+color: blue
+}
+
+.small-input-field {
+  padding: 4px 4px !important;
+  /* Reduced padding */
+  font-size: 12px;
+  /* Smaller font size */
+  width: auto;
+  /* Auto width to make it adjust based on content, or set a specific smaller width */
+  max-width: 100px;
+  /* Example of setting a specific maximum width to make it very small */
+  margin: 0px !important; 
+}
+
+
+.small-button {
+  width: 25px;
+  /* Makes the button square to start with */
+  height: 25px;
+  /* Equal height and width create a square shape */
+  padding: 0;
+  /* Reduces padding to make room for the content */
+  font-size: 20px;
+  /* Adjust size as needed for the plus sign to fit well */
+
+  /* This will turn the square into a circle */
+  text-align: center;
+  /* Ensures the plus sign is centered */
+  line-height: 30px;
+  /* Adjust line height to vertically center the plus sign */
+  display: inline-flex;
+  /* Use flex to better align the content */
+  align-items: center;
+  /* Aligns items vertically */
+  justify-content: center;
+  /* Centers the content horizontally */
+  margin: 0px;
+  margin-left: 5px; 
+}
+
+/* Optional: Add a hover effect to improve user interaction */
+.small-button:hover {
+  background-color: #45a049;
+  /* Slightly darker shade on hover */
+}
+
+.plusminus-toggle {
+  cursor: pointer;
+  /* Makes it clear the element is clickable */
+  user-select: none;
+  /* Prevents the text from being selectable, enhancing the button-like feel */
+  padding: 8px 12px;
+  /* Adds some space around the text to increase click area */
+  border-radius: 4px;
+  /* Gives a subtle button-like appearance */
+  display: inline-block;
+  /* Ensures padding and border-radius are applied */
+
+  /* A light background to highlight the area */
+  color: #333;
+  /* Dark text for readability */
+  font-weight: bold;
+  /* Makes the label more prominent */
+  transition: background-color 0.3s ease;
+  /* Smooth background color transition on hover */
+}
+
+.plusminus-toggle:hover {
+  transform: scale(1.1);
+
+  /* Slightly darker background on hover to indicate interactivity */
+}
+
+
+.container {
+  position: relative;
+  padding-top: 15px;
+  margin-bottom: 20px;
+}
+
+.label {
+  position: absolute;
+  left: 0;
+  top: 28%;
+  transform: translateY(-50%);
+  font-size: 16px;
+  transition: top 0.3s ease, font-size 0.3s ease, color 0.3s ease;
+  color: #aaa;
+  pointer-events: none;
+  /* Ensures clicks go through to the input */
+}
+
+.inputField {
+  width: 100%;
+  border: none;
+  border-bottom: 2px solid #ccc;
+  font-size: 16px;
+  padding: 8px 0;
+  outline: none;
+}
+
+.inputField:focus {
+  border-bottom-color: #333;
+}
+
+.inputField:focus+.label,
+.inputField:not(:placeholder-shown)+.label {
+  top: -10%;
+  font-size: 12px;
+  color: #333;
+}
+
+.headerPanelbuttons > *:hover {
+  cursor: pointer;
+  transform: scale(1.1);
+
+
+}
+
+.new-button {
+  all: unset;
+  /* Resets all inherited and default styles */
+  display: flex;
+  justify-content: center;
+  align-items: center;  
+  /* Necessary to apply padding and make the element line-based */
+  padding: 0px 20px;
+  /* Adjust padding to your preference */
+  color: black;
+  /* Sets the text color */
+  background-color: white;
+  /* Sets the background color, adjust as needed */
+  border-radius: 5px;
+  /* Adjust border-radius for desired roundness */
+  box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.2);
+  /* Adjust shadow to your liking */
+  text-align: center;
+  /* Centers the text inside the button */
+  cursor: pointer;
+  /* Changes cursor to pointer on hover */
+  transition: background-color 0.3s;
+  /* Smooth transition for hover effects */
+  margin: 10px 10px
+}
+.new-button > p {
+  margin: 0;
+  /* Removes default margin */
+
+}
+
+.new-button:hover {
+  background-color: #f0f0f0;
+  /* Light grey background on hover, adjust as needed */
+}
+
+::-webkit-scrollbar {
+  width: 10px;
+}
+
+/* Track */
+::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+
+/* Handle */
+::-webkit-scrollbar-thumb {
+  background: #888;
+}
+
+/* Handle on hover */
+::-webkit-scrollbar-thumb:hover {
+  background: #555;
+}
+
+.custom-editor-form > * {
+
+
+}
+
+.panel-custom-editor > * {
+
+  padding: 10px;
+}
+
+.ql-blank{
+  min-height: 100px;
+}
+
