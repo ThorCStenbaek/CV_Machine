@@ -228,7 +228,12 @@ function App() {
     }
    },[])
 
-
+   return (
+   
+   <Router>
+        <Routes>
+          <Route path="/" element={<CustomEditor/>}></Route> </Routes></Router>
+)
 
   if (!isAuthenticated) {
     return <CenteredWrapper><Login /> </CenteredWrapper>;

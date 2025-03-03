@@ -1,7 +1,8 @@
 import { set } from 'date-fns';
 import React, { useState, useEffect } from 'react';
+import getSurfaceChildrenFromList from './../../../custom_editor/util/getSurfaceChildrenFromList';
 
-const DraggableDiv = ({ startPosition, onDragEnd }) => {
+const DraggableDiv = ({ startPosition, onDragEnd, onDragging }) => {
   // State to keep track of the current position and start position of the drag
   const [position, setPosition] = useState({ x: 0, y: 0 });
   const [startDragPosition, setStartDragPosition] = useState({ x: 0, y: 0 });
@@ -21,23 +22,37 @@ const DraggableDiv = ({ startPosition, onDragEnd }) => {
   // Mouse down event to start dragging
   const handleMouseDown = (e) => {
     setDragging(true);
-    setStartDragPosition(position); // Capture the start position of the drag
+    setStartDragPosition(e.clientX); // Capture the start position of the drag
     e.preventDefault(); // Prevent text selection
   };
 
   // Mouse move event to handle dragging
   const handleMouseMove = (e) => {
       if (dragging) {
+        console.log("DRAGGING:", e)
           if (startPosition === 'left') {
+            let diff = {
+              x: e.clientX - startDragPosition
+         
+              };
+
+            console.log(`DRAGAA ${startPosition}, X: ${diff.x}, start: ${startDragPosition}`)
+            onDragging(diff.x, startPosition, "width")
               setPosition((prevPosition) => ({
                   ...prevPosition,
-                  x: prevPosition.x + e.movementX, // Update position based on mouse movement
+                  x:  e.clientX, // Update position based on mouse movement
               }));
           }
     else {
+      let diff = {
+        x:  e.clientX  - startDragPosition
+   
+        };
+      console.log(`DRAGAA ${startPosition}, X: ${diff.x}, start: ${startDragPosition}, pos: ${position.x}`)
+      onDragging(diff.x, startPosition, "width")
             setPosition((prevPosition) => ({
                 ...prevPosition,
-                x: prevPosition.x - e.movementX, // Update position based on mouse movement
+                x: e.clientX, // Update position based on mouse movement
             }));
     }
         }
@@ -52,18 +67,19 @@ const DraggableDiv = ({ startPosition, onDragEnd }) => {
       
 
     let diff = {
-      x: position.x - startDragPosition.x,
-      y: position.y - startDragPosition.y,
+      x: position.x - startDragPosition
+ 
       };
       if (startPosition === 'right') {
           
             diff = {
-                x: startDragPosition.x - position.x,
-                y: position.y - startDragPosition.y,
+                x:  position.x - startDragPosition,
+              
             };
        }
     // Call the onDragEnd prop with the difference
-      onDragEnd(diff.x, startPosition);
+    console.log(`DRAGAA END ${startPosition}, X: ${diff.x}, start: ${startDragPosition}`)
+      onDragEnd(diff.x, startPosition, "width");
       setPosition({ x: 0, y: 0 });
       
   };
@@ -86,8 +102,8 @@ const DraggableDiv = ({ startPosition, onDragEnd }) => {
   let divStyle = {
       position: 'absolute',
       
-    left: `${position.x}px`,
-    top: `${position.y}px`,
+    left: `${0}px`,
+    top: `${0}px`,
       cursor: dragging ? 'grabbing' : 'grab',
     zIndex: dragging ? 10 : 10,
       // Add other styles as needed
@@ -100,8 +116,8 @@ const DraggableDiv = ({ startPosition, onDragEnd }) => {
       divStyle={
       position: 'absolute',
       
-    right: `${position.x}px`,
-    top: `${position.y}px`,
+    right: `${0}px`,
+    top: `${0}px`,
       cursor: dragging ? 'grabbing' : 'grab',
     zIndex: dragging ? 10 : 10,
           // Add other styles as needed

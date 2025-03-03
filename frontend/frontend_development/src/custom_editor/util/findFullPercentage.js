@@ -1,4 +1,5 @@
 
+
   const findFullPercentage = (position, resourceMeta) => {
 
     console.log("FINDFULL", position, resourceMeta  )

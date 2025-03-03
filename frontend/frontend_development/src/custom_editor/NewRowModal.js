@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import Modal from '../containers/components/general/modal';
-
+import { getValue } from './newUtils/getValue';
 
 
 
@@ -13,7 +13,7 @@ function ProportionalElements({ sizes, onClick, maxWidth= '23%', rows=1 }) {
         // Changes the cursor to indicate the element is clickable
         padding: '10px', // Adds some space inside the container
         boxSizing: 'border-box', // Ensures padding is included in the width
-        backgroundColor: '#f0f0f0', // Light grey background
+        //backgroundColor: '#f0f0f0', // Light grey background
         gap: '10px', // Adds space between child elements
         
        
@@ -24,6 +24,7 @@ function ProportionalElements({ sizes, onClick, maxWidth= '23%', rows=1 }) {
         width: maxWidth,
         border: '1px solid #000', // Changed to black for better visibility
         cursor: 'pointer', 
+        backgroundColor: '#f0f0f0',
 
     }
 
@@ -46,7 +47,7 @@ function ProportionalElements({ sizes, onClick, maxWidth= '23%', rows=1 }) {
        <>
         <div onClick={onClick} style={outerContainerStyle} className='newRowElement' >
         {Array.from({ length: rows }, (_, rowIndex) => (
-           <div style={containerStyle} >
+           <div style={containerStyle} key={rowIndex} >
                 {sizes.map((size, sizeIndex) => (
                     <div key={`row-${rowIndex}-size-${sizeIndex}`} style={childStyle(size)}>
                         {`${size}/${totalSum}`}
@@ -67,16 +68,19 @@ function ProportionalElements({ sizes, onClick, maxWidth= '23%', rows=1 }) {
 
 
 
-const NewRowModal = ({ appendNewElements, closeModal }) => {
+const NewRowModal = ({ appendNewElements, closeModal, parentDepth=-1, parentStyle }) => {
 
     const [modalIsOpen, setModalIsOpen] = useState(false)
     
+    console.log("PARENT DEPTH:", parentDepth)
 
     const toggleModal = () => {
         setModalIsOpen(!modalIsOpen)
     }
 
-
+    const parentWidth = getValue("width", parentStyle)
+   
+    const parentHeight = 0 //Not used 
 
 
 const constructChildren = (number, sizes=null, rows=1) => {
@@ -85,22 +89,36 @@ const constructChildren = (number, sizes=null, rows=1) => {
     while (rows > 0) {
      elements.push({
         html_element: 'div',
-        number_of_children: number,
-        specific_style: 'padding-left: 10px; padding-right: 10px; height: auto; width: 98%; display:flex; minHeight: 100px; align-items: stretch; justify-content: center; ',
+        number_of_children: number, //padding-left: 10px; padding-right: 10px; 
+        specific_style: ` height: 100px;position: relative;  max-height: 100%;  width: ${parentWidth}; display:flex; align-items: stretch; justify-content: center;  max-width: 100%; flex-direction: row;  box-shadow: rgba(0, 0, 0, 0.16) 0px 1px 4px;`,
         content_type: '',
         content_data: '',
-        instruction: 'DEFAULT'
+        instruction: 'DEFAULT',
+        depth: parentDepth+1,
+        rules: {
+            draggable: true, 
+            selectable: true, 
+            newRowButton: true,  
+          }
     })
     for (let i = 0; i < number; i++) {
-        const percentage = (sizes[i] / totalSum) * 100;
+        const percentage = (sizes[i] / totalSum)
+        console.log("PARENT WIDTH:", parentWidth, percentage)
         elements.push({
             html_element: 'div',
             number_of_children: 0,
-            specific_style: `height: auto; minHeight: 100px; width: ${percentage}%; flex: 0 0 ${percentage}%; position: relative; box-shadow: rgba(0, 0, 0, 0.16) 0px 1px 4px; `,
+            specific_style: `height: 100px; max-height: 100%;  width: ${(parentWidth.replace("px", "")*percentage)}px; position: relative; box-shadow: rgba(0, 0, 0, 0.16) 0px 1px 4px; max-width:100%;`,
             content_type: '', 
             content_data: '',
            instruction: 'EMPTY',
-class_name: 'element'
+class_name: 'element',
+depth: parentDepth+2,
+rules: {
+    draggable: true, 
+    selectable: true, 
+    newRowButton: true,  
+  }
+
 })
         }
         rows--
@@ -118,7 +136,7 @@ return elements;
 
     }
     
-    const normalList = [[6], [3,3], [2,2,2],[1,1,1,1], [1,1,1,1,1], [1,1,1,1,1,1]]
+    const normalList = [[],[6], [3,3], [2,2,2],[1,1,1,1], [1,1,1,1,1], [1,1,1,1,1,1]]
     const strangerLists = [[5,1], [4,2], [2,3], [2,1,1], [2,2,1,1], [2,1,1,1,1],]
     const NormalRows = () => {
         return (
@@ -145,7 +163,7 @@ return elements;
     
     const handleInputChange = (e) => {
             
-        const newColCount = Math.max(1, Math.min(12, Number(e.target.value))); // Ensure within bounds
+        const newColCount = Math.max(0, Math.min(12, Number(e.target.value))); // Ensure within bounds
         (e.target.name === "colNumber") ? setColNumber(newColCount) : setRowNumber(newColCount);
        
 
@@ -175,7 +193,7 @@ return elements;
                 type="number"
                 id="colNumber"
                 name="colNumber"
-                min="1"
+                min="0"
                 max="12"
                 value={colNumber}
                 onChange={handleInputChange}

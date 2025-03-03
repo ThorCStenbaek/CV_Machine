@@ -4,17 +4,22 @@ const ElementComponent = ({editing, data, children, onClick, onMouseOver=()=>con
     if (!data) {
         return null;
     }
-    console.log("extraElement", extraElement)
+
     // Destructure data for easier access
     let { html_element, path, content_data, specific_style, class_name, number_of_children } = data;
 
     //use childen and mutate content_data 
     //Come back to this...
-    //this does not work. Shows [object object]
+        //This function scares me
         const renderMixedContent = (content, children, number_of_children) => {
-        console.log("children", children)
+       
         if (!children ) {
             return content;
+        }
+        //This fixes it for now but I am scared
+        if (!content || number_of_children==null){
+            number_of_children=children.length;
+
         }
 
         const contentFragments = content.split("$child$");
@@ -133,6 +138,23 @@ const ElementComponent = ({editing, data, children, onClick, onMouseOver=()=>con
         // Assuming content_data contains the PDF URL
         console.log("pdf",html_element, path, content_data, specific_style, class_name, number_of_children)
     return <PdfViewer file={`/${path}`} />
+    }
+
+    if (html_element==="coolguy"){
+        const data = JSON.parse(content_data);
+
+        return (
+            <p 
+                className={elementProps.className} 
+                onMouseOver={elementProps.onMouseOver} 
+                onMouseOut={elementProps.onMouseOut} 
+                onClick={elementProps.onClick} 
+                style={elementProps.style}
+            >
+                {data.name}
+                {extraElement}
+            </p>
+        );
     }
 
 

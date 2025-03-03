@@ -14,7 +14,12 @@ import VideoIcon from "./icons/videoIcon";
         specific_style: 'height: auto;', // Provide a value based on your application's logic
         content_type: '' , // Provide a value based on your application's logic
         content_data: '', // Provide a value based on your application's logic
-        instruction: 'ELEMENT' // Provide a value based on your application's logic
+        instruction: 'TEXT', // Provide a value based on your application's logic
+        rules:{
+            draggable: true, 
+            selectable: true, 
+            newRowButton:true
+        }
 };
     
       const ImageMeta= {
@@ -27,7 +32,7 @@ import VideoIcon from "./icons/videoIcon";
         specific_style: 'height: auto;', // Provide a value based on your application's logic
         content_type: '' , // Provide a value based on your application's logic
         content_data: '', // Provide a value based on your application's logic
-        instruction: 'ELEMENT' // Provide a value based on your application's logic
+        instruction: 'ELEMENT', // Provide a value based on your application's logic
     };
 
 
@@ -41,7 +46,7 @@ import VideoIcon from "./icons/videoIcon";
     specific_style: 'height: auto;', // Provide a value based on your application's logic
     content_type: '', // Provide a value based on your application's logic
     content_data: '', // Provide a value based on your application's logic, usually the video URL
-    instruction: 'ELEMENT' // Provide a value based on your application's logic
+    instruction: 'ELEMENT', // Provide a value based on your application's logic
 };
 
 
@@ -92,31 +97,31 @@ const ElementInnerChild = ({ position, resourceMeta, updateResourceMeta }) => {
         if (element.instruction === instruction || element.instruction === "CONTAINER" || element.instruction === "DEFAULT") {
             return;
         }
-        console.log("HANDLECLICK", instruction, element, position, resourceMeta)
+        console.log("HANDLECLICK", instruction, element, position, resourceMeta[position], resourceMeta)
         const number_of_children = element.number_of_children;
         let updatedResourceMeta = [...resourceMeta];
         updatedResourceMeta[position].number_of_children = 0;
         updatedResourceMeta[position].instruction = instruction;
-        updatedResourceMeta.splice(position + 1, number_of_children)
-        const getNewElements = () => {
+    
+        const depth=resourceMeta[position].depth
+        const getNewElement = () => {
         switch (instruction) {
             case "TEXT":
-                return [PMeta];
+                return [{...PMeta, depth}];
             case "IMAGE":
-                return [ImageMeta];
-            case "TEXTIMAGE":
-                return [PMeta, ImageMeta];
-            case "IMAGETEXT":
-                return [ImageMeta, PMeta];
+                return [{...ImageMeta, depth}];
+
             case "VIDEO":
-                return [VideoMeta];
+                return [{...VideoMeta, depth}];
             default:
                 return null;
         } 
         };
-        const newElements = getNewElements();
-        updatedResourceMeta[position].number_of_children = newElements.length;
-        updatedResourceMeta.splice(position + 1, 0, ...newElements);
+        const newElemens = getNewElement()[0]
+        console.log("HANDLECLICK NEW ELEMENT:", newElemens)
+        newElemens.specific_style=updatedResourceMeta[position].specific_style
+        updatedResourceMeta[position]= newElemens
+     
         updateResourceMeta(updatedResourceMeta);
         setElement(updatedResourceMeta[position]);
 };

@@ -1,4 +1,4 @@
-import React, {useState, useEffect} from "react";
+import React, {useState, useEffect, useRef} from "react";
 import ElementBuilder from "../containers/components/elementBuilder.js";
 import BaseQuill from "../containers/components/quill/baseQuill.js";
 import Modal from "../containers/components/general/modal.js";
@@ -33,7 +33,36 @@ import Hint from "../containers/components/general/Hint.js";
 import CoolInput from "../containers/components/general/coolInput.js";
 
 
-const ElementPanel = ({ position, resourceMeta, updateResourceMeta, handleAddNewElement, removeElement, addNewElement,toggleUploadModal, children, page }) => {
+
+import findLastDescendantIndex from "./newUtils/findLastDescendant.js";
+import findParentIndex from "./newUtils/findParentIndex.js";
+import findNextNeighbourIndex from "./newUtils/findNextNeighbour.js";
+import findPreviousNeighbourIndex from "./newUtils/findPreviousNeighbour.js";
+
+import { findAllNeighbours } from "./newUtils/findAllNeighbours.js";
+import { findFlexPercentageOfElements, findTotalWidthOfElements } from "./newUtils/findFlexPercentageOfElements.js";
+import { ShowMetaStructure } from "./newUtils/showMetaStructure.js";
+import ChangeRulesForElement from "./newUtils/changeRulesForElement.js";
+import DynamicColorEditor from "./newUtils/dynamicColorEditor.js";
+
+import { DynamicStyleEditor } from "./newUtils/DynamicStyleEditor.js";
+
+import { getValue } from "./newUtils/getValue.js";
+
+import html2canvas from 'html2canvas';
+import { jsPDF } from 'jspdf';
+import { Document, Page, Text, View, StyleSheet, PDFDownloadLink } from '@react-pdf/renderer';
+import getTrueHeight from "./newUtils/getTrueHeight.js";
+import reduceTrueHeight from "./newUtils/reduceTrueHeight.js";
+import getTrueWidth from "./newUtils/getTrueWidth.js";
+import reduceTrueWidth from "./newUtils/reduceTrueWidth.js";
+import { QuadrupleDynamicStyleEditor } from './newUtils/quadrupleDynamicStyleEditor';
+
+
+import { CusteomElementTest } from './newClasses/test';
+
+
+const ElementPanel = ({ position, resourceMeta, updateResourceMeta, handleAddNewElement, removeElement, addNewElement,toggleUploadModal, children, page, changeIndex, handleRedo, handleUndo }) => {
     const [elementData, setElementData] = useState(resourceMeta[position]);
     const [direction, setDirection] = useState("row");
       const PMeta= {
@@ -86,40 +115,36 @@ const ElementPanel = ({ position, resourceMeta, updateResourceMeta, handleAddNew
     updateResourceMeta(updatedResourceMeta);
   }
 
-
-
-
-
-
-
-
-
-  
-const removeAllChildren = (parentPosition, resourceMeta) => {
-    const getChildPositions = (parentPosition, resourceMeta) => {
-        let positions = [];
-        const childrenCount = resourceMeta[parentPosition].number_of_children;
-
-        for (let i = 1; i <= childrenCount; i++) {
-            positions.push(parentPosition + i);
-        }
-        return positions;
-    };
-
-    let childPositions = getChildPositions(parentPosition, resourceMeta);
-    
-    // Reverse the array to start removing from the last child
-    childPositions.reverse().forEach(childPos => {
-        resourceMeta.splice(childPos, 1);
-    });
-
-    // Update the parent's number_of_children
-    resourceMeta[parentPosition].number_of_children = 0;
-
-    // Update the state or return the updated resourceMeta if needed
-  updateResourceMeta(resourceMeta);
-  setElementData({...elementData, number_of_children: 0, instruction: "EMPTY"})
+  const testMeta= {
+    ID: null, // This will be auto-incremented by the database
+    resource_id: null, // You might need to provide this value based on your application's logic
+    fileID: null,
+    ordering: 0, // Default value, change as needed
+    html_element: 'coolguy' , // Provide a value based on your application's logic
+    number_of_children: 0,
+    specific_style: 'height: 100px; width: 100px; position: relative;', // Provide a value based on your application's logic
+    content_type: '' , // Provide a value based on your application's logic
+    content_data: '{"name":"bruh", "lol":"poopie"}',
+    instruction: 'EMPTY', // Provide a value based on your application's logic
+    depth:2,
+    rules:{selectable:true, draggable:true}
 };
+
+
+
+
+CusteomElementTest()
+
+
+
+  const doSomething = (elem) =>{
+    const updatedResourceMeta = [...resourceMeta];
+    updatedResourceMeta.push(elem)
+    updateResourceMeta(updatedResourceMeta)
+  }
+
+
+
 
 // Call this function where necessary, providing the parent position and current resourceMeta
 
@@ -127,30 +152,41 @@ const removeAllChildren = (parentPosition, resourceMeta) => {
   
   const safeElementData = elementData || {}; // Fallback to an empty object if elementData is null or undefined
 
+    const tabs = ["pageSettings", "design", "structure", "advanced"]
    return (
      <>
        <div>
+
+
    <div className="tabs" style={{ display: 'flex' }}>
+   {tabs.map(t=>(
     <button
-      style={{ flex: 1, margin: 0, borderRadius: '0px', backgroundColor: activeTab === 'pageSettings' ? '#0e7abd' : '#198fd9' }}
-      onClick={() => setActiveTab('pageSettings')}
-      className={activeTab === 'pageSettings' ? 'active' : ''}
-    >
-      Page Settings
-    </button>
-    <button
-      style={{ flex: 1, margin: 0, borderRadius: '0px', backgroundColor: activeTab === 'design' ? '#0e7abd' : '#198fd9' }}
-      onClick={() => setActiveTab('design')}
-      className={activeTab === 'design' ? 'active' : ''}
-    >
-      Design
-    </button>
+    style={{ flex: 1, margin: 0, borderRadius: '0px', backgroundColor: activeTab === t ? '#0e7abd' : '#198fd9' }}
+    onClick={() => setActiveTab(t)}
+    className={activeTab === t ? 'active' : ''}
+  >
+    {t}
+  </button>
+   ))}
+
   </div>
 
 
       <div className="element-panel" style={{  height: "100vh", boxShadow: 'rgba(0, 0, 0, 0.15) 1.95px 1.95px 2.6px', minWidth: '25vw', maxWidth: '30vw', padding: '10px' }}>
         
+        <button onClick={handleUndo}>Undo</button>
+        <button onClick={handleRedo}>Redo</button>
 
+
+        <button onClick={()=>doSomething(testMeta)}>test</button>
+
+        {activeTab==="advanced"&& (
+          <ChangeRulesForElement resourceMeta={resourceMeta} index={position} updateResourceMeta={updateResourceMeta}/>
+        )}
+
+        {activeTab ==='structure' && (
+          <ShowMetaStructure  resourceMeta={resourceMeta} changeIndex={changeIndex} index={position}/>
+        )}
 
         {activeTab === 'pageSettings' && (
           <div className="page-settings-content">
@@ -167,7 +203,7 @@ const removeAllChildren = (parentPosition, resourceMeta) => {
                 position={position}
                 resourceMeta={resourceMeta}
                 changeElement={changeElement}
-                removeAllChildren={removeAllChildren}
+       
                 handleAddNewElement={handleAddNewElement}
                 updateResourceMeta={updateResourceMeta}
               />
@@ -187,12 +223,38 @@ const removeAllChildren = (parentPosition, resourceMeta) => {
                 )}
                 <div style={{ borderBottom: '1px solid lightgrey', paddingBottom: "10px", paddingLeft: '10px' }}>
                   <h4 style={{ marginBottom: '0px' }}>Background Color</h4>
-                  <ChangeBackgroundColor position={position} resourceMeta={resourceMeta} updateResourceMeta={updateResourceMeta} />
+                  <DynamicColorEditor position={position} resourceMeta={resourceMeta} updateResourceMeta={updateResourceMeta} property={"background"} />
                 </div>
+                
+
+                <div>
+                <DynamicColorEditor position={position} resourceMeta={resourceMeta} updateResourceMeta={updateResourceMeta} property={"border-top-color"} />
+                <div style={{display:"flex"}}>
+                <DynamicStyleEditor defaultColor="0px" position={position} resourceMeta={resourceMeta} updateResourceMeta={updateResourceMeta} property={"border-top-width"} type="text" />
+                <DynamicStyleEditor  position={position} resourceMeta={resourceMeta} updateResourceMeta={updateResourceMeta} property={"border-top-style"} type="select"
+                options={[{text:"none", value:"none"},{text: "Solid", value:"solid"}, {text: "burh", value:"dashed"}]}
+                />
+                <p>padding</p>
+                <DynamicStyleEditor defaultColor="0px" position={position} resourceMeta={resourceMeta} updateResourceMeta={updateResourceMeta} property={"padding-top"} type="number" 
+                options={[{text:"px", value:"px"}, {text: "percentage", value:"%"}]}
+                />
+
+                </div>
+                
+<p>margin</p>
+<QuadrupleDynamicStyleEditor defaultColor="0px" position={position} resourceMeta={resourceMeta} updateResourceMeta={updateResourceMeta} property={"margin-$"} type="number"
+
+             
+                />
+
+                </div>
+
+
               </div>
+              
               {elementData.instruction !== 'CONTAINER' && (
                 <>
-                  <button type="button" onClick={removeElement} style={{ background: "red" }}>
+                  <button type="button" onClick={ ()=>removeElement(position, resourceMeta, updateResourceMeta)} style={{ background: "red" }}>
                     Delete {elementData.instruction === 'DEFAULT' ? 'row' : 'block'}
                   </button>
                   <button type="button" onClick={() => addNewElement(position)}>add block</button>
@@ -224,6 +286,7 @@ const removeAllChildren = (parentPosition, resourceMeta) => {
 
   
 
+const MAX_HISTORY = 25;
 
 
 
@@ -235,11 +298,19 @@ const CustomEditor = ({resource=null, givenResourceMeta=null, givenCategory, Res
         ordering: 0, // Default value, change as needed
         html_element: 'div' , // Provide a value based on your application's logic
         number_of_children: 0,
-        specific_style: 'height: 1191px; padding: 20px; width: 842px;  display: flex; flex-direction: column; box-shadow: 0px 2px 4px -1px rgba(0,0,0,0.2), 0px 4px 5px 0px rgba(0,0,0,0.14), 0px 1px 10px 0px rgba(0,0,0,0.12);', // Provide a value based on your application's logic
+        specific_style: 'height: 1191px; width: 842px;  display: flex; flex-direction: column; box-shadow: 0px 2px 4px -1px rgba(0,0,0,0.2), 0px 4px 5px 0px rgba(0,0,0,0.14), 0px 1px 10px 0px rgba(0,0,0,0.12);', // Provide a value based on your application's logic
         content_type: '' , // Provide a value based on your application's logic
         content_data: '', // Provide a value based on your application's logic
-        instruction: 'CONTAINER' // Provide a value based on your application's logic
+        instruction: 'CONTAINER', // Provide a value based on your application's logic,
+        depth: 1, //attempting something new.
+        rules: {
+          draggable: false, 
+          selectable: true, 
+          newRowButton: true,  
+        }
     };
+
+    const pdfRef = useRef(null);
 
   const [isModalOpen, setIsModalOpen] = useState(false);
 
@@ -267,10 +338,55 @@ const [title, setTitle] = useState(resource?.title || '');
 
   const handleSetIndex = (index) => {
     setIndex(index);
+    
     setChangeElementPanelPage(!changeElementPanelPage);
   
   };
+//UNDO REDO BUTTONS
+  const [undoStack, setUndoStack] = useState([]);
+  const [redoStack, setRedoStack] = useState([]);
 
+
+  const deepCopy = (obj) => JSON.parse(JSON.stringify(obj));
+
+
+
+  const handleUndo = () => {
+
+    if (undoStack.length === 0) return;
+
+    const previousState = undoStack[undoStack.length - 1];
+    console.log("UNDO", previousState)
+    if (previousState.length< index)
+      setIndex(0)
+    setUndoStack(prevStack => prevStack.slice(0, -1));
+    setRedoStack(prevStack => [...prevStack, deepCopy(resourceMeta)]);
+    setResourceMeta(previousState);
+  };
+
+  const handleRedo = () => {
+    console.log("REDO", redoStack)
+    if (redoStack.length === 0) return;
+
+    const nextState = redoStack[redoStack.length - 1];
+    if (nextState.length< index)
+      setIndex(0)
+    setRedoStack(prevStack => prevStack.slice(0, -1));
+    setUndoStack(prevStack => [...prevStack, deepCopy(resourceMeta)]);
+    setResourceMeta(nextState);
+  };
+
+//UNDO REDO BUTTONS 
+useEffect(()=>{
+console.log("ATTEMPT RE-RENDER")
+}, [resourceMeta])
+
+
+  useEffect(()=>{
+
+console.log("I HAVE ELEMENT:",resourceMeta[index].instruction, resourceMeta[index].depth)
+
+  },[index])
 // Dependency array includes givenResourceMeta to trigger effect when it changes
 
   const handleSetStatus = (status) => {
@@ -346,13 +462,28 @@ const [title, setTitle] = useState(resource?.title || '');
   */
   const updateResourceMeta = (newResourceMeta, failsafe = true) => {
 
-      setIsProblemPage(failsafe);
+    console.log("UPDATING RESOURCEMETA UNDO:", [...undoStack,deepCopy(resourceMeta)])
+
+    setUndoStack(prevStack => {
+      const newStack = [...prevStack, deepCopy(resourceMeta)];
+      // Limit history size
+      if (newStack.length > MAX_HISTORY) {
+        newStack.shift();
+      }
+      return newStack;
+    });
+    // Clear the redo stack on new changes
+    setRedoStack([]);
+
+
+
+      setIsProblemPage(failsafe);    //is this used? Maybe look at some point for cleanup
     setResourceMeta(newResourceMeta);
   };   
-  useEffect(() => { console.log("rm: ", resourceMeta) }, [resourceMeta]);
+ 
   
 
-
+/*
   useEffect(() => {
  
 
@@ -371,221 +502,113 @@ const [title, setTitle] = useState(resource?.title || '');
       console.log("AFTER SET")
 
   }, [resourceMeta]);
-  
-
-   /*
-    const removeElement = () => { 
-        // Calculate the insertion position for the new element
-        
-      
-  const getBetterParent = (position, resourceMeta) => {
-    
-    if (resourceMeta[position].instruction == "DEFAULT") 
-      return findNeigbourSpecific(position, resourceMeta, 'left', 'STOP', ['CONTAINER'])
-    
-    return findNeigbourSpecific(position, resourceMeta, 'left', 'CONTAINER', ['DEFAULT'])
-
-  }
-      
-   
-      let position = index;
-      
-      console.log("REMOVE RM BEFORE", position, resourceMeta)
-
-
-        let positions = getAllPositions(position, resourceMeta)
-        positions = positions.sort((a, b) => b - a);
-       
-        let lastPosition = positions[0]+1
-
-
-      const parentPosition = getBetterParent(position, resourceMeta);
-      let RM= [...resourceMeta]
-        RM[parentPosition].number_of_children = RM[parentPosition].number_of_children - 1;
-      console.log("REMOVE RM", "parent", parentPosition, RM[parentPosition])
-        let con= findNeigbourSpecific(parentPosition, RM, 'left', 'STOP', ['CONTAINER'])
-        if (RM[parentPosition].number_of_children == 0) {
-          position = parentPosition; 
-
-  
-        }
-      
-      let updatedResourceMeta = [
-        ...RM.slice(0, con),
-        (RM[parentPosition].number_of_children == 0) || RM[position].instruction=='DEFAULT' ? {...RM[con], number_of_children: RM[con].number_of_children - 1} : RM[con],
-        ...RM.slice(con, position),
-
-        ...(lastPosition>=RM.length ? [] : RM.slice(lastPosition))
-      ];
-      console.log("REMOVE RM:", updatedResourceMeta)
-      updatedResourceMeta=updatedResourceMeta.filter((element) => element != RM[con])
-    
-      console.log("REMOVE RM:", updatedResourceMeta, "positions: ", positions, "lastPosition: ", lastPosition) 
-    updateResourceMeta(updatedResourceMeta);
-
-
-  }
 */
-  const removeElement = () =>
-  {
-    let elementType = resourceMeta[index].instruction;
-
-    if (elementType === "DEFAULT") {
-  
-      let parentPosition = findNeigbourSpecific(index, resourceMeta, 'left', 'STOP', ['CONTAINER']);
-      let RM = [...resourceMeta];
-      let parent = RM[parentPosition]; parent.number_of_children -= 1;
-
-      let lastChild = findNeigbourSpecific(index, RM, 'right', 'findNothing', ['DEFAULT', 'CONTAINER',]);
-
-      let newRM = RM.slice(0, parentPosition)
-
-      newRM.push(parent)
-      newRM=newRM.concat(RM.slice(parentPosition + 1, index))
-      newRM= lastChild != null ? newRM.concat(RM.slice(lastChild, RM.length)): newRM
-      
-      console.log("NEWRM", lastChild)
-      console.log("NEWRM", RM)
-      if (lastChild == null)
-        setIndex(0)
-      updateResourceMeta(newRM);
-
-     }
-
-    else if (elementType === "CONTAINER") {
-
-      let RM = [...resourceMeta];
-      let nextContainer = findNeigbourSpecific(index, RM, 'Right', 'STOP', ['CONTAINER']);
-     
-
-  
-
-      let newRM = RM.slice(0, index)
-
-      if (nextContainer != null) {
-        newRM.concat(RM.slice(nextContainer, RM.length))
-       }
-      
-      console.log("NEWRM CONTAINER",newRM)
-      updateResourceMeta(newRM);
 
 
-    }
-    else {
-      let RM = [...resourceMeta];
-      let parentPosition = findNeigbourSpecific(index, RM, 'left', 'STOP', ['DEFAULT']);
-      let parent = RM[parentPosition]; parent.number_of_children -= 1;
+/**DOWNLOAD ATTMEPT */
 
-      let nextNeighbour= findNeigbourSpecific(index, RM, 'right', 'CONTAINER', ['DEFAULT', 'CONTAINER', 'EMPTY', 'TEXT', 'IMAGE', 'VIDEO']);
 
-      let nextDefault = findNeigbourSpecific(index, RM, 'right', 'STOP', ['DEFAULT', 'CONTAINER']);
-      let newRM = []
-      if (parent.number_of_children != 0) {
-        newRM= RM.slice(0, parentPosition)
-        newRM.push(parent)
-        newRM = newRM.concat(RM.slice(parentPosition + 1, index))
-        nextNeighbour != null ? newRM = newRM.concat(RM.slice(nextNeighbour, RM.length)) : newRM=newRM
-      }
-      else {
-        let containerParent = findNeigbourSpecific(parentPosition, RM, 'left', 'STOP', ['CONTAINER']);
-        let container = RM[containerParent]
-        container.number_of_children -= 1;
-        newRM = RM.slice(0, containerParent)
-        newRM.push(container)
-        newRM = newRM.concat(RM.slice(containerParent + 1, parentPosition))
-        console.log("remove", newRM, nextDefault, RM.slice(nextDefault))
-        newRM = newRM.concat(RM.slice(nextDefault))
-       
-        
-      }
-      console.log("NEWRM", newRM)
-      //setIndex(0)
-      updateResourceMeta(newRM);
 
+
+
+
+/**DOWNLOAD ATTMEPT */
+
+  const removeElement = (index, resourceMeta, updateResourceMeta) => {
+    // Find the last descendant of the element at the given index
+
+    const currentLastChildIndex = findLastDescendantIndex(index, resourceMeta);
+
+    // Find the parent of the element at the given index
+
+
+    // Split the array into two halves: before the element and after the last descendant
+    const firstHalf = resourceMeta.slice(0, index);
+    const secondHalf = resourceMeta.slice(currentLastChildIndex + 1);
+
+    console.log("REMOVE RESOURCE HALVES:", firstHalf, secondHalf);
+
+    // Combine the two halves to create the updated array
+    let updatedMeta = firstHalf.concat(secondHalf);
+
+
+    if(updateResourceMeta==null || updateResourceMeta == undefined)
+      return updatedMeta
+    if (index> updateResourceMeta.length-1)
+      setIndex(0)
+
+    // Update the resource meta using the provided callback
+    updateResourceMeta(updatedMeta);
+};
+
+
+
+  const fixOverreachingParent =(index, resourceMeta) =>{
+
+    const parent = resourceMeta[findParentIndex(index, resourceMeta)]
+    const directionRow =  getValue("flex-direction") =="column" ? false : true
+
+    const {leftNeighbours, rightNeighbours} = findAllNeighbours(index, resourceMeta)
+    if (directionRow){
       
     }
-
-
-
-
-    }
-
-
-
-
-
-
-
-
-
-  const handleAddNewElement = (index, elements = []) => {
-  // Function to calculate the insertion position for a new element
-    const getInsertionPosition = (currentIndex, resourceMeta) => {
     
-      
-    const children = resourceMeta[currentIndex].number_of_children;
-    let sum = 0;
-    
-    for (let i = 0; i < children; i++) {
-      sum += getInsertionPosition(currentIndex + sum + 1, resourceMeta);
-    }
 
-    return sum + 1;
-  };
+  }
 
-  // Start with the current resourceMeta
-  let updatedResourceMeta = [...resourceMeta];
+
+
+
+//Not sure when this is used...
+const handleAddNewElement = (index, elements = [], resourceMeta, updateResourceMeta) => {
+    console.log("handleAddNewElement ADD NEW ELEMENT,", index, elements, resourceMeta);
+
+    // Start with the current resourceMeta
+    let updatedResourceMeta = [...resourceMeta];
 
     elements.forEach(element => {
-    
-    // Create a new element based on the provided element or the default structure
-    const newElement = element || {
-      html_element: 'p',
-      number_of_children: 0,
-      specific_style: 'height: 100px; width: auto; display:flex;  ',
-      content_type: '',
-      content_data: 'new',
-      instruction: 'DEFAULT'
-    };
+        // Create a new element based on the provided element or the default structure
+        const newElement = element || {
+            html_element: 'p',
+            specific_style: 'height: 100px; width: auto; display:flex;',
+            content_type: '',
+            content_data: 'new',
+            instruction: 'DEFAULT',
+            depth: resourceMeta[index].depth + 1 // Set depth to be one level deeper than the parent
+        };
 
-    // Update the number_of_children of the current element
-    const updatedElementData = {
-      ...updatedResourceMeta[index],
-      number_of_children: updatedResourceMeta[index].number_of_children + 1
-    };
+        // Find the last descendant of the current element to determine the insertion position
+        const lastDescendantIndex = findLastDescendantIndex(index, updatedResourceMeta);
 
-      // Calculate the insertion position for the new element
-    
-    const insertionPosition = getInsertionPosition(index, updatedResourceMeta) + index;
+        // Insert the new element right after the last descendant
+        const insertionPosition = lastDescendantIndex + 1;
 
-    // Create a new array with the updated current element and the new element
-    updatedResourceMeta = [
-      ...updatedResourceMeta.slice(0, insertionPosition),
-      newElement,
-      ...updatedResourceMeta.slice(insertionPosition)
-    ];
+        // Create a new array with the new element inserted at the correct position
+        updatedResourceMeta = [
+            ...updatedResourceMeta.slice(0, insertionPosition),
+            newElement,
+            ...updatedResourceMeta.slice(insertionPosition)
+        ];
+    });
 
-    // Update the current element in the array
-    updatedResourceMeta[index] = updatedElementData;
-  });
-
-  // Update the parent state with the new resourceMeta array
-  updateResourceMeta(updatedResourceMeta);
-  };
+    // Update the parent state with the new resourceMeta array
+    updateResourceMeta(updatedResourceMeta);
+};
   
+
   const appendNewElements = (elements = [], rows = 1) => {
-    console.log("CONTAINER INDEX: ", index)
+    console.log("appendNewElements CONTAINER INDEX: ", index)
     let UM = [...resourceMeta];
 
-let neighbour = findNeigbourSpecific(index + 1, UM, 'right', 'STOP', ['CONTAINER']);
+let neighbour = findNextNeighbourIndex(index, resourceMeta)
 // If no neighbour is found, set `neighbour` to `UM.length` to append at the end.
-neighbour = neighbour !== null ? neighbour : UM.length;
+neighbour = neighbour !== -1 ? neighbour : UM.length;
 
-// Since `neighbour` is now correctly set to `UM.length` when no neighbour is found,
-// `UM.slice(neighbour)` will be an empty array, effectively appending `elements` at the end.
 UM = UM.slice(0, neighbour).concat(elements).concat(UM.slice(neighbour));
-    UM[index].number_of_children = UM[index].number_of_children + rows;
-    console.log("UM:", UM, "NEIGHBOUR: ", neighbour)
+
+if (rows>1)
+UM[index].specific_style+= "flex-direction:column"
+  
     updateResourceMeta(UM);
    }
 
@@ -639,151 +662,816 @@ const handleSubmit = () => {
 
 
 
+  /**
+  
+const changeDrag = (position, X, side, show=false) => {
+
+   * TO DO: 
+   * 1. Make a function called getTrueWidth and one called getTrueHeight
+   * 2. Make a functtion or make sure, that when we're reducing true with, it should probably reduce the neighbour's margin, next their padding, next width.
+   * 2.a This does create some serious problems tho. What if I want to reduce the side margin, but not the top and bottom margin.
+   * 2.b Perhaps there is never a true margin. There only exists margin-top, etc.. but we should have another function that changes one, which changes the others. 
+
+
+
+  if (side == "down") {
+    let resourceMetaCopy = [...resourceMeta];
+    
+    const regex = /height:\s*(\d+(\.\d+)?)px/;
+    const match = resourceMetaCopy[position].specific_style.match(regex);
 
 
   
-
-
-  function findAndRemoveElement(position, resourceMeta) {
-
-    let updatedResourceMeta = [...resourceMeta];
-    
-    let lastChild = position;
-    for (let i = position+1; i < updatedResourceMeta.length; i++) {
-    
-      if (updatedResourceMeta[i].instruction == "EMPTY" || updatedResourceMeta[i].instruction == "TEXT" || updatedResourceMeta[i].instruction == "IMAGE" || updatedResourceMeta[i].instruction == "VIDEO") {
-        lastChild = i-1;
-        break;
-      }
-    }
-
-    for (let i = position; i >= 0; i--) {
-      if (updatedResourceMeta[i].instruction == "DEFAULT") {
-        
-        updatedResourceMeta[i].number_of_children = updatedResourceMeta[i].number_of_children - 1;
-        break;
-      }
-
-
-     }
-
-    updatedResourceMeta.splice(position, lastChild - position +1);
-
-    return updatedResourceMeta;
-   }
-
-
-  
-  const changeDrag = (position, X, side) => {
-    /**
-     * TO DO: 
-     * 1. Get the entire percentage of the all columns --> 100%
-     * 2. Does it have any neighbours? If not, then check percentage. If 100%, then don't change, 
-     *    otherwise you can change the percentage of the current column until it reaches 100%.
-     */
-
-
-    if (side == "down") {
-      let resourceMetaCopy = [...resourceMeta];
-      
-      const regex = /height:\s*(\d+(\.\d+)?)px/;
-      const match = resourceMetaCopy[position].specific_style.match(regex);
-
-
-    
-      let currentHeight = match ? parseInt(match[1]) : document.querySelector(`.position${position}`).offsetHeight;
-      let newHeight = currentHeight + (X * -1)
-
+    let currentHeight = match ? parseInt(match[1]) : document.querySelector(`.position${position}`).offsetHeight;
+    let newHeight = currentHeight + (X * -1)
+    console.log("MATCH:", match)
+    if (!show)
       resourceMetaCopy[position].specific_style = resourceMetaCopy[position].specific_style.replace(/height:\s*[^;]+;/, `height:${newHeight}px;`)
 
-      updateResourceMeta(resourceMetaCopy);
-      return; 
-    }
-
-
-
-
-   
-
-    let total = findPercentageOf(Math.abs(X), 615);
+    if (show){
+      document.querySelector(`.position${position}`).style.height= `${newHeight}px`
     
-  let resourceMetaCopy = [...resourceMeta];
+    }
+    console.log("ACTUAL DRAG:",{side,currentHeight, newHeight, X:X*-1})
+    console.log("SILLY MATCH:",   resourceMetaCopy[position].specific_style)
+    if (!show)
+    updateResourceMeta(resourceMetaCopy);
+    return; 
+  }
 
-    const neighbour = findNeigbour(position, resourceMeta, side);
+
+  const parentWidth = getValue("width",resourceMeta[findParentIndex(index,resourceMeta)].specific_style)
+  const parentWidthNoPX=parseFloat(parentWidth.replace("px", ""))
  
-  const regex = /flex: 0 0 (\d+(\.\d+)?)%/;
 
-
-
-    const match = resourceMetaCopy[position].specific_style.match(regex);
-    
-    let neighbourMatch = (neighbour) ? resourceMetaCopy[neighbour].specific_style.match(regex) : null;
-
-
-    let currentFlexPercentage = parseFloat(match[1]);
-    
-    let neighbourFlexPercentage = (neighbour) ? parseFloat(neighbourMatch[1]) :  100-findFullPercentage(position, resourceMeta);
-
- 
-    
-  if (match ) {
-    // Extract the numeric percentage values from the match
-
-
-    if (total > neighbourFlexPercentage && side == "left" && X <0) {
-      
-    
-      total = neighbourFlexPercentage;
-    }
-    else if (total > neighbourFlexPercentage && side == "right" && X >0) {
-      total = neighbourFlexPercentage;
-    }
-
-
-    if (side === "left") {
-      let newCurrentFlexPercentage = (X<0)? currentFlexPercentage + total : currentFlexPercentage - total;
-      let newNeighbourFlexPercentage = (X<0) ? neighbourFlexPercentage - total : neighbourFlexPercentage + total;
-     
-      // Ensure new percentages are not negative
-      newCurrentFlexPercentage = Math.max(0, newCurrentFlexPercentage);
-      newNeighbourFlexPercentage = Math.max(0, newNeighbourFlexPercentage);
-
-      resourceMetaCopy[position].specific_style = resourceMetaCopy[position].specific_style.replace(regex, `flex: 0 0 ${newCurrentFlexPercentage}%`);
-      
-      if (neighbour)
-        resourceMetaCopy[neighbour].specific_style = resourceMetaCopy[neighbour].specific_style.replace(regex, `flex: 0 0 ${newNeighbourFlexPercentage}%`);
-    } else {
-      let newCurrentFlexPercentage =  (X<0)? currentFlexPercentage - total : currentFlexPercentage + total; 
-      let newNeighbourFlexPercentage = (X<0) ? neighbourFlexPercentage + total : neighbourFlexPercentage - total;
+  let total = Math.abs(X)
   
-      // Ensure new percentages are not negative
-      newCurrentFlexPercentage = Math.max(0, newCurrentFlexPercentage);
-      newNeighbourFlexPercentage = Math.max(0, newNeighbourFlexPercentage);
+let resourceMetaCopy = [...resourceMeta];
 
-      resourceMetaCopy[position].specific_style = resourceMetaCopy[position].specific_style.replace(regex, `flex: 0 0 ${newCurrentFlexPercentage}%`);
-      if (neighbour)
-      resourceMetaCopy[neighbour].specific_style = resourceMetaCopy[neighbour].specific_style.replace(regex, `flex: 0 0 ${newNeighbourFlexPercentage}%`);
-    }
-  } else {
-    console.log("No matching flex pattern found.");
-    }
+console.log("side:", side)
+  const neighbour = side== "left" ? findPreviousNeighbourIndex(index, resourceMeta) : findNextNeighbourIndex(index, resourceMeta);
 
-    if (neighbour){
-    if (total+0.1 > neighbourFlexPercentage && side == "left" && X <0) {
+  const regex = /width:\s*(\d+(\.\d+)?)px/;
 
-    resourceMetaCopy= findAndRemoveElement(neighbour, resourceMetaCopy);
+
+
+  const match = resourceMetaCopy[position].specific_style.match(regex);
+  
+  let neighbourMatch = (neighbour !=-1) ? resourceMetaCopy[neighbour].specific_style.match(regex) : null;
+
+console.log("MATCH HUH", match, resourceMetaCopy[position].specific_style)
+  let currentFlexPercentage = parseFloat(match[1]);
+  
+  console.log("when is this happening: ", neighbour ==-1)
+
+  let neighbourFlexPercentage = (neighbour!= -1) ? parseFloat(neighbourMatch[1]) :  parentWidth-findTotalWidthOfElements(findAllNeighbours(index, resourceMeta).neighbours.concat([resourceMeta[index]]))//findFullPercentage(position, resourceMeta);
+
+
+  
+if (match ) {
+  // Extract the numeric percentage values from the match
+
+
+  if (total > neighbourFlexPercentage && side == "left" && X <0) {
     
+  
+    total = neighbourFlexPercentage;
+  }
+  else if (total > neighbourFlexPercentage && side == "right" && X >0) {
+    total = neighbourFlexPercentage;
+  }
+
+
+  if (side === "left") {
+    let newCurrentFlexPercentage = (X<0)? currentFlexPercentage + total : currentFlexPercentage - total;
+    let newNeighbourFlexPercentage = (X<0) ? neighbourFlexPercentage - total : neighbourFlexPercentage + total;
+   
+    // Ensure new percentages are not negative
+    newCurrentFlexPercentage = Math.max(0, newCurrentFlexPercentage);
+    newNeighbourFlexPercentage = Math.max(0, newNeighbourFlexPercentage);
+    newCurrentFlexPercentage= Math.min( parentWidthNoPX, newCurrentFlexPercentage)
+
+    console.log("NEW WIDTH:",side, {X,newCurrentFlexPercentage,currentFlexPercentage, newNeighbourFlexPercentage, parentWidthNoPX,  total})
+
+    if (!show){
+    resourceMetaCopy[position].specific_style = resourceMetaCopy[position].specific_style.replace(regex, `width: ${newCurrentFlexPercentage}px`);
+    
+    if (neighbour !=-1)
+      resourceMetaCopy[neighbour].specific_style = resourceMetaCopy[neighbour].specific_style.replace(regex, `width: ${newNeighbourFlexPercentage}px`);
+  }
+  if (show){
+    document.querySelector(`.position${position}`).style.width=newCurrentFlexPercentage+"px"
+    if (neighbour!=-1)          
+    document.querySelector(`.position${neighbour}`).style.width=newNeighbourFlexPercentage+"px"
+  }
+  } else {
+    let newCurrentFlexPercentage =  (X<0)? currentFlexPercentage - total : currentFlexPercentage + total; 
+    let newNeighbourFlexPercentage = (X<0) ? neighbourFlexPercentage + total : neighbourFlexPercentage - total;
+
+    // Ensure new percentages are not negative
+    newCurrentFlexPercentage = Math.max(0, newCurrentFlexPercentage);
+    newNeighbourFlexPercentage = Math.max(0, newNeighbourFlexPercentage);
+
+    newCurrentFlexPercentage= Math.min( parentWidthNoPX, newCurrentFlexPercentage)
+
+    console.log("NEW WIDTH:",side,{X,newCurrentFlexPercentage,currentFlexPercentage, newNeighbourFlexPercentage, parentWidthNoPX,  total})
+
+    if (!show){
+    resourceMetaCopy[position].specific_style = resourceMetaCopy[position].specific_style.replace(regex, `width: ${newCurrentFlexPercentage}px`);
+    if (neighbour != -1)
+    resourceMetaCopy[neighbour].specific_style = resourceMetaCopy[neighbour].specific_style.replace(regex, `width: ${newNeighbourFlexPercentage}px`);
+  }
+  if (show){
+    document.querySelector(`.position${position}`).style.width=newCurrentFlexPercentage+"px"
+    if (neighbour!=-1)     
+    document.querySelector(`.position${neighbour}`).style.width=newNeighbourFlexPercentage+"px"
+  }
+  }
+} else {
+  console.log("No matching flex pattern found.");
+  }
+
+  if (neighbour != -1 && !show){
+  if (total+0.1 > neighbourFlexPercentage && side == "left" && X <0) {
+
+  resourceMetaCopy= removeElement(neighbour, resourceMetaCopy);
+  
+  }
+  else if (total+0.1 > neighbourFlexPercentage && side == "right" && X > 0) {
+   
+    resourceMetaCopy= removeElement(neighbour, resourceMetaCopy);
     }
-    else if (total+0.1 > neighbourFlexPercentage && side == "right" && X > 0) {
-     
-      resourceMetaCopy= findAndRemoveElement(neighbour, resourceMetaCopy);
+    }
+
+
+
+if (!show)
+updateResourceMeta(resourceMetaCopy);
+};
+*/
+
+  
+
+
+
+
+  
+  const changeDrag = (position, X, side, property ,show=false) => {
+    /**
+     * TO DO: 
+     * 1. Make a function called getTrueWidth and one called getTrueHeight
+     * 2. Make a functtion or make sure, that when we're reducing true with, it should probably reduce the neighbour's margin, next their padding, next width.
+     * 2.a This does create some serious problems tho. What if I want to reduce the side margin, but not the top and bottom margin.
+     * 2.b Perhaps there is never a true margin. There only exists margin-top, etc.. but we should have another function that changes one, which changes the others. 
+     */
+
+    console.log("DOWNDRAG out", position, X, side, property ,show)
+    if (side == "down") {
+      console.log("DOWNDRAG", position, X, side, property ,show)
+
+      const parentIndex=findParentIndex(index,resourceMeta)
+
+      const parentHeight = parseFloat(getValue("height",resourceMeta[parentIndex].specific_style).replace("px", ""))
+      
+      const parentFlexRow = getValue("flex-direction",resourceMeta[parentIndex].specific_style ) =="row"
+
+
+      const allNeighbours= findAllNeighbours(position, resourceMeta)
+
+      const leftNeighbourHeights= allNeighbours.leftNeighbours.map(n=>getTrueHeight(n.data).total)
+      const leftTotal= leftNeighbourHeights.reduce((acc, cur) => cur+acc,0)
+      const rightNeighbourHeights=allNeighbours.rightNeighbours.map(n=>getTrueHeight(n.data).total)
+      const rightTotal= rightNeighbourHeights.reduce((acc, cur) => cur+acc,0)
+      const neighboursTrueHeight = leftTotal+rightTotal
+
+      let resourceMetaCopy = [...resourceMeta];
+  
+      // Create a dynamic regex that matches e.g. "height:" or "width:" etc.
+      const regex = new RegExp(`${property}:\\s*(\\d+(\\.\\d+)?)px`);
+      const match = resourceMetaCopy[position].specific_style.match(regex);
+    
+      let currentValue = match
+        ? parseInt(match[1])
+        : document.querySelector(`.position${position}`).offsetHeight; // adjust fallback if needed
+      
+      const trueHeightToAdd=(X * -1);
+
+      const elementTrueHeight=getTrueHeight(resourceMetaCopy[position]).total
+
+      let newValue = currentValue + trueHeightToAdd
+
+      //if column and possibly more children.
+
+      const totalSize= trueHeightToAdd+elementTrueHeight+neighboursTrueHeight
+      if ( totalSize>parentHeight && !parentFlexRow){
+
+        console.log("STYLE WHAT BIGGER")
+        //change the neighbours if possible. 
+        if (allNeighbours.rightNeighbours.length>0){
+          const nextNeighbour=allNeighbours.rightNeighbours[0]
+
+          const reducedTrueHeight=reduceTrueHeight(nextNeighbour.data, totalSize-parentHeight, !show)
+          
+          console.log("STYLE WHAT:", reducedTrueHeight)
+          if (!show){
+            resourceMetaCopy[nextNeighbour.index].specific_style=reducedTrueHeight.style
+        }
+        if (show){
+          document.querySelector(`.position${nextNeighbour.index}`).style.marginTop=reducedTrueHeight.marginTop+"px"
+          document.querySelector(`.position${nextNeighbour.index}`).style.marginBottom=reducedTrueHeight.marginBottom+"px"
+
+          document.querySelector(`.position${nextNeighbour.index}`).style.paddingTop=reducedTrueHeight.paddingTop+"px"
+          document.querySelector(`.position${nextNeighbour.index}`).style.paddingBottom=reducedTrueHeight.paddingBottom+"px"
+
+          document.querySelector(`.position${nextNeighbour.index}`).style.height=reducedTrueHeight.height+"px"
+
+        }
+
+
+          if (reducedTrueHeight.total<=0  && totalSize>parentHeight&& !show){
+            console.log("STYLE WHAT DELETE",{neighbourHeight:reducedTrueHeight.total, leftNeighbourHeights,leftTotal,elementTrueHeight, rightNeighbourHeights,rightTotal,totalSize, parentHeight, neighboursTrueHeight, trueHeightToAdd, currentValue, shouldBe: parentHeight- ((elementTrueHeight-currentValue)+neighboursTrueHeight)})
+            //should remove neighbour
+            //perhaps show later. 
+            //parentHeight- (elementTrueHeight-currentValue)+neighboursTrueHeight
+
+            resourceMetaCopy=removeElement(nextNeighbour.index, resourceMetaCopy)
+            newValue= currentValue+ rightNeighbourHeights[0]
+          }
+
+          else if(reducedTrueHeight.total<=0   && totalSize>parentHeight&& show){
+            console.log("STYLE WHAT JUST SHOW DELETE",{neighbourHeight:reducedTrueHeight.total, leftNeighbourHeights,leftTotal,elementTrueHeight, rightNeighbourHeights,rightTotal,totalSize, parentHeight, neighboursTrueHeight, trueHeightToAdd, currentValue, shouldBe: parentHeight- ((elementTrueHeight-currentValue)+neighboursTrueHeight)})
+            
+
+
+            newValue=currentValue+ rightNeighbourHeights[0]
+          }
+
+
+
+        }
+        else{
+        newValue-=(trueHeightToAdd+elementTrueHeight+neighboursTrueHeight)-parentHeight
+
       }
+      } 
+      //probably redundant if I think for 2 secs, TOTALLY Forgot what this does. but keeping it for now
+      else if (elementTrueHeight+neighboursTrueHeight>=parentHeight && trueHeightToAdd<0 && !parentFlexRow &&allNeighbours.rightNeighbours.length>0){
+        console.log("STYLE WHAT HERE")
+        const nextNeighbour=allNeighbours.rightNeighbours[0]
+        const nextTotal= getTrueHeight(nextNeighbour.data)
+
+        const reducedTrueHeight=reduceTrueHeight(nextNeighbour.data, totalSize-parentHeight, !show)
+        
+        console.log("STYLE WHAT:", reducedTrueHeight)
+        if (!show){
+          resourceMetaCopy[nextNeighbour.index].specific_style=reducedTrueHeight.style
+      }
+      if (show){
+        document.querySelector(`.position${nextNeighbour.index}`).style.marginTop=reducedTrueHeight.marginTop+"px"
+        document.querySelector(`.position${nextNeighbour.index}`).style.marginBottom=reducedTrueHeight.marginBottom+"px"
+
+        document.querySelector(`.position${nextNeighbour.index}`).style.paddingTop=reducedTrueHeight.paddingTop+"px"
+        document.querySelector(`.position${nextNeighbour.index}`).style.paddingBottom=reducedTrueHeight.paddingBottom+"px"
+
+        document.querySelector(`.position${nextNeighbour.index}`).style.height=reducedTrueHeight.height+"px"
+
+      }
+
+      }
+
+
+      //if row and therefore share trueHeight with none. 
+      else if(trueHeightToAdd+elementTrueHeight>parentHeight && parentFlexRow){
+        newValue-=(trueHeightToAdd+elementTrueHeight)-parentHeight
       }
 
 
 
 
-  updateResourceMeta(resourceMetaCopy);
+
+
+
+  
+      
+
+      
+      if (!show) {
+        // Use the same dynamic regex for replacement
+        resourceMetaCopy[position].specific_style = resourceMetaCopy[position].specific_style.replace(
+          new RegExp(`${property}:\\s*[^;]+;`),
+          `${property}:${newValue}px; `
+        );
+      }
+      
+      if (show) {
+        document.querySelector(`.position${position}`).style[property] = `${newValue}px`;
+      }
+      
+      console.log("ACTUAL DRAG:", { side, currentValue, newValue, X: X * -1 });
+      console.log("UPDATED STYLE:", resourceMetaCopy[position].specific_style);
+      
+
+      if (trueHeightToAdd*-1>=elementTrueHeight && !show){
+        resourceMetaCopy=removeElement(position, resourceMetaCopy)
+        setIndex(0)
+      }
+
+      if (!show) updateResourceMeta(resourceMetaCopy);
+      return;
+    }
+
+    if (side == "up") {
+      console.log("DOWNDRAG", position, X, side, property ,show)
+
+      const parentIndex=findParentIndex(index,resourceMeta)
+
+      const parentHeight = parseFloat(getValue("height",resourceMeta[parentIndex].specific_style).replace("px", ""))
+      
+      const parentFlexRow = getValue("flex-direction",resourceMeta[parentIndex].specific_style ) =="row"
+
+
+      const allNeighbours= findAllNeighbours(position, resourceMeta)
+
+      const leftNeighbourHeights= allNeighbours.leftNeighbours.map(n=>getTrueHeight(n.data).total)
+      const leftTotal= leftNeighbourHeights.reduce((acc, cur) => cur+acc,0)
+      const rightNeighbourHeights=allNeighbours.rightNeighbours.map(n=>getTrueHeight(n.data).total)
+      const rightTotal= rightNeighbourHeights.reduce((acc, cur) => cur+acc,0)
+      const neighboursTrueHeight = leftTotal+rightTotal
+
+      let resourceMetaCopy = [...resourceMeta];
+  
+      // Create a dynamic regex that matches e.g. "height:" or "width:" etc.
+      const regex = new RegExp(`${property}:\\s*(\\d+(\\.\\d+)?)px`);
+      const match = resourceMetaCopy[position].specific_style.match(regex);
+    
+      let currentValue = match
+        ? parseInt(match[1])
+        : document.querySelector(`.position${position}`).offsetHeight; // adjust fallback if needed
+      
+      const trueHeightToAdd=X
+
+      const elementTrueHeight=getTrueHeight(resourceMetaCopy[position]).total
+
+      let newValue = currentValue + trueHeightToAdd
+
+      //if column and possibly more children.
+
+      const totalSize= trueHeightToAdd+elementTrueHeight+neighboursTrueHeight
+      if ( totalSize>parentHeight && !parentFlexRow){
+
+        console.log("STYLE WHAT BIGGER")
+        //change the neighbours if possible. 
+        if (allNeighbours.leftNeighbours.length>0){
+          const nextNeighbour=allNeighbours.leftNeighbours[0]
+
+          const reducedTrueHeight=reduceTrueHeight(nextNeighbour.data, totalSize-parentHeight, !show)
+          
+          console.log("STYLE WHAT:", reducedTrueHeight)
+          if (!show){
+            resourceMetaCopy[nextNeighbour.index].specific_style=reducedTrueHeight.style
+        }
+        if (show){
+          document.querySelector(`.position${nextNeighbour.index}`).style.marginTop=reducedTrueHeight.marginTop+"px"
+          document.querySelector(`.position${nextNeighbour.index}`).style.marginBottom=reducedTrueHeight.marginBottom+"px"
+
+          document.querySelector(`.position${nextNeighbour.index}`).style.paddingTop=reducedTrueHeight.paddingTop+"px"
+          document.querySelector(`.position${nextNeighbour.index}`).style.paddingBottom=reducedTrueHeight.paddingBottom+"px"
+
+          document.querySelector(`.position${nextNeighbour.index}`).style.height=reducedTrueHeight.height+"px"
+
+        }
+
+
+          if (reducedTrueHeight.total<=0  && totalSize>parentHeight&& !show){
+            console.log("STYLE WHAT DELETE",{neighbourHeight:reducedTrueHeight.total, leftNeighbourHeights,leftTotal,elementTrueHeight, rightNeighbourHeights,rightTotal,totalSize, parentHeight, neighboursTrueHeight, trueHeightToAdd, currentValue, shouldBe: parentHeight- ((elementTrueHeight-currentValue)+neighboursTrueHeight)})
+            //should remove neighbour
+            //perhaps show later. 
+            //parentHeight- (elementTrueHeight-currentValue)+neighboursTrueHeight
+
+            resourceMetaCopy=removeElement(nextNeighbour.index, resourceMetaCopy)
+            position=nextNeighbour.index
+            setIndex(nextNeighbour.index)
+            newValue= currentValue+ leftNeighbourHeights[0]
+          }
+
+          else if(reducedTrueHeight.total<=0   && totalSize>parentHeight&& show){
+            console.log("STYLE WHAT JUST SHOW DELETE",{neighbourHeight:reducedTrueHeight.total, leftNeighbourHeights,leftTotal,elementTrueHeight, rightNeighbourHeights,rightTotal,totalSize, parentHeight, neighboursTrueHeight, trueHeightToAdd, currentValue, shouldBe: parentHeight- ((elementTrueHeight-currentValue)+neighboursTrueHeight)})
+            
+
+
+            newValue=currentValue+ leftNeighbourHeights[0]
+          }
+
+
+
+        }
+        else{
+        newValue-=(trueHeightToAdd+elementTrueHeight+neighboursTrueHeight)-parentHeight
+
+      }
+      } 
+      //probably redundant if I think for 2 secs, TOTALLY Forgot what this does. but keeping it for now
+      else if (elementTrueHeight+neighboursTrueHeight>=parentHeight && trueHeightToAdd<0 && !parentFlexRow &&allNeighbours.leftNeighbours.length>0){
+        console.log("STYLE WHAT HERE")
+        const nextNeighbour=allNeighbours.leftNeighbours[0]
+        const nextTotal= getTrueHeight(nextNeighbour.data)
+
+        const reducedTrueHeight=reduceTrueHeight(nextNeighbour.data, totalSize-parentHeight, !show)
+        
+        console.log("STYLE WHAT:", reducedTrueHeight)
+        if (!show){
+          resourceMetaCopy[nextNeighbour.index].specific_style=reducedTrueHeight.style
+      }
+      if (show){
+        document.querySelector(`.position${nextNeighbour.index}`).style.marginTop=reducedTrueHeight.marginTop+"px"
+        document.querySelector(`.position${nextNeighbour.index}`).style.marginBottom=reducedTrueHeight.marginBottom+"px"
+
+        document.querySelector(`.position${nextNeighbour.index}`).style.paddingTop=reducedTrueHeight.paddingTop+"px"
+        document.querySelector(`.position${nextNeighbour.index}`).style.paddingBottom=reducedTrueHeight.paddingBottom+"px"
+
+        document.querySelector(`.position${nextNeighbour.index}`).style.height=reducedTrueHeight.height+"px"
+
+      }
+
+      }
+
+
+      //if row and therefore share trueHeight with none. 
+      else if(trueHeightToAdd+elementTrueHeight>parentHeight && parentFlexRow){
+        newValue-=(trueHeightToAdd+elementTrueHeight)-parentHeight
+      }
+
+
+
+
+
+
+
+  
+      
+
+      
+      if (!show) {
+        // Use the same dynamic regex for replacement
+        resourceMetaCopy[position].specific_style = resourceMetaCopy[position].specific_style.replace(
+          new RegExp(`${property}:\\s*[^;]+;`),
+          `${property}:${newValue}px; `
+        );
+      }
+      
+      if (show) {
+        document.querySelector(`.position${position}`).style[property] = `${newValue}px`;
+      }
+      
+      console.log("ACTUAL DRAG:", { side, currentValue, newValue, X: X * -1 });
+      console.log("UPDATED STYLE:", resourceMetaCopy[position].specific_style);
+      
+
+      if (trueHeightToAdd*-1>=elementTrueHeight && !show){
+        resourceMetaCopy=removeElement(position, resourceMetaCopy)
+        setIndex(0)
+      }
+
+      if (!show) updateResourceMeta(resourceMetaCopy);
+      return;
+    }
+
+
+    if (side == "right") {
+      console.log("RIGHTDRAG", position, X, side, property ,show)
+
+      const parentIndex=findParentIndex(index,resourceMeta)
+
+      const parentHeight = parseFloat(getValue("width",resourceMeta[parentIndex].specific_style).replace("px", ""))
+      
+      const parentFlexRow = getValue("flex-direction",resourceMeta[parentIndex].specific_style ) !="row"
+
+
+      const allNeighbours= findAllNeighbours(position, resourceMeta)
+
+      const leftNeighbourHeights= allNeighbours.leftNeighbours.map(n=>getTrueWidth(n.data).total)
+      const leftTotal= leftNeighbourHeights.reduce((acc, cur) => cur+acc,0)
+      const rightNeighbourHeights=allNeighbours.rightNeighbours.map(n=>getTrueWidth(n.data).total)
+      const rightTotal= rightNeighbourHeights.reduce((acc, cur) => cur+acc,0)
+      const neighboursTrueHeight = leftTotal+rightTotal
+
+      let resourceMetaCopy = [...resourceMeta];
+  
+      // Create a dynamic regex that matches e.g. "height:" or "width:" etc.
+      const regex = new RegExp(`${property}:\\s*(\\d+(\\.\\d+)?)px`);
+      const match = resourceMetaCopy[position].specific_style.match(regex);
+    
+      let currentValue = match
+        ? parseInt(match[1])
+        : document.querySelector(`.position${position}`).offsetHeight; // adjust fallback if needed
+      
+      const trueHeightToAdd=X
+
+      const elementTrueHeight=getTrueWidth(resourceMetaCopy[position]).total
+
+      let newValue = currentValue + trueHeightToAdd
+
+      //if column and possibly more children.
+      const totalSize= Math.round( elementTrueHeight+neighboursTrueHeight +trueHeightToAdd)
+      console.log("STYLE WHAT", newValue, totalSize>parentHeight , `${totalSize}>${parentHeight} `, trueHeightToAdd, "HERE THING:", elementTrueHeight+neighboursTrueHeight)
+      
+      if ( totalSize>=parentHeight && !parentFlexRow){
+
+        console.log("STYLE WHAT BIGGER")
+        //change the neighbours if possible. 
+        if (allNeighbours.rightNeighbours.length>0){
+          const nextNeighbour=allNeighbours.rightNeighbours[0]
+
+          const reducedTrueHeight=reduceTrueWidth(nextNeighbour.data, totalSize-parentHeight, !show)
+          
+          console.log("STYLE WHAT:", reducedTrueHeight)
+          if (!show){
+            resourceMetaCopy[nextNeighbour.index].specific_style=reducedTrueHeight.style
+        }
+        if (show){
+          document.querySelector(`.position${nextNeighbour.index}`).style.marginLeft=reducedTrueHeight.marginLeft+"px"
+          document.querySelector(`.position${nextNeighbour.index}`).style.marginRight=reducedTrueHeight.marginRight+"px"
+
+          document.querySelector(`.position${nextNeighbour.index}`).style.paddingLeft=reducedTrueHeight.paddingLeft+"px"
+          document.querySelector(`.position${nextNeighbour.index}`).style.paddingRight=reducedTrueHeight.paddingRight+"px"
+
+          document.querySelector(`.position${nextNeighbour.index}`).style.width=reducedTrueHeight.width+"px"
+
+        }
+
+
+        //DELETION
+          if (reducedTrueHeight.total<=0  && totalSize>parentHeight&& !show){
+            console.log("STYLE WHAT DELETE",{neighbourHeight:reducedTrueHeight.total, leftNeighbourHeights,leftTotal,elementTrueHeight, rightNeighbourHeights,rightTotal,totalSize, parentHeight, neighboursTrueHeight, trueHeightToAdd, currentValue, shouldBe: parentHeight- ((elementTrueHeight-currentValue)+neighboursTrueHeight)})
+            //should remove neighbour
+            //perhaps show later. 
+            //parentHeight- (elementTrueHeight-currentValue)+neighboursTrueHeight
+
+            resourceMetaCopy=removeElement(nextNeighbour.index, resourceMetaCopy)
+            newValue= currentValue+ rightNeighbourHeights[0]
+          }
+
+          else if(reducedTrueHeight.total<=0   && totalSize>parentHeight&& show){
+            console.log("STYLE WHAT JUST SHOW DELETE",{neighbourHeight:reducedTrueHeight.total, leftNeighbourHeights,leftTotal,elementTrueHeight, rightNeighbourHeights,rightTotal,totalSize, parentHeight, neighboursTrueHeight, trueHeightToAdd, currentValue, shouldBe: parentHeight- ((elementTrueHeight-currentValue)+neighboursTrueHeight)})
+            
+
+
+            newValue=currentValue+ rightNeighbourHeights[0]
+          }
+          //DELETION SHOW
+
+
+
+        }
+        else{
+
+        newValue-=(trueHeightToAdd+elementTrueHeight+neighboursTrueHeight)-parentHeight
+        console.log("STYLE WHAT IN ELSE",newValue )
+      }
+      } 
+      //probably redundant if I think for 2 secs, TOTALLY Forgot what this does. but keeping it for now
+      //There is a slight problem with how floats are added, because it does not always give exactly what we need,
+      //so I rounded it up and gave it another 0.5 
+      else if (Math.round(elementTrueHeight+neighboursTrueHeight+0.5)>=parentHeight && trueHeightToAdd<0 && !parentFlexRow &&allNeighbours.rightNeighbours.length>0){
+        console.log("STYLE WHAT HERE")
+        const nextNeighbour=allNeighbours.rightNeighbours[0]
+
+
+        const reducedTrueHeight=reduceTrueWidth(nextNeighbour.data, totalSize-parentHeight, !show)
+        
+        console.log("STYLE WHAT:", reducedTrueHeight)
+        if (!show){
+          resourceMetaCopy[nextNeighbour.index].specific_style=reducedTrueHeight.style
+      }
+      if (show){
+        document.querySelector(`.position${nextNeighbour.index}`).style.marginLeft=reducedTrueHeight.marginLeft+"px"
+        document.querySelector(`.position${nextNeighbour.index}`).style.marginRight=reducedTrueHeight.marginRight+"px"
+
+        document.querySelector(`.position${nextNeighbour.index}`).style.paddingLeft=reducedTrueHeight.paddingLeft+"px"
+        document.querySelector(`.position${nextNeighbour.index}`).style.paddingRight=reducedTrueHeight.paddingRight+"px"
+
+        document.querySelector(`.position${nextNeighbour.index}`).style.width=reducedTrueHeight.width+"px"
+
+      }
+
+      }
+
+
+      //if row and therefore share trueHeight with none. 
+      else if(trueHeightToAdd+elementTrueHeight>parentHeight && parentFlexRow){
+        console.log("STYLE WHAT if row and therefore share trueHeight with none. ")
+        newValue-=(trueHeightToAdd+elementTrueHeight)-parentHeight
+      }
+
+
+
+
+
+
+
+  
+      
+
+      
+      if (!show) {
+        // Use the same dynamic regex for replacement
+        resourceMetaCopy[position].specific_style = resourceMetaCopy[position].specific_style.replace(
+          new RegExp(`${property}:\\s*[^;]+;`),
+          `${property}:${newValue}px; `
+        );
+      }
+      
+      if (show) {
+        document.querySelector(`.position${position}`).style[property] = `${newValue}px`;
+      }
+      
+      console.log("ACTUAL DRAG:", { side, currentValue, newValue, X: X * -1 });
+      console.log("UPDATED STYLE:", resourceMetaCopy[position].specific_style);
+      
+
+      if (trueHeightToAdd*-1>=elementTrueHeight && !show){
+        resourceMetaCopy=removeElement(position, resourceMetaCopy)
+        setIndex(0)
+      }
+
+      if (!show) updateResourceMeta(resourceMetaCopy);
+      return;
+    }
+
+
+
+
+
+
+
+
+
+    if (side == "left") {
+      console.log("LEFTDRAG", position, X, side, property ,show)
+
+      const parentIndex=findParentIndex(index,resourceMeta)
+
+      const parentHeight = parseFloat(getValue("width",resourceMeta[parentIndex].specific_style).replace("px", ""))
+      
+      const parentFlexRow = getValue("flex-direction",resourceMeta[parentIndex].specific_style ) !="row"
+
+
+      const allNeighbours= findAllNeighbours(position, resourceMeta)
+
+      const leftNeighbourHeights= allNeighbours.leftNeighbours.map(n=>getTrueWidth(n.data).total)
+      const leftTotal= leftNeighbourHeights.reduce((acc, cur) => cur+acc,0)
+      const rightNeighbourHeights=allNeighbours.rightNeighbours.map(n=>getTrueWidth(n.data).total)
+      const rightTotal= rightNeighbourHeights.reduce((acc, cur) => cur+acc,0)
+      const neighboursTrueHeight = leftTotal+rightTotal
+
+      let resourceMetaCopy = [...resourceMeta];
+  
+      // Create a dynamic regex that matches e.g. "height:" or "width:" etc.
+      const regex = new RegExp(`${property}:\\s*(\\d+(\\.\\d+)?)px`);
+      const match = resourceMetaCopy[position].specific_style.match(regex);
+    
+      let currentValue = match
+        ? parseInt(match[1])
+        : document.querySelector(`.position${position}`).offsetHeight; // adjust fallback if needed
+      
+      const trueHeightToAdd=X*-1
+
+      const elementTrueHeight=getTrueWidth(resourceMetaCopy[position]).total
+
+      let newValue = currentValue + trueHeightToAdd
+
+      //if column and possibly more children.
+      const totalSize= Math.round( elementTrueHeight+neighboursTrueHeight +trueHeightToAdd)
+      console.log("STYLE WHAT", newValue, totalSize>parentHeight , `${totalSize}>${parentHeight} `, trueHeightToAdd, "HERE THING:", elementTrueHeight+neighboursTrueHeight)
+      
+      if ( totalSize>=parentHeight && !parentFlexRow){
+
+        console.log("STYLE WHAT BIGGER")
+        //change the neighbours if possible. 
+        if (allNeighbours.leftNeighbours.length>0){
+          const nextNeighbour=allNeighbours.leftNeighbours[0]
+
+          const reducedTrueHeight=reduceTrueWidth(nextNeighbour.data, totalSize-parentHeight, !show)
+          
+          console.log("STYLE WHAT:", reducedTrueHeight)
+          if (!show){
+            resourceMetaCopy[nextNeighbour.index].specific_style=reducedTrueHeight.style
+        }
+        if (show){
+          document.querySelector(`.position${nextNeighbour.index}`).style.marginLeft=reducedTrueHeight.marginLeft+"px"
+          document.querySelector(`.position${nextNeighbour.index}`).style.marginRight=reducedTrueHeight.marginRight+"px"
+
+          document.querySelector(`.position${nextNeighbour.index}`).style.paddingLeft=reducedTrueHeight.paddingLeft+"px"
+          document.querySelector(`.position${nextNeighbour.index}`).style.paddingRight=reducedTrueHeight.paddingRight+"px"
+
+          document.querySelector(`.position${nextNeighbour.index}`).style.width=reducedTrueHeight.width+"px"
+
+        }
+
+
+        //DELETION
+          if (reducedTrueHeight.total<=0  && totalSize>parentHeight&& !show){
+            console.log("STYLE WHAT DELETE",{neighbourHeight:reducedTrueHeight.total, leftNeighbourHeights,leftTotal,elementTrueHeight, rightNeighbourHeights,rightTotal,totalSize, parentHeight, neighboursTrueHeight, trueHeightToAdd, currentValue, shouldBe: parentHeight- ((elementTrueHeight-currentValue)+neighboursTrueHeight)})
+            //should remove neighbour
+            //perhaps show later. 
+            //parentHeight- (elementTrueHeight-currentValue)+neighboursTrueHeight
+
+            resourceMetaCopy=removeElement(nextNeighbour.index, resourceMetaCopy)
+            position=nextNeighbour.index
+            setIndex(nextNeighbour.index)
+            newValue= currentValue+ leftNeighbourHeights[0]
+           
+          }
+
+          else if(reducedTrueHeight.total<=0   && totalSize>parentHeight&& show){
+            console.log("STYLE WHAT JUST SHOW DELETE",{neighbourHeight:reducedTrueHeight.total, leftNeighbourHeights,leftTotal,elementTrueHeight, rightNeighbourHeights,rightTotal,totalSize, parentHeight, neighboursTrueHeight, trueHeightToAdd, currentValue, shouldBe: parentHeight- ((elementTrueHeight-currentValue)+neighboursTrueHeight)})
+            
+
+
+            newValue=currentValue+ leftNeighbourHeights[0]
+          }
+          //DELETION SHOW
+
+
+
+        }
+        else{
+
+        newValue-=(trueHeightToAdd+elementTrueHeight+neighboursTrueHeight)-parentHeight
+        console.log("STYLE WHAT IN ELSE",newValue )
+      }
+      } 
+      //probably redundant if I think for 2 secs, TOTALLY Forgot what this does. but keeping it for now
+      //There is a slight problem with how floats are added, because it does not always give exactly what we need,
+      //so I rounded it up and gave it another 0.5 
+      else if (Math.round(elementTrueHeight+neighboursTrueHeight+0.5)>=parentHeight && trueHeightToAdd<0 && !parentFlexRow &&allNeighbours.leftNeighbours.length>0){
+        console.log("STYLE WHAT HERE")
+        const nextNeighbour=allNeighbours.leftNeighbours[0]
+
+
+        const reducedTrueHeight=reduceTrueWidth(nextNeighbour.data, totalSize-parentHeight, !show)
+        
+        console.log("STYLE WHAT:", reducedTrueHeight)
+        if (!show){
+          resourceMetaCopy[nextNeighbour.index].specific_style=reducedTrueHeight.style
+      }
+      if (show){
+        document.querySelector(`.position${nextNeighbour.index}`).style.marginLeft=reducedTrueHeight.marginLeft+"px"
+        document.querySelector(`.position${nextNeighbour.index}`).style.marginRight=reducedTrueHeight.marginRight+"px"
+
+        document.querySelector(`.position${nextNeighbour.index}`).style.paddingLeft=reducedTrueHeight.paddingLeft+"px"
+        document.querySelector(`.position${nextNeighbour.index}`).style.paddingRight=reducedTrueHeight.paddingRight+"px"
+
+        document.querySelector(`.position${nextNeighbour.index}`).style.width=reducedTrueHeight.width+"px"
+
+      }
+
+      }
+
+
+      //if row and therefore share trueHeight with none. 
+      else if(trueHeightToAdd+elementTrueHeight>parentHeight && parentFlexRow){
+        console.log("STYLE WHAT if row and therefore share trueHeight with none. ")
+        newValue-=(trueHeightToAdd+elementTrueHeight)-parentHeight //consider doing the Math.round here too... 
+      }
+
+
+
+
+
+
+
+  
+      
+
+      
+      if (!show) {
+        // Use the same dynamic regex for replacement
+        resourceMetaCopy[position].specific_style = resourceMetaCopy[position].specific_style.replace(
+          new RegExp(`${property}:\\s*[^;]+;`),
+          `${property}:${newValue}px; `
+        );
+      }
+      
+      if (show) {
+        document.querySelector(`.position${position}`).style[property] = `${newValue}px`;
+      }
+      
+      console.log("ACTUAL DRAG:", { side, currentValue, newValue, X: X * -1 });
+      console.log("UPDATED STYLE:", resourceMetaCopy[position].specific_style);
+      
+
+      if (trueHeightToAdd*-1>=elementTrueHeight && !show){
+        resourceMetaCopy=removeElement(position, resourceMetaCopy)
+        setIndex(0)
+      }
+
+      if (!show) updateResourceMeta(resourceMetaCopy);
+      return;
+    }
+
+
+
 };
 
   
@@ -874,7 +1562,6 @@ class_name: 'element'
   
 
 
-
     return (
         <>
 
@@ -885,7 +1572,7 @@ class_name: 'element'
         }}>
     
 
-                <ElementPanel
+                <ElementPanel 
 
           position={index}
           resourceMeta={resourceMeta}
@@ -895,19 +1582,27 @@ class_name: 'element'
               addNewElement={AddNewElement}
             toggleUploadModal={toggleUploadModal}
             page={changeElementPanelPage}
+            changeIndex={handleSetIndex}
+            handleRedo={handleRedo}
+            handleUndo={handleUndo}
+            
             >
                       <HeaderPanel isStanding={isStanding} setIsStanding={setIsStanding} size={headerSize} title={title} setTitle={setTitle}>
 
               <Hint hintText={"The grid disables or shows the grid on the page."} >
          <GridToggle position={index} resourceMeta={resourceMeta} updateResourceMeta={updateResourceMeta} size={headerSize} />
           </Hint>
-        
+
               
               <Hint hintText={"Change the direction of the page."} >
                 <ChangeDirection size={headerSize} />
               </Hint>
         </HeaderPanel>
 
+       
+
+
+        
 
 
             </ElementPanel>
@@ -921,7 +1616,7 @@ class_name: 'element'
       
       </div>
          <div className='resource-canvas' style={{border: 'none'}}>
-            <ElementBuilder jsonData={resourceMeta} editing={true} changeElement={(i)=> handleSetIndex(i) } chosen={index} addElements={toggleModal} changeDrag={changeDrag} /> 
+            <ElementBuilder  jsonData={resourceMeta} editing={true} changeElement={(i)=> handleSetIndex(i) } chosen={index} addElements={toggleModal} changeDrag={changeDrag} /> 
           </div>
     
         </div>
@@ -964,7 +1659,7 @@ class_name: 'element'
 
 
          <Modal isOpen={isModalOpen} onClose={toggleModal}>
-            <NewRowModal appendNewElements={appendNewElements} closeModal={toggleModal} />
+            <NewRowModal appendNewElements={appendNewElements} closeModal={toggleModal} parentDepth={resourceMeta[index].depth} parentStyle={resourceMeta[index].specific_style} />
         </Modal>
 
             <ResourceScaler/>

@@ -8,6 +8,7 @@ import ElementBuilder from "../containers/components/elementBuilder";
 import getAllChildrenBetter from "./util/fixChildrenProblem";
 import PictureIcon from "./icons/imageIcon";
 import CoolInput from "../containers/components/general/coolInput";
+import findLastDescendantIndex from "./newUtils/findLastDescendant";
 
 const ElementPanelElement = ({ position, resourceMeta, changeElement, updateResourceMeta }) => {
     const [element, setElement] = useState(resourceMeta[position]);
@@ -21,10 +22,12 @@ const ElementPanelElement = ({ position, resourceMeta, changeElement, updateReso
     useEffect(() => {
         setElement(resourceMeta[position]);
         
+        console.log("ELEMENT CHOSEN:", resourceMeta[position])
         }, [position, resourceMeta]);
 
     useEffect(() => {
-        console.log("ELEMENTID", elementID)
+        console.log("EDITOR CONTENT: before", editorContent)
+       if (element.instruction!="CONTAINER"){
         let textRetriever = (position >= resourceMeta.length - 1) ? document.querySelector(`.position${position - 1}`).outerHTML : document.querySelector(`.position${position}`).outerHTML;
         setTimeout(() => {
             
@@ -32,9 +35,11 @@ const ElementPanelElement = ({ position, resourceMeta, changeElement, updateReso
             const safeTextRetriever = textRetriever ? textRetriever : ""
             console.log("ELEMENTID", safeTextRetriever)
         setEditorContent(safeTextRetriever);
+        console.log("EDITOR CONTENT:", editorContent, safeTextRetriever)
 
             }, 100);
-    },[elementID])
+        }
+    },[elementID, position])
     
 
     const handleChange = (e) => {
@@ -59,6 +64,7 @@ const ElementPanelElement = ({ position, resourceMeta, changeElement, updateReso
             instruction: 'ELEMENT',
             path: image.path,
             // Provide a value based on your application's logic
+            
         }
         changeElement(position, updatedElement);
 
@@ -77,8 +83,9 @@ const ElementPanelElement = ({ position, resourceMeta, changeElement, updateReso
  /**INSERT QUILL COMPONENT */
     if (element.html_element === 'p') {
 
-        let children = getAllChildren(position, resourceMeta)
-        children = children.map((child) => (resourceMeta[child]))
+        //let lastChild = findLastDescendantIndex(indexedDB, resourceMeta)
+        //let children =resourceMeta.slice(position+1, lastChild+1)
+        //let children = children.map((child) => (resourceMeta[child]))
 
         const onQuillChange = (meta) => {
     
@@ -99,7 +106,7 @@ const ElementPanelElement = ({ position, resourceMeta, changeElement, updateReso
             updatedResourceMeta.splice(position + 1, deleteCount);
      
             // Insert the new meta elements
-            updatedResourceMeta.splice(position + 1, 0, ...meta); // Insert without deleting any elements
+            updatedResourceMeta.splice(position + 1, 0, ...meta.map(e=>{return({...e, depth:updatedElement.depth+1})})); // Insert without deleting any elements
 
             
 
@@ -180,6 +187,15 @@ const ElementPanelElement = ({ position, resourceMeta, changeElement, updateReso
             </div>
         );
     }
+
+
+
+
+
+
+
+
+    return null
     // ... other cases or default return
 };
 
@@ -194,26 +210,14 @@ const ElementChildren = ({ position, resourceMeta, removeElement, changeElement,
     return (
         <div>
 
-            {resourceMeta.map((child, index) => {
-                if (index <= position)    {
-                    return null
-                }
-                if (index > position + resourceMeta[position].number_of_children) {
-                    return null
-                }
-                if (resourceMeta[position].instruction === 'CONTAINER' || resourceMeta[position].instruction ==='DEFAULT') {
-                    return null
-                }
-                
-                return (
+   
                     <div>
 
-                        <ElementPanelElement position={index} resourceMeta={resourceMeta} changeElement={changeElement} updateResourceMeta={updateResourceMeta} />
+                        <ElementPanelElement position={position } resourceMeta={resourceMeta} changeElement={changeElement} updateResourceMeta={updateResourceMeta} />
 
                
                     </div>
-                )
-            })}
+           
 
 
         </div>

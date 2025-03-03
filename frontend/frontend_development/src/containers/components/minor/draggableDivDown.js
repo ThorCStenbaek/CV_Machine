@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 
-const DraggableDivDown = ({ startPosition,onDragEnd }) => {
+const DraggableDivDown = ({ startPosition,onDragEnd, onDragging }) => {
   // State to keep track of the current vertical position of the drag
   const [position, setPosition] = useState(0);
   const [startDragPosition, setStartDragPosition] = useState(0);
@@ -9,14 +9,18 @@ const DraggableDivDown = ({ startPosition,onDragEnd }) => {
   // Mouse down event to start dragging
   const handleMouseDown = (e) => {
     setDragging(true);
-    setStartDragPosition(position); // Capture the start Y position of the drag
+    setStartDragPosition(e.clientY); // Capture the start Y position of the drag
     e.preventDefault(); // Prevent text selection
   };
 
   // Mouse move event to handle dragging
   const handleMouseMove = (e) => {
     if (dragging) {
-      setPosition((prevPosition) => prevPosition - e.movementY);
+      const diff =-1* ( e.clientY-startDragPosition ) 
+      console.log("DRAGGING DOWN", position, e.movementY, startDragPosition, e.clientY,diff,e)
+     //- startDragPosition;
+      onDragging(diff, startPosition, "height")
+      setPosition((prevPosition) => e.clientY);
     }
   };
 
@@ -24,10 +28,10 @@ const DraggableDivDown = ({ startPosition,onDragEnd }) => {
   const handleMouseUp = () => {
     setDragging(false);
     // Calculate the difference between start and end Y positions
-    const diff = position - startDragPosition;
+    const diff =-1* ( position-startDragPosition ) 
       // Call the onDragEnd prop with the difference in Y
       console.log("DIFF",diff, position, startDragPosition)
-    onDragEnd(diff, startPosition);
+    onDragEnd(diff, startPosition, "height");
     setPosition(0); // Reset the Y position to 0
   };
 
@@ -42,12 +46,12 @@ const DraggableDivDown = ({ startPosition,onDragEnd }) => {
       document.removeEventListener('mousemove', handleMouseMove);
       document.removeEventListener('mouseup', handleMouseUp);
     };
-  }, [dragging, handleMouseMove, handleMouseUp]); // Removed the dependencies on the functions
+  }, [handleMouseDown,handleMouseMove, handleMouseUp]); // Removed the dependencies on the functions
 
   // Inline styles for the draggable div
   const divStyle = {
     position: 'absolute',
-    bottom: `${position}px`, // Use the state for vertical positioning
+    bottom: `${0}px`, // Use the state for vertical positioning
     left: '0px',
     cursor: dragging ? 'grabbing' : 'grab',
     zIndex: dragging ? 10 : 1,
@@ -58,6 +62,10 @@ const DraggableDivDown = ({ startPosition,onDragEnd }) => {
     flexDirection: 'column',
     alignItems: 'flex-start',
   };
+  if (startPosition=="up"){
+    divStyle.bottom=undefined;
+    divStyle.top="0px"
+  }
 
   return (
     <div
@@ -69,7 +77,7 @@ const DraggableDivDown = ({ startPosition,onDragEnd }) => {
         viewBox="0 0 24 24"
         style={{
           fill: 'white',
-          transform: 'rotate(270deg) scale(1.5)',
+          transform:  startPosition=="down" ?'rotate(270deg) scale(1.5)' :'rotate(90deg) scale(1.5)',
           alignSelf: 'center', // Center the SVG in the div
         }}
       >

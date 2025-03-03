@@ -194,7 +194,7 @@ router.post('/insert-new-resource', checkCookie, async (req, res) => {
             //impotant for generating resource images
             const currentDateTime = new Date().toISOString();
             if (editor_used ==3)
-            resources.screenshots.generateAndInsertScreenshots(resourceId)    
+            //resources.screenshots.generateAndInsertScreenshots(resourceId)    
         
             
             resources.setLastUpdated(resourceId, currentDateTime)
@@ -485,7 +485,7 @@ router.post('/update-resource', async (req, res) => {
     }
 
         //impotant for generating resource images
-         resources.screenshots.generateAndInsertScreenshots(resource_id)
+         //resources.screenshots.generateAndInsertScreenshots(resource_id)
             const currentDateTime = new Date().toISOString();
            (resource_id, currentDateTime)
         res.json({ success: true, message: 'Resource meta updated successfully.'});
@@ -534,7 +534,7 @@ router.get('/copy-resource', async (req, res) => {
             );
 
             //impotant for generating resource images
-             resources.screenshots.generateAndInsertScreenshots(resourceId)
+             //resources.screenshots.generateAndInsertScreenshots(resourceId)
                         const currentDateTime = new Date().toISOString();
             resources.setLastUpdated(resourceId, currentDateTime)
             res.json({ success: true, resourceId });

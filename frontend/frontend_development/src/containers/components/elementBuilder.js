@@ -4,9 +4,8 @@ import ElementComponent
 import { json } from "react-router-dom";
 import DraggableDiv from "./minor/draggableButton";
 import DraggableDivDown from "./minor/draggableDivDown";
-
-
-
+import { getValue } from "../../custom_editor/newUtils/getValue";
+import findParentIndex from "../../custom_editor/newUtils/findParentIndex";
 // Function to build elements recursively
 const buildElements = (elements, startIndex = 0, editing, changeElement, chosen, addElements, changeDrag ) => {
   console.log("elements",elements)
@@ -17,51 +16,55 @@ const buildElements = (elements, startIndex = 0, editing, changeElement, chosen,
 
 console.log("STARTINDEXQ", startIndex)
   
-  const solveInstruction = (instruction, position, chosen = false) => { 
-    console.log("INSTRUCTION", instruction, "POSITION", position, "CHOSEN", chosen)
-  switch (instruction) {
-  
-    case "CONTAINER":
-     
-      return <button onClick={(e) => { addElements(position) }}>+</button>
-    
-    case "EMPTY":
-    case "IMAGE":
-    case "TEXT":
-    case "VIDEO":
-      if (!chosen)
-        return null
-      const changeDragHandler = (X, side) => {
-        changeDrag(position, X, side)
+  const solveRules = (rules, position, chosen = false) => { 
+ 
+  if (!chosen)
+    return null
+      const changeDragHandler = (X, side, property) => {
+        changeDrag(position, X, side, property, false)
+      }
+      const changeDragShow = (X, side, property) => {
+        changeDrag(position, X, side,property, true)
       }
       return (
         <>
-          <DraggableDiv startPosition={'left'} onDragEnd={changeDragHandler} />
-          <DraggableDiv startPosition={'right'} onDragEnd={changeDragHandler} /> 
-          <DraggableDivDown startPosition={'down'} onDragEnd={changeDragHandler}/>
+         {rules.newRowButton && <button style={{position: "absolute", bottom: "20px", width: "100%", margin:"0px"}} onClick={(e) => { addElements(position) }}>+</button> }
+         
+         {rules.draggable && 
+         
+         <><DraggableDiv startPosition={'left'} onDragEnd={changeDragHandler} onDragging={changeDragShow}/>
+          <DraggableDiv startPosition={'right'} onDragEnd={changeDragHandler} onDragging={changeDragShow}/> 
+          <DraggableDivDown startPosition={'down'} onDragEnd={changeDragHandler} onDragging={changeDragShow}/>
+          <DraggableDivDown startPosition={'up'} onDragEnd={changeDragHandler} onDragging={changeDragShow}/> </> }
         </>
           )
-          
-    default: 
-        return null
-  }
-
 }
+
+
 
 
 
   const element = elements[startIndex];
 
-  const { number_of_children } = element;
+  const { depth } = element;
   let nextIndex = startIndex + 1;
   const children = [];
 
   // Recursively build children
-  for (let i = 0; i < number_of_children; i++) {
+  while(true) {
+
+  
+
     if (nextIndex >= elements.length) {
       console.error(`Error: Element at index ${startIndex} expects more children than are available in the array.`);
       break; // Exit the loop if there are no more elements to process
     }
+
+    if (elements[nextIndex].depth!=depth+1){
+      console.log("DEPTHS:", elements[nextIndex].depth,depth+1 )
+      break // ????
+    }
+
     const child = buildElements(elements, nextIndex, editing, changeElement, chosen,addElements, changeDrag );
     if (child) { // Ensure child is not null before pushing
       children.push(child.element);
@@ -69,6 +72,30 @@ console.log("STARTINDEXQ", startIndex)
     } else {
       break; // If child is null, break the loop
     }
+  }
+
+  const handleElementClick= (e, index)=>{
+    console.log("eDETAIL", e.detail)
+    switch (e.detail) {
+   
+      case 1:
+        element.rules?.selectable ? changeElement(index) : console.log("ELEMENT IS NOT SELECTABLE");
+
+      if (element.rules?.selectable)
+        e.stopPropagation();
+        break;
+      case 2:
+        const parentIndex = findParentIndex(index, elements)
+        changeElement(parentIndex)
+        if (elements[parentIndex].rules.selectable)
+          e.stopPropagation()
+        break;
+      case 3:
+        console.log("triple click");
+        break;
+    }
+  
+  
   }
 
   // Create the current element with its children
@@ -79,17 +106,26 @@ console.log("STARTINDEXQ", startIndex)
   if (editing) {
     console.log("StartIndex", startIndex, "chosen", chosen);
 
+
+
+
+      
+      const a = getValue("outline-color", element.specific_style);
+      const b = getValue("outline-width", element.specific_style);
+      const c = getValue("outline-style", element.specific_style);
+      
+      let abc = a && b && c ? `${a} ${b} ${c}` :"initial";
 // Determine the initial border style based on whether the element is the chosen one
-let  initialBorderStyle = startIndex === chosen ? "#007eff 4px solid; " : "initial";
+let  initialBorderStyle = startIndex === chosen ? "#007eff 4px solid; " : abc
 
 
-    let ei= element.instruction
-    if ((ei=='EMPTY' || ei=='TEXT' || ei=='IMAGE' ) && startIndex==chosen) {
-  initialBorderStyle+= "border-left: 0px; border-right: 0px; padding: 0 15px; border-bottom: 0px;"
-}
+
     
-const centerEmpty= (element.instruction === "EMPTY" && element.number_of_children === 0) ? "display: flex; justify-content: center; align-items: center;": ""    
-    
+const centerEmpty= ""//(element.instruction === "EMPTY" && element.number_of_children === 0) ? "display: flex; justify-content: center; align-items: center;": ""    
+
+
+
+
     if (element.html_element === "p") {
       element.specific_style+= "color: inherit; "
     }
@@ -99,15 +135,12 @@ const centerEmpty= (element.instruction === "EMPTY" && element.number_of_childre
   <>
         <ElementComponent className="element"
           editing={editing}
-    key={startIndex}
-    data={{ ...element, specific_style: `${element.specific_style}; border: ${initialBorderStyle}; ${centerEmpty}`, class_name: element.class_name+` position${startIndex} ${isPage}` }}
+    key={Math.random()*100000}
+    data={{ ...element, specific_style: `${element.specific_style}; outline: ${initialBorderStyle}; ${centerEmpty}`, class_name: element.class_name+` position${startIndex} ${isPage}` }}
     children={children}
     onClick={(e) => {
-      changeElement(startIndex);
-
-      if (element.instruction != "ELEMENT")
-        e.stopPropagation();
-    }}
+      handleElementClick(e, startIndex)}}
+    
           onMouseOver={(e) => {
 
       
@@ -117,13 +150,15 @@ const centerEmpty= (element.instruction === "EMPTY" && element.number_of_childre
               if (startIndex === chosen) { console.log(" INSstartIndex:", startIndex, " chosen:", chosen) }
 
               else {
-                e.target.style.border = "blue 1px solid";
+                if(element.rules.selectable)
+                   e.target.style.outline = "blue 1px solid";
                 e.stopPropagation();
               }
               e.stopPropagation();
             }
             else {
-              e.target.style.border = "none";
+
+              e.target.style.outline = abc
               if (element.instruction != "ELEMENT")
               e.stopPropagation();
             }
@@ -135,14 +170,16 @@ const centerEmpty= (element.instruction === "EMPTY" && element.number_of_childre
       if (startIndex === chosen) {
         //e.target.border = "purple 4px solid"
       }
-      else{e.target.style.border = "initial"}
+      else{
+console.log("MOUSE OUT;",abc, element.specific_style)
+        e.target.style.outline = abc}
       
    
 
       e.stopPropagation();
           }}
           
-          extraElement= { solveInstruction(element.instruction, startIndex, (chosen==startIndex))} 
+          extraElement= { solveRules(element.rules, startIndex, (chosen==startIndex))} 
         >
          
            {element.html_element==='br' ? '': children}
@@ -193,14 +230,17 @@ const allElements = (jsonData, index=0, editing, changeElement, chosen,addElemen
   return allElements
 }
 
+let n=0
 
 // Main function to initiate the recursive building of elements
 const ElementBuilder = ({ jsonData, editing = false, changeElement, chosen, addElements, changeDrag }) => {
   console.log("json", jsonData);
+  console.log("RERENDER TRIGGERED:", n++)
   const [lines, setLines] = useState([]);
-  const elementRef = useRef(null); // Ref for the .resource-elements div
+  //const elementRef = useRef(null); // Ref for the .resource-elements div
 
   // This function decides whether to show lines based on the div's height and the editing state
+  /*
   useEffect(() => {
     if (!editing) {
       setLines([]);
@@ -231,8 +271,8 @@ const ElementBuilder = ({ jsonData, editing = false, changeElement, chosen, addE
       observer.disconnect();
     };
   }, [editing]); // Dependency on editing ensures this effect runs when editing state changes
-
-  const elements = jsonData.length !== 0 ? allElements(jsonData, 0, editing, changeElement, chosen, addElements, changeDrag) : null;
+*/
+  const elements = jsonData.length !== 0 ? allElements(jsonData, 0, editing, changeElement, chosen, addElements, changeDrag, ) : null;
 console.log("ELEMENTS", elements,jsonData)
 
   if (elements.length == 1 && jsonData[0].instruction == "PDF")
@@ -240,10 +280,12 @@ console.log("ELEMENTS", elements,jsonData)
   
   return (
     <>
-      <div className="resource-elements" ref={elementRef}>
+
+      <div className="resource-elements" >
         {elements ? elements.map((element, index) => <div key={index}>{element.element}</div>) : null}
 
       </div>
+
     </>
   );
 };

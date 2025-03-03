@@ -8,6 +8,61 @@ table {
   width: 80%; /* or any desired width */
 }
 
+.meta-selected::before{
+  content: '';
+  width:100%;
+  height: 100%;
+  background: rgba(0, 217, 255, 0.3);
+  position: absolute;
+}
+
+/* Add this class to the element when you want the animation to run */
+.error-animation {
+  /* Run both animations concurrently: the outline flash lasts 1s and the shake lasts 0.5s */
+  animation: outlineFlash 1s ease forwards, shake 0.5s ease forwards;
+  /* By default, animations run only once; you can specify iteration count if desired */
+  animation-iteration-count: 1;
+}
+
+/* Animation for the outline flash effect */
+@keyframes outlineFlash {
+  0% {
+    box-shadow: 0 0 0 0 rgba(255, 0, 0, 0.8);
+  }
+  50% {
+    box-shadow: 0 0 0 4px rgba(255, 0, 0, 0.8);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(255, 0, 0, 0.8);
+  }
+}
+
+/* Animation for the shake effect */
+@keyframes shake {
+  0% {
+    transform: translateX(0);
+  }
+  20% {
+    transform: translateX(-5px);
+  }
+  40% {
+    transform: translateX(5px);
+  }
+  60% {
+    transform: translateX(-5px);
+  }
+  80% {
+    transform: translateX(5px);
+  }
+  100% {
+    transform: translateX(0);
+  }
+}
+
+.input-boxed{
+  border:2px solid #ccc;
+}
+  
 table,
 th,
 td {
