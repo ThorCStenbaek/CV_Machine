@@ -132,6 +132,7 @@ return (
   <div
     style={divStyle}
     onMouseDown={handleMouseDown}
+ 
   >
     <svg
       xmlns="http://www.w3.org/2000/svg"
@@ -139,6 +140,7 @@ return (
       style={{
         fill: 'white',
         transform: startPosition === 'right' ? 'rotate(180deg) scale(1.5)' : 'scale(1.5)',
+        maxHeight: "100%"
 
         // Add any additional styling you need for the SVG
       }}

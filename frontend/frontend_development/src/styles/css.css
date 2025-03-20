@@ -16,6 +16,46 @@ table {
   position: absolute;
 }
 
+.selected {
+  position: relative; /* Ensure relative positioning */
+ background: var(--background);
+  z-index: 1; /* Make sure it's above the pseudo-element */
+  --margin-top: 0px;
+  --margin-right: 0px;
+  --margin-bottom: 0px;
+  --margin-left: 0px;
+  --background: var( --background);
+}
+.selected::after{
+  position: absolute;
+  content: "";
+
+
+  background:var( --background);
+  z-index: -1;
+  border-left: rgba(0, 107, 121, 0.225) solid var(--padding-left);
+  border-right: rgba(0, 107, 121, 0.225) solid var(--padding-right);
+  border-top: rgba(0, 107, 121, 0.225) solid var(--padding-top);
+  border-bottom: rgba(0, 107, 121, 0.225) solid var(--padding-bottom);
+  max-width: var(--max-width);
+  max-height: var(--max-height);
+  left:0px;
+  right:0px;
+  top:0px; 
+  bottom: 0px;
+}
+.selected::before {
+  content: "";
+  position: absolute;
+  top: calc(-1 * var(--margin-top));
+  left: calc(-1 * var(--margin-left));
+  width: calc(100% + var(--margin-left) + var(--margin-right));
+  height: calc(100% + var(--margin-top) + var(--margin-bottom));
+  background: rgba(255, 166, 0, 0.582); /* Paint the margin */
+  z-index: -2; /* Place it behind the element */
+}
+
+
 /* Add this class to the element when you want the animation to run */
 .error-animation {
   /* Run both animations concurrently: the outline flash lasts 1s and the shake lasts 0.5s */

@@ -54,7 +54,7 @@ const DraggableDivDown = ({ startPosition,onDragEnd, onDragging }) => {
     bottom: `${0}px`, // Use the state for vertical positioning
     left: '0px',
     cursor: dragging ? 'grabbing' : 'grab',
-    zIndex: dragging ? 10 : 1,
+    zIndex: dragging ? 10 : 10,
     height: '15px',
     width: "100%",
     background: "#007eff",

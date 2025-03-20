@@ -1,12 +1,15 @@
-import React, { useState } from 'react';
-
-const allRules = ["draggable", "selectable", "newRowButton"];
+import React, { useEffect, useState } from 'react';
+import { getValue, setValue } from './getValue';
+const allRules = ["draggable", "selectable", "newRowButton", "freeFloat"];
 
 const ChangeRulesForElement = ({ resourceMeta, index, updateResourceMeta }) => {
-  const elementRules = resourceMeta[index].rules;
+  // Initialize rules directly from resourceMeta[index].rules
+  const [rules, setRules] = useState(resourceMeta[index].rules);
 
-  // State to manage the current rules
-  const [rules, setRules] = useState(elementRules);
+  // Update rules when resourceMeta or index changes
+  useEffect(() => {
+    setRules(resourceMeta[index].rules);
+  }, [resourceMeta, index]);
 
   // Function to handle rule changes
   const handleRuleChange = (rule) => {
@@ -16,13 +19,24 @@ const ChangeRulesForElement = ({ resourceMeta, index, updateResourceMeta }) => {
     // Update the resourceMeta with the new rules
     const updatedResourceMeta = [...resourceMeta];
     updatedResourceMeta[index].rules = updatedRules;
-    updateResourceMeta(updatedResourceMeta);
+
+    if (rule=="freeFloat"){
+      let s=updatedResourceMeta[index].specific_style
+      s = getValue("left", s) ? s : setValue("left","0px", s, true) 
+
+      s = getValue("top", s) ? s : setValue("top","0px", s, true) 
+      
+      updatedResourceMeta[index].specific_style=s
+
+    }
+
+    updateResourceMeta(updatedResourceMeta, "changeRulesForElement");
   };
 
   return (
     <div>
       <h3>Change Rules for Element</h3>
-      {allRules.map((rule) => (
+      {Object.keys(rules).map((rule) => (
         <div key={rule}>
           <label>
             {rule}:

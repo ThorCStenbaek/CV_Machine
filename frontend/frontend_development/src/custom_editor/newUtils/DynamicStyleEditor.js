@@ -1,4 +1,6 @@
 import React, { useEffect, useState, useRef } from "react";
+import { applyOrGetPseudoStyles } from "./applyOrGetPseudoStyles";
+
 
 // Debounce function
 const debounce = (func, delay) => {
@@ -57,7 +59,8 @@ export const DynamicStyleEditor = ({
   defaultColor = "#000000",
   type = "color",
   options = [], // New prop for select options
-  inputName=""
+  inputName="",
+  changeDrag
 }) => {
   const inputRef = useRef(null);
   const unitRef = useRef(null);
@@ -81,7 +84,7 @@ export const DynamicStyleEditor = ({
     : defaultColor
 
     setValue(val)
-      setNumberValue(val.replace(/[^0-9.]/g, ""))
+      setNumberValue(val.replace(/[^0-9.]/g, "") )
   },[position])
 
   // Split the value into number and unit parts
@@ -109,18 +112,20 @@ export const DynamicStyleEditor = ({
 
   // Debounced function to update resourceMeta
   const debouncedHandleChange = debounce((newValue) => {
-    if (newValue === value) return;
-    if (newValue === "") return;
-
+   
+    //SUS THAT i commented this out. Just check back on it.
+    //if (newValue === value) return;
+    if (newValue === ""&& newValue !== "0") return;
+  
     // Validate input based on property type
     if (!validateCSSValue(newValue, property)) {
       console.error(`Invalid value for ${property}`);
       return;
     }
-
+ 
     const updatedResourceMeta = [...resourceMeta];
     const currentStyles = updatedResourceMeta[position].specific_style || "";
-    const newStyles = ` ${property}: ${newValue};`;
+    const newStyles = `${property}: ${newValue};`;
 
     if (currentStyles.includes(`${property}:`)) {
       updatedResourceMeta[position].specific_style = currentStyles.replace(
@@ -131,7 +136,16 @@ export const DynamicStyleEditor = ({
       updatedResourceMeta[position].specific_style = currentStyles + newStyles;
     }
 
-    updateResourceMeta(updatedResourceMeta);
+    updateResourceMeta(updatedResourceMeta, "DYNAMIC STYLE EDITOR");
+    if (property.includes("left"))
+      changeDrag(position, 0, "left", "width", false)
+    if (property.includes("right"))
+      changeDrag(position, 0, "right", "width", false)
+    if (property.includes("top"))
+      changeDrag(position, 0, "up","height", false)
+    if (property.includes("bottom"))
+      changeDrag(position, 0, "down", "height", false)
+
   }, 300); // Adjust debounce delay as needed
 
   const handleSVGClick = () => {
@@ -178,20 +192,23 @@ export const DynamicStyleEditor = ({
         <div style={{ display: "flex", gap: "5px" }}>
           <div style={{display:"flex", flexDirection: 'column', alignItems:"center"}}>
             <p style={{marginBottom:'0px', fontSize:"16px"}}>{inputName}</p>
+            <div style={{display: 'flex', alignItems:'center'}}>
           <input className="input-boxed"
             type="number"
             ref={inputRef}
             value={numberValue}
             onChange={handleChange}
-            style={{ fontSize: "16px", width: "60px" }} // Adjust width as needed
+            style={{ fontSize: "16px", width: "100px" }} // Adjust width as needed
           />
+          <span>{unitValue}</span>
+          </div>
           </div>
           { options.length>0 &&
           <select
             ref={unitRef}
             value={unitValue}
             onChange={handleUnitChange}
-            style={{ fontSize: "16px", width: "60px" }} // Adjust width as needed
+            style={{ fontSize: "16px", width: "100px" }} // Adjust width as needed
           >
             {options.map((option, index) => (
               <option key={index} value={option.value}>

@@ -4,10 +4,15 @@ import ElementComponent
 import { json } from "react-router-dom";
 import DraggableDiv from "./minor/draggableButton";
 import DraggableDivDown from "./minor/draggableDivDown";
-import { getValue } from "../../custom_editor/newUtils/getValue";
+import { getValue, setValue } from "../../custom_editor/newUtils/getValue";
 import findParentIndex from "../../custom_editor/newUtils/findParentIndex";
+
+import { DraggableAbsolute } from "./minor/draggableAbsolute";
+
+import { applyOrGetPseudoStyles } from './../../custom_editor/newUtils/applyOrGetPseudoStyles';
+
 // Function to build elements recursively
-const buildElements = (elements, startIndex = 0, editing, changeElement, chosen, addElements, changeDrag ) => {
+const buildElements = (elements, startIndex = 0, editing, changeElement, chosen, addElements, changeDrag,absoluteDragger ) => {
   console.log("elements",elements)
   if (startIndex >= elements.length) {
     console.error(`Error: Element at index ${startIndex - 1} expects more children than are available in the array.`);
@@ -18,6 +23,7 @@ console.log("STARTINDEXQ", startIndex)
   
   const solveRules = (rules, position, chosen = false) => { 
  
+    console.log("SOLVE RULES:", rules, position, elements[position], chosen, absoluteDragger)
   if (!chosen)
     return null
       const changeDragHandler = (X, side, property) => {
@@ -26,9 +32,16 @@ console.log("STARTINDEXQ", startIndex)
       const changeDragShow = (X, side, property) => {
         changeDrag(position, X, side,property, true)
       }
+
+      const changeAbsoluteDragger=(side, X )=>{
+        absoluteDragger( position,side,X, false)
+      }
+      const absoluteEnd=(side, X)=>{
+        absoluteDragger( position,side,X, true)
+      }
       return (
         <>
-         {rules.newRowButton && <button style={{position: "absolute", bottom: "20px", width: "100%", margin:"0px"}} onClick={(e) => { addElements(position) }}>+</button> }
+         {rules.newRowButton && <button style={{position: "absolute", bottom: "20px", width: "100%", margin:"0px", left:"0px"}} onClick={(e) => { addElements(position) }}>+</button> }
          
          {rules.draggable && 
          
@@ -36,7 +49,15 @@ console.log("STARTINDEXQ", startIndex)
           <DraggableDiv startPosition={'right'} onDragEnd={changeDragHandler} onDragging={changeDragShow}/> 
           <DraggableDivDown startPosition={'down'} onDragEnd={changeDragHandler} onDragging={changeDragShow}/>
           <DraggableDivDown startPosition={'up'} onDragEnd={changeDragHandler} onDragging={changeDragShow}/> </> }
-        </>
+   
+          {rules.freeFloat && 
+          <>
+<DraggableAbsolute direction={"left"} onDragEnd={absoluteEnd} onDragging={changeAbsoluteDragger}/>
+<DraggableAbsolute direction={"right"} onDragEnd={absoluteEnd} onDragging={changeAbsoluteDragger}/>
+<DraggableAbsolute direction={"top"} onDragEnd={absoluteEnd} onDragging={changeAbsoluteDragger}/>
+<DraggableAbsolute direction={"bottom"} onDragEnd={absoluteEnd} onDragging={changeAbsoluteDragger}/>
+  </>}
+</>
           )
 }
 
@@ -65,7 +86,7 @@ console.log("STARTINDEXQ", startIndex)
       break // ????
     }
 
-    const child = buildElements(elements, nextIndex, editing, changeElement, chosen,addElements, changeDrag );
+    const child = buildElements(elements, nextIndex, editing, changeElement, chosen,addElements, changeDrag, absoluteDragger );
     if (child) { // Ensure child is not null before pushing
       children.push(child.element);
       nextIndex = child.nextIndex;
@@ -75,7 +96,7 @@ console.log("STARTINDEXQ", startIndex)
   }
 
   const handleElementClick= (e, index)=>{
-    console.log("eDETAIL", e.detail)
+    console.log("eDETAIL", e.detail, element.rules, element, elements[index], index)
     switch (e.detail) {
    
       case 1:
@@ -98,11 +119,17 @@ console.log("STARTINDEXQ", startIndex)
   
   }
 
-  // Create the current element with its children
-  console.log("children", children)
 
   let currentElement = null
-  
+  let elementStyle= element.specific_style
+
+  if (element.rules?.freeFloat){
+      elementStyle= setValue("position", "absolute", elementStyle, true)
+      elementStyle= setValue("max-height", "999999px", elementStyle, true)
+      elementStyle= setValue("max-width", "999999px", elementStyle, true)
+      elementStyle=setValue("z-index",parseInt(getValue("z-index", element.specific_style, true))-1,elementStyle, true)
+
+    }
   if (editing) {
     console.log("StartIndex", startIndex, "chosen", chosen);
 
@@ -120,10 +147,25 @@ let  initialBorderStyle = startIndex === chosen ? "#007eff 4px solid; " : abc
 
 
 
+const newStyle= applyOrGetPseudoStyles(element, false)
+
+
+
     
 const centerEmpty= ""//(element.instruction === "EMPTY" && element.number_of_children === 0) ? "display: flex; justify-content: center; align-items: center;": ""    
+  
+const selectedClass= startIndex === chosen ?  `selected` : " "
+
+const isAbsolute= getValue("position", element.specific_style) =="absolute"
 
 
+if (element.rules?.freeFloat && startIndex === chosen){
+  elementStyle= setValue("position", "fixed", elementStyle, true)
+  elementStyle= getValue("position", element.specific_style) ?
+  setValue("overflow", "visible", elementStyle, true) : elementStyle
+  elementStyle=setValue("z-index",parseInt(getValue("z-index", element.specific_style, true)),elementStyle, true)
+console.log("NEW STYLE THING:", element.specific_style)
+}
 
 
     if (element.html_element === "p") {
@@ -133,20 +175,32 @@ const centerEmpty= ""//(element.instruction === "EMPTY" && element.number_of_chi
     
     currentElement = (
   <>
-        <ElementComponent className="element"
+        <ElementComponent
           editing={editing}
     key={Math.random()*100000}
-    data={{ ...element, specific_style: `${element.specific_style}; outline: ${initialBorderStyle}; ${centerEmpty}`, class_name: element.class_name+` position${startIndex} ${isPage}` }}
+    data={{ ...element, specific_style: `${elementStyle}; outline: ${initialBorderStyle};   ${newStyle} `, class_name: element.class_name+` position${startIndex} ${isPage} ${selectedClass}` }}
     children={children}
     onClick={(e) => {
-      handleElementClick(e, startIndex)}}
+      console.log("I AM CLICKED");
+      handleElementClick(e, startIndex);
+    
+
+
+
+
+    }}
+    
+
+
+
     
           onMouseOver={(e) => {
+            console.log("START MOUSEOVER", startIndex, elements[startIndex])
 
-      
+        
             e.target.style.cursor = "pointer";
             if (element.instruction != "ELEMENT") {
-
+                e.stopPropagation()
               if (startIndex === chosen) { console.log(" INSstartIndex:", startIndex, " chosen:", chosen) }
 
               else {
@@ -198,7 +252,7 @@ console.log("MOUSE OUT;",abc, element.specific_style)
     let isPage = element.instruction === "CONTAINER" ? "page-container" : ""
     console.log("ISPAGE", isPage, element)
      currentElement = (
-    <ElementComponent key={startIndex} data={{...element, class_name: element.class_name+` position${startIndex} ${isPage}`}} children={children} onClick={()=>console.log("bruh")}>
+    <ElementComponent key={startIndex} data={{...element,specific_style:elementStyle, class_name: element.class_name+` position${startIndex} ${isPage}`}} children={children} onClick={()=>console.log("bruh")}>
       {element.html_element==='br' ? '': children}
     </ElementComponent>
   );
@@ -212,11 +266,11 @@ console.log("MOUSE OUT;",abc, element.specific_style)
 };
 
 
-const allElements = (jsonData, index=0, editing, changeElement, chosen,addElements, changeDrag  ) => {
- console.log("json",jsonData)
+const allElements = (jsonData, index=0, editing, changeElement, chosen,addElements, changeDrag,absoluteDragger  ) => {
+
   let allElements = []
   while (true) {
-    let elements = buildElements(jsonData, index, editing, changeElement, chosen, addElements, changeDrag );
+    let elements = buildElements(jsonData, index, editing, changeElement, chosen, addElements, changeDrag,absoluteDragger );
     if (elements == null) {
     break
     }
@@ -233,10 +287,10 @@ const allElements = (jsonData, index=0, editing, changeElement, chosen,addElemen
 let n=0
 
 // Main function to initiate the recursive building of elements
-const ElementBuilder = ({ jsonData, editing = false, changeElement, chosen, addElements, changeDrag }) => {
+const ElementBuilder = ({ jsonData, editing = false, changeElement, chosen, addElements, changeDrag,absoluteDragger }) => {
   console.log("json", jsonData);
   console.log("RERENDER TRIGGERED:", n++)
-  const [lines, setLines] = useState([]);
+
   //const elementRef = useRef(null); // Ref for the .resource-elements div
 
   // This function decides whether to show lines based on the div's height and the editing state
@@ -272,7 +326,7 @@ const ElementBuilder = ({ jsonData, editing = false, changeElement, chosen, addE
     };
   }, [editing]); // Dependency on editing ensures this effect runs when editing state changes
 */
-  const elements = jsonData.length !== 0 ? allElements(jsonData, 0, editing, changeElement, chosen, addElements, changeDrag, ) : null;
+  const elements = jsonData.length !== 0 ? allElements(jsonData, 0, editing, changeElement, chosen, addElements, changeDrag, absoluteDragger) : null;
 console.log("ELEMENTS", elements,jsonData)
 
   if (elements.length == 1 && jsonData[0].instruction == "PDF")

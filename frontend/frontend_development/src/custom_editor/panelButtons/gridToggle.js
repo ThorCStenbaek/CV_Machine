@@ -32,7 +32,7 @@ const GridToggle = ({ resourceMeta, updateResourceMeta, size }) => {
       }
       
       console.log("UPDATING", resourceMetaCopy);
-      updateResourceMeta(resourceMetaCopy);
+      updateResourceMeta(resourceMetaCopy, "GRID TOGGLE");
       
       // Return the opposite of the previous grid state
       return !prevGrid;

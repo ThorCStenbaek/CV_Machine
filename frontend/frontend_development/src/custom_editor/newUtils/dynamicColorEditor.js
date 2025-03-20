@@ -29,7 +29,16 @@ const DynamicColorEditor = ({
 
   useEffect(() => {
     if (resourceMeta[position] && resourceMeta[position].specific_style) {
-      setColor(extractPropertyValue(resourceMeta[position].specific_style));
+      const colorWithOpacity = extractPropertyValue(resourceMeta[position].specific_style);
+      const rgbaRegex = /rgba?\((\d+),\s*(\d+),\s*(\d+)(?:,\s*([\d.]+))?\)/;
+      const match = colorWithOpacity.match(rgbaRegex);
+      if (match) {
+        setColor(`#${parseInt(match[1]).toString(16).padStart(2, '0')}${parseInt(match[2]).toString(16).padStart(2, '0')}${parseInt(match[3]).toString(16).padStart(2, '0')}`);
+        setOpacity(match[4] ? parseFloat(match[4]) : 1);
+      } else {
+        setColor(colorWithOpacity);
+        setOpacity(1);
+      }
     }
   }, [resourceMeta, position]);
 
@@ -38,17 +47,21 @@ const DynamicColorEditor = ({
       ? extractPropertyValue(resourceMeta[position].specific_style)
       : defaultColor;
   const [color, setColor] = useState(initialColor);
+  const [opacity, setOpacity] = useState(1);
 
   // Debounced function to handle color change
-  const debouncedHandleColorChange = debounce((newColor) => {
-    if (newColor === color) return;
+  const debouncedHandleColorChange =  debounce((newColor, newOpacity) => {
+    if (newColor === color && newOpacity === opacity) return;
     if (newColor === "") return;
 
     setColor(newColor);
+    setOpacity(newOpacity);
+
+    const rgbaColor = `rgba(${parseInt(newColor.slice(1, 3), 16)}, ${parseInt(newColor.slice(3, 5), 16)}, ${parseInt(newColor.slice(5, 7), 16)}, ${newOpacity})`;
 
     const updatedResourceMeta = [...resourceMeta];
     const currentStyles = updatedResourceMeta[position].specific_style || "";
-    const newStyles = `${property}: ${newColor};`;
+    const newStyles = `${property}: ${rgbaColor};`;
 
     if (currentStyles.includes(`${property}:`)) {
       updatedResourceMeta[position].specific_style = currentStyles.replace(
@@ -59,11 +72,16 @@ const DynamicColorEditor = ({
       updatedResourceMeta[position].specific_style = currentStyles + newStyles;
     }
 
-    updateResourceMeta(updatedResourceMeta);
+    updateResourceMeta(updatedResourceMeta, "DYNAMIC COLOR SELECTOR");
   }, 100); // 100 milliseconds delay
 
   const handleColorChange = (event) => {
-    debouncedHandleColorChange(event.target.value);
+    debouncedHandleColorChange(event.target.value, opacity);
+  };
+
+  const handleOpacityChange = (event) => {
+    const newOpacity = parseFloat(event.target.value);
+    debouncedHandleColorChange(color, newOpacity);
   };
 
   const handleSVGClick = () => {
@@ -84,7 +102,7 @@ const DynamicColorEditor = ({
   const backgroundColor = getContrastingColor(color);
   const textColor = "black";
 
-  return (
+  return (<>
     <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
       <input
         type="color"
@@ -95,6 +113,7 @@ const DynamicColorEditor = ({
       />
 
       {/* SVG with dynamic fill color and click handler */}
+   
       <svg
         onClick={handleSVGClick}
         style={{
@@ -120,7 +139,20 @@ const DynamicColorEditor = ({
         onChange={handleColorChange}
         style={{ fontSize: "16px", color: textColor }}
       />
-    </div>
+      </div>
+
+      {/* Opacity Slider */}
+      <input
+        type="range"
+        min="0"
+        max="1"
+        step="0.01"
+        value={opacity}
+        onChange={handleOpacityChange}
+        style={{ width: "100px" }}
+      />
+      <span>{Math.round(opacity * 100)}%</span>
+      </>
   );
 };
 

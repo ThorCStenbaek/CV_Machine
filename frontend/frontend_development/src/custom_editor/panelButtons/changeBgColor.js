@@ -47,7 +47,7 @@ const ChangeBackgroundColor = ({ position, resourceMeta, updateResourceMeta }) =
       updatedResourceMeta[position].specific_style = currentStyles + newStyles;
     }
 
-    updateResourceMeta(updatedResourceMeta);
+    updateResourceMeta(updatedResourceMeta, "CHANGE BG COLOR");
   }, 100); // 500 milliseconds delay
 
   const handleColorChange = (event) => {

@@ -20,7 +20,7 @@ import VideoIcon from "./icons/videoIcon";
             selectable: true, 
             newRowButton:true
         }
-};
+}
     
       const ImageMeta= {
         ID: null, // This will be auto-incremented by the database
@@ -32,7 +32,13 @@ import VideoIcon from "./icons/videoIcon";
         specific_style: 'height: auto;', // Provide a value based on your application's logic
         content_type: '' , // Provide a value based on your application's logic
         content_data: '', // Provide a value based on your application's logic
-        instruction: 'ELEMENT', // Provide a value based on your application's logic
+        instruction: 'IMAGE', // Provide a value based on your application's logic
+        rules:{
+            draggable: true, 
+            selectable: true, 
+            newRowButton:false
+        }
+    
     };
 
 
@@ -46,7 +52,13 @@ import VideoIcon from "./icons/videoIcon";
     specific_style: 'height: auto;', // Provide a value based on your application's logic
     content_type: '', // Provide a value based on your application's logic
     content_data: '', // Provide a value based on your application's logic, usually the video URL
-    instruction: 'ELEMENT', // Provide a value based on your application's logic
+    instruction: 'VIDEO', // Provide a value based on your application's logic
+    rules:{
+        draggable: true, 
+        selectable: true, 
+        newRowButton:true
+    }
+
 };
 
 
@@ -91,42 +103,7 @@ const ElementInnerChild = ({ position, resourceMeta, updateResourceMeta }) => {
     if (element.instruction === "CONTAINER" || element.instruction === "DEFAULT") {
         return null
     }
-
-    const handleClick = (instruction) => {
-        //just a guard rail.
-        if (element.instruction === instruction || element.instruction === "CONTAINER" || element.instruction === "DEFAULT") {
-            return;
-        }
-        console.log("HANDLECLICK", instruction, element, position, resourceMeta[position], resourceMeta)
-        const number_of_children = element.number_of_children;
-        let updatedResourceMeta = [...resourceMeta];
-        updatedResourceMeta[position].number_of_children = 0;
-        updatedResourceMeta[position].instruction = instruction;
-    
-        const depth=resourceMeta[position].depth
-        const getNewElement = () => {
-        switch (instruction) {
-            case "TEXT":
-                return [{...PMeta, depth}];
-            case "IMAGE":
-                return [{...ImageMeta, depth}];
-
-            case "VIDEO":
-                return [{...VideoMeta, depth}];
-            default:
-                return null;
-        } 
-        };
-        const newElemens = getNewElement()[0]
-        console.log("HANDLECLICK NEW ELEMENT:", newElemens)
-        newElemens.specific_style=updatedResourceMeta[position].specific_style
-        updatedResourceMeta[position]= newElemens
-     
-        updateResourceMeta(updatedResourceMeta);
-        setElement(updatedResourceMeta[position]);
-};
-
-
+const handleClick =(t) => console.log(t)
 
      console.log("elementEEE", element)
    return (

@@ -1,7 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Modal from '../containers/components/general/modal';
 import { getValue } from './newUtils/getValue';
-
+import { CVElements } from './newClasses/CVElements';
 
 
 function ProportionalElements({ sizes, onClick, maxWidth= '23%', rows=1 }) {
@@ -62,13 +62,7 @@ function ProportionalElements({ sizes, onClick, maxWidth= '23%', rows=1 }) {
 }
 
 
-
-
-
-
-
-
-const NewRowModal = ({ appendNewElements, closeModal, parentDepth=-1, parentStyle }) => {
+const RowTab =  ({ appendNewElements, closeModal, parentDepth=-1, parentStyle }) => {
 
     const [modalIsOpen, setModalIsOpen] = useState(false)
     
@@ -78,9 +72,8 @@ const NewRowModal = ({ appendNewElements, closeModal, parentDepth=-1, parentStyl
         setModalIsOpen(!modalIsOpen)
     }
 
-    const parentWidth = getValue("width", parentStyle)
+    const parentWidth = getValue("width", parentStyle)  
    
-    const parentHeight = 0 //Not used 
 
 
 const constructChildren = (number, sizes=null, rows=1) => {
@@ -90,7 +83,7 @@ const constructChildren = (number, sizes=null, rows=1) => {
      elements.push({
         html_element: 'div',
         number_of_children: number, //padding-left: 10px; padding-right: 10px; 
-        specific_style: ` height: 100px;position: relative;  max-height: 100%;  width: ${parentWidth}; display:flex; align-items: stretch; justify-content: center;  max-width: 100%; flex-direction: row;  box-shadow: rgba(0, 0, 0, 0.16) 0px 1px 4px;`,
+        specific_style: ` height: 100px;  max-height: 100%;  width: ${parentWidth}; display:flex; align-items: stretch; position: relative; justify-content: center;  max-width: 100%; flex-direction: row;  box-shadow: rgba(0, 0, 0, 0.16) 0px 1px 4px; overflow:hidden; z-index:2;`,
         content_type: '',
         content_data: '',
         instruction: 'DEFAULT',
@@ -99,6 +92,7 @@ const constructChildren = (number, sizes=null, rows=1) => {
             draggable: true, 
             selectable: true, 
             newRowButton: true,  
+            freeFloat:false,
           }
     })
     for (let i = 0; i < number; i++) {
@@ -107,7 +101,8 @@ const constructChildren = (number, sizes=null, rows=1) => {
         elements.push({
             html_element: 'div',
             number_of_children: 0,
-            specific_style: `height: 100px; max-height: 100%;  width: ${(parentWidth.replace("px", "")*percentage)}px; position: relative; box-shadow: rgba(0, 0, 0, 0.16) 0px 1px 4px; max-width:100%;`,
+            specific_style: `height: 100px; max-height: 100%;  width: ${(parentWidth.replace("px", "")*percentage)}px; position: relative; box-shadow: rgba(0, 0, 0, 0.16) 0px 1px 4px; max-width:100%;
+            margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; z-index: 3;`,
             content_type: '', 
             content_data: '',
            instruction: 'EMPTY',
@@ -117,6 +112,7 @@ rules: {
     draggable: true, 
     selectable: true, 
     newRowButton: true,  
+    freeFloat: false
   }
 
 })
@@ -220,6 +216,62 @@ return elements;
     )
 
    
+};
+
+const ElementTab = ({position,  resourceMeta, changeElement, updateResourceMeta }) =>{
+    
+    
+     return <>
+     <div style={{height:"500px", width: "500px"}}>
+   { CVElements.getAllButtonElements().map(Component=>
+    <Component position={position} resourceMeta={resourceMeta} changeElement={changeElement} updateResourceMeta={updateResourceMeta}/>
+   )}
+   </div>
+    </>
+}
+
+
+
+
+
+const NewRowModal = ({ appendNewElements, closeModal, resourceMeta, position, changeElement, updateResourceMeta }) => {
+    const [activeTab, setActiveTab] = useState("Row"); // Default to "Row" tab
+
+    const [parentDepth, setParentDepth] = useState(resourceMeta[position]?.depth || -1);
+    const [parentStyle, setParentStyle] = useState(resourceMeta[position]?.specific_style || {});
+
+    useEffect(() => {
+        if (resourceMeta && position in resourceMeta) {
+            setParentDepth(resourceMeta[position].depth);
+            setParentStyle(resourceMeta[position].specific_style);
+        }
+    }, [resourceMeta, position]); // Runs when resourceMeta or position changes
+
+
+    return (
+        <div className="modal-container">
+            <div className="tab-header">
+                <button className={activeTab === "Row" ? "active" : ""} onClick={() => setActiveTab("Row")}>
+                    Row
+                </button>
+                <button className={activeTab === "Other" ? "active" : ""} onClick={() => setActiveTab("Other")}>
+                    Other
+                </button>
+            </div>
+
+            <div className="tab-content">
+                {activeTab === "Row" && (
+                    <RowTab appendNewElements={appendNewElements} closeModal={closeModal} parentDepth={parentDepth} parentStyle={parentStyle} />
+                )}
+                {activeTab === "Other" && (
+                    <div>
+                        <h2>Other Tab Content</h2>
+                        <ElementTab position={position} resourceMeta={resourceMeta} updateResourceMeta={updateResourceMeta} changeElement={changeElement}/>
+                    </div>
+                )}
+            </div>
+        </div>
+    );
 };
 
 export default NewRowModal;

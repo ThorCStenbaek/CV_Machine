@@ -49,7 +49,7 @@ import { DynamicStyleEditor } from "./newUtils/DynamicStyleEditor.js";
 
 import { getValue } from "./newUtils/getValue.js";
 
-import html2canvas from 'html2canvas';
+
 import { jsPDF } from 'jspdf';
 import { Document, Page, Text, View, StyleSheet, PDFDownloadLink } from '@react-pdf/renderer';
 import getTrueHeight from "./newUtils/getTrueHeight.js";
@@ -61,8 +61,13 @@ import { QuadrupleDynamicStyleEditor } from './newUtils/quadrupleDynamicStyleEdi
 
 import { CusteomElementTest } from './newClasses/test';
 
+import { CVElements } from "./newClasses/CVElements.js";
 
-const ElementPanel = ({ position, resourceMeta, updateResourceMeta, handleAddNewElement, removeElement, addNewElement,toggleUploadModal, children, page, changeIndex, handleRedo, handleUndo }) => {
+import { applyOrGetPseudoStyles } from './newUtils/applyOrGetPseudoStyles';
+import { setValue } from "./newUtils/getValue.js";
+
+
+const ElementPanel = ({ position, resourceMeta, updateResourceMeta, handleAddNewElement, removeElement, addNewElement,toggleUploadModal, children, page, changeIndex, handleRedo, handleUndo,changeDrag  }) => {
     const [elementData, setElementData] = useState(resourceMeta[position]);
     const [direction, setDirection] = useState("row");
       const PMeta= {
@@ -106,49 +111,23 @@ const ElementPanel = ({ position, resourceMeta, updateResourceMeta, handleAddNew
     const updatedResourceMeta = [...resourceMeta];
    
     updatedResourceMeta[position] = elementData;
-    updateResourceMeta(updatedResourceMeta);
+    updateResourceMeta(updatedResourceMeta, "handleSubmit ");
   };
 
   const changeElement=(position, newElement) => {
     const updatedResourceMeta = [...resourceMeta];
     updatedResourceMeta[position] = newElement;
-    updateResourceMeta(updatedResourceMeta);
+    console.log("RERENDER TRIGGER CHANGE ELEMENT ", updatedResourceMeta)
+    updateResourceMeta(updatedResourceMeta, "hangeElement");
   }
 
-  const testMeta= {
-    ID: null, // This will be auto-incremented by the database
-    resource_id: null, // You might need to provide this value based on your application's logic
-    fileID: null,
-    ordering: 0, // Default value, change as needed
-    html_element: 'coolguy' , // Provide a value based on your application's logic
-    number_of_children: 0,
-    specific_style: 'height: 100px; width: 100px; position: relative;', // Provide a value based on your application's logic
-    content_type: '' , // Provide a value based on your application's logic
-    content_data: '{"name":"bruh", "lol":"poopie"}',
-    instruction: 'EMPTY', // Provide a value based on your application's logic
-    depth:2,
-    rules:{selectable:true, draggable:true}
-};
-
-
-
-
-CusteomElementTest()
-
-
-
-  const doSomething = (elem) =>{
-    const updatedResourceMeta = [...resourceMeta];
-    updatedResourceMeta.push(elem)
-    updateResourceMeta(updatedResourceMeta)
-  }
-
+ 
 
 
 
 // Call this function where necessary, providing the parent position and current resourceMeta
 
-  
+  console.log("CV ELEMENTS", CVElements.getAllButtonElements())
   
   const safeElementData = elementData || {}; // Fallback to an empty object if elementData is null or undefined
 
@@ -178,7 +157,8 @@ CusteomElementTest()
         <button onClick={handleRedo}>Redo</button>
 
 
-        <button onClick={()=>doSomething(testMeta)}>test</button>
+       
+
 
         {activeTab==="advanced"&& (
           <ChangeRulesForElement resourceMeta={resourceMeta} index={position} updateResourceMeta={updateResourceMeta}/>
@@ -189,16 +169,28 @@ CusteomElementTest()
         )}
 
         {activeTab === 'pageSettings' && (
+          <>
           <div className="page-settings-content">
             {children}
             
     
           </div>
+          <p>to do:</p>
+          <ol>
+
+            <li>Make sure there is a general element for things with list in the <br/>
+            element panel elemnt<br/></li>
+            <li>Make sure the general UI is good</li>
+            <li>Make work/education timeline element</li>
+
+          </ol>
+          
+</>
         )}
 
         {activeTab === 'design' && (
           <div className="design-content">
-            <form className="custom-editor-form" style={{ minWidth: '350px' }} onSubmit={handleSubmit}>
+            <div className="custom-editor-form" style={{ minWidth: '350px' }} >
               <ElementInnerChild
                 position={position}
                 resourceMeta={resourceMeta}
@@ -225,11 +217,23 @@ CusteomElementTest()
                   <h4 style={{ marginBottom: '0px' }}>Background Color</h4>
                   <DynamicColorEditor position={position} resourceMeta={resourceMeta} updateResourceMeta={updateResourceMeta} property={"background"} />
                 </div>
-                
+         
 
                 <div>
-                <DynamicColorEditor position={position} resourceMeta={resourceMeta} updateResourceMeta={updateResourceMeta} property={"border-top-color"} />
+                <DynamicColorEditor position={position} resourceMeta={resourceMeta} updateResourceMeta={updateResourceMeta} property={"color"} />
+                
+                <div>
+                  <p>display</p>
+                  <DynamicStyleEditor position={position} resourceMeta={resourceMeta} updateResourceMeta={updateResourceMeta} property={"position"} type="select"
+                options={[{text:"relative", value:"relative"},{text: "absolute", value:"absolute"},{text: "fixed", value:"fixed"}]}
+                />
+                  </div>
                 <div style={{display:"flex"}}>
+<p>fontSize</p>
+<DynamicStyleEditor defaultColor="0px" position={position} resourceMeta={resourceMeta} updateResourceMeta={updateResourceMeta} property={"font-size"} type="number" />
+
+
+
                 <DynamicStyleEditor defaultColor="0px" position={position} resourceMeta={resourceMeta} updateResourceMeta={updateResourceMeta} property={"border-top-width"} type="text" />
                 <DynamicStyleEditor  position={position} resourceMeta={resourceMeta} updateResourceMeta={updateResourceMeta} property={"border-top-style"} type="select"
                 options={[{text:"none", value:"none"},{text: "Solid", value:"solid"}, {text: "burh", value:"dashed"}]}
@@ -240,12 +244,19 @@ CusteomElementTest()
                 />
 
                 </div>
+                <div> 
+<p>Border Radius</p>
+<DynamicStyleEditor defaultColor="0px" position={position} resourceMeta={resourceMeta} updateResourceMeta={updateResourceMeta} property={"border-radius"} type="number" />
+                </div>
+
+                <p>padding</p>
+<QuadrupleDynamicStyleEditor defaultColor="0px" position={position} resourceMeta={resourceMeta} updateResourceMeta={updateResourceMeta} property={"padding-$"} type="number"
+changeDrag={changeDrag}
+/>
                 
 <p>margin</p>
 <QuadrupleDynamicStyleEditor defaultColor="0px" position={position} resourceMeta={resourceMeta} updateResourceMeta={updateResourceMeta} property={"margin-$"} type="number"
-
-             
-                />
+changeDrag={changeDrag}/>
 
                 </div>
 
@@ -260,7 +271,7 @@ CusteomElementTest()
                   <button type="button" onClick={() => addNewElement(position)}>add block</button>
                 </>
               )}
-            </form>
+            </div>
           </div>
            )}
            <button style={{ marginTop: "150px" }} onClick={toggleUploadModal}>Publish</button>
@@ -298,7 +309,7 @@ const CustomEditor = ({resource=null, givenResourceMeta=null, givenCategory, Res
         ordering: 0, // Default value, change as needed
         html_element: 'div' , // Provide a value based on your application's logic
         number_of_children: 0,
-        specific_style: 'height: 1191px; width: 842px;  display: flex; flex-direction: column; box-shadow: 0px 2px 4px -1px rgba(0,0,0,0.2), 0px 4px 5px 0px rgba(0,0,0,0.14), 0px 1px 10px 0px rgba(0,0,0,0.12);', // Provide a value based on your application's logic
+        specific_style: 'height: 1191px; width: 842px;  display: flex; flex-direction: column; box-shadow: 0px 2px 4px -1px rgba(0,0,0,0.2), 0px 4px 5px 0px rgba(0,0,0,0.14), 0px 1px 10px 0px rgba(0,0,0,0.12); overflow: hidden; z-index: 1;', // Provide a value based on your application's logic
         content_type: '' , // Provide a value based on your application's logic
         content_data: '', // Provide a value based on your application's logic
         instruction: 'CONTAINER', // Provide a value based on your application's logic,
@@ -335,11 +346,17 @@ const [title, setTitle] = useState(resource?.title || '');
 
   const [changeElementPanelPage, setChangeElementPanelPage] = useState(false);
 
+  const changeElement=(position, newElement) => {
+    const updatedResourceMeta = [...resourceMeta];
+    updatedResourceMeta[position] = newElement;
+    updateResourceMeta(updatedResourceMeta, "changeElement 2");
+  }
+
 
   const handleSetIndex = (index) => {
     setIndex(index);
     
-    setChangeElementPanelPage(!changeElementPanelPage);
+    //setChangeElementPanelPage(!changeElementPanelPage);
   
   };
 //UNDO REDO BUTTONS
@@ -376,17 +393,9 @@ const [title, setTitle] = useState(resource?.title || '');
     setResourceMeta(nextState);
   };
 
-//UNDO REDO BUTTONS 
-useEffect(()=>{
-console.log("ATTEMPT RE-RENDER")
-}, [resourceMeta])
 
 
-  useEffect(()=>{
 
-console.log("I HAVE ELEMENT:",resourceMeta[index].instruction, resourceMeta[index].depth)
-
-  },[index])
 // Dependency array includes givenResourceMeta to trigger effect when it changes
 
   const handleSetStatus = (status) => {
@@ -438,6 +447,7 @@ console.log("I HAVE ELEMENT:",resourceMeta[index].instruction, resourceMeta[inde
       }
     }
       setResourceMeta(updatedResourceMeta);
+      console.log("RERENDER TRIGGER STANDING", updatedResourceMeta)
    }, [isStanding]);
 
   
@@ -460,9 +470,9 @@ console.log("I HAVE ELEMENT:",resourceMeta[index].instruction, resourceMeta[inde
     setResourceMeta(newResourceMeta);
     };
   */
-  const updateResourceMeta = (newResourceMeta, failsafe = true) => {
+  const updateResourceMeta = (newResourceMeta, message) => {
 
-    console.log("UPDATING RESOURCEMETA UNDO:", [...undoStack,deepCopy(resourceMeta)])
+    console.log("RERENDER TRIGGER UPDATERESOURCEMETA", newResourceMeta, message)
 
     setUndoStack(prevStack => {
       const newStack = [...prevStack, deepCopy(resourceMeta)];
@@ -477,7 +487,7 @@ console.log("I HAVE ELEMENT:",resourceMeta[index].instruction, resourceMeta[inde
 
 
 
-      setIsProblemPage(failsafe);    //is this used? Maybe look at some point for cleanup
+      //setIsProblemPage(failsafe);    //is this used? Maybe look at some point for cleanup
     setResourceMeta(newResourceMeta);
   };   
  
@@ -538,7 +548,7 @@ console.log("I HAVE ELEMENT:",resourceMeta[index].instruction, resourceMeta[inde
       setIndex(0)
 
     // Update the resource meta using the provided callback
-    updateResourceMeta(updatedMeta);
+    updateResourceMeta(updatedMeta, "removeElement");
 };
 
 
@@ -592,7 +602,7 @@ const handleAddNewElement = (index, elements = [], resourceMeta, updateResourceM
     });
 
     // Update the parent state with the new resourceMeta array
-    updateResourceMeta(updatedResourceMeta);
+    updateResourceMeta(updatedResourceMeta, "handleaddnewelement");
 };
   
 
@@ -609,7 +619,7 @@ UM = UM.slice(0, neighbour).concat(elements).concat(UM.slice(neighbour));
 if (rows>1)
 UM[index].specific_style+= "flex-direction:column"
   
-    updateResourceMeta(UM);
+    updateResourceMeta(UM, "appendNewElements");
    }
 
   const post_type = 1;
@@ -659,158 +669,73 @@ const handleSubmit = () => {
     });
 };
 
-
-
-
-  /**
   
-const changeDrag = (position, X, side, show=false) => {
 
-   * TO DO: 
-   * 1. Make a function called getTrueWidth and one called getTrueHeight
-   * 2. Make a functtion or make sure, that when we're reducing true with, it should probably reduce the neighbour's margin, next their padding, next width.
-   * 2.a This does create some serious problems tho. What if I want to reduce the side margin, but not the top and bottom margin.
-   * 2.b Perhaps there is never a true margin. There only exists margin-top, etc.. but we should have another function that changes one, which changes the others. 
+const absoluteDragger = (position, side, X, show = false) => {
+  console.log("absoluteDragger", { position, side, X, show });
+  let resourceMetaCopy = [...resourceMeta];
+  let style = resourceMeta[position].specific_style;
 
+  if (side == "left") {
+    const currentLeft = getValue("left", style, true);
+    const left = X.x + (currentLeft ? parseFloat(currentLeft) : 0.0);
 
-
-  if (side == "down") {
-    let resourceMetaCopy = [...resourceMeta];
-    
-    const regex = /height:\s*(\d+(\.\d+)?)px/;
-    const match = resourceMetaCopy[position].specific_style.match(regex);
-
-
-  
-    let currentHeight = match ? parseInt(match[1]) : document.querySelector(`.position${position}`).offsetHeight;
-    let newHeight = currentHeight + (X * -1)
-    console.log("MATCH:", match)
-    if (!show)
-      resourceMetaCopy[position].specific_style = resourceMetaCopy[position].specific_style.replace(/height:\s*[^;]+;/, `height:${newHeight}px;`)
-
-    if (show){
-      document.querySelector(`.position${position}`).style.height= `${newHeight}px`
-    
+    if (!show) {
+      document.querySelector(`.position${position}`).style.left = left + "px";
     }
-    console.log("ACTUAL DRAG:",{side,currentHeight, newHeight, X:X*-1})
-    console.log("SILLY MATCH:",   resourceMetaCopy[position].specific_style)
-    if (!show)
-    updateResourceMeta(resourceMetaCopy);
-    return; 
-  }
-
-
-  const parentWidth = getValue("width",resourceMeta[findParentIndex(index,resourceMeta)].specific_style)
-  const parentWidthNoPX=parseFloat(parentWidth.replace("px", ""))
- 
-
-  let total = Math.abs(X)
-  
-let resourceMetaCopy = [...resourceMeta];
-
-console.log("side:", side)
-  const neighbour = side== "left" ? findPreviousNeighbourIndex(index, resourceMeta) : findNextNeighbourIndex(index, resourceMeta);
-
-  const regex = /width:\s*(\d+(\.\d+)?)px/;
-
-
-
-  const match = resourceMetaCopy[position].specific_style.match(regex);
-  
-  let neighbourMatch = (neighbour !=-1) ? resourceMetaCopy[neighbour].specific_style.match(regex) : null;
-
-console.log("MATCH HUH", match, resourceMetaCopy[position].specific_style)
-  let currentFlexPercentage = parseFloat(match[1]);
-  
-  console.log("when is this happening: ", neighbour ==-1)
-
-  let neighbourFlexPercentage = (neighbour!= -1) ? parseFloat(neighbourMatch[1]) :  parentWidth-findTotalWidthOfElements(findAllNeighbours(index, resourceMeta).neighbours.concat([resourceMeta[index]]))//findFullPercentage(position, resourceMeta);
-
-
-  
-if (match ) {
-  // Extract the numeric percentage values from the match
-
-
-  if (total > neighbourFlexPercentage && side == "left" && X <0) {
-    
-  
-    total = neighbourFlexPercentage;
-  }
-  else if (total > neighbourFlexPercentage && side == "right" && X >0) {
-    total = neighbourFlexPercentage;
-  }
-
-
-  if (side === "left") {
-    let newCurrentFlexPercentage = (X<0)? currentFlexPercentage + total : currentFlexPercentage - total;
-    let newNeighbourFlexPercentage = (X<0) ? neighbourFlexPercentage - total : neighbourFlexPercentage + total;
-   
-    // Ensure new percentages are not negative
-    newCurrentFlexPercentage = Math.max(0, newCurrentFlexPercentage);
-    newNeighbourFlexPercentage = Math.max(0, newNeighbourFlexPercentage);
-    newCurrentFlexPercentage= Math.min( parentWidthNoPX, newCurrentFlexPercentage)
-
-    console.log("NEW WIDTH:",side, {X,newCurrentFlexPercentage,currentFlexPercentage, newNeighbourFlexPercentage, parentWidthNoPX,  total})
-
-    if (!show){
-    resourceMetaCopy[position].specific_style = resourceMetaCopy[position].specific_style.replace(regex, `width: ${newCurrentFlexPercentage}px`);
-    
-    if (neighbour !=-1)
-      resourceMetaCopy[neighbour].specific_style = resourceMetaCopy[neighbour].specific_style.replace(regex, `width: ${newNeighbourFlexPercentage}px`);
-  }
-  if (show){
-    document.querySelector(`.position${position}`).style.width=newCurrentFlexPercentage+"px"
-    if (neighbour!=-1)          
-    document.querySelector(`.position${neighbour}`).style.width=newNeighbourFlexPercentage+"px"
-  }
-  } else {
-    let newCurrentFlexPercentage =  (X<0)? currentFlexPercentage - total : currentFlexPercentage + total; 
-    let newNeighbourFlexPercentage = (X<0) ? neighbourFlexPercentage + total : neighbourFlexPercentage - total;
-
-    // Ensure new percentages are not negative
-    newCurrentFlexPercentage = Math.max(0, newCurrentFlexPercentage);
-    newNeighbourFlexPercentage = Math.max(0, newNeighbourFlexPercentage);
-
-    newCurrentFlexPercentage= Math.min( parentWidthNoPX, newCurrentFlexPercentage)
-
-    console.log("NEW WIDTH:",side,{X,newCurrentFlexPercentage,currentFlexPercentage, newNeighbourFlexPercentage, parentWidthNoPX,  total})
-
-    if (!show){
-    resourceMetaCopy[position].specific_style = resourceMetaCopy[position].specific_style.replace(regex, `width: ${newCurrentFlexPercentage}px`);
-    if (neighbour != -1)
-    resourceMetaCopy[neighbour].specific_style = resourceMetaCopy[neighbour].specific_style.replace(regex, `width: ${newNeighbourFlexPercentage}px`);
-  }
-  if (show){
-    document.querySelector(`.position${position}`).style.width=newCurrentFlexPercentage+"px"
-    if (neighbour!=-1)     
-    document.querySelector(`.position${neighbour}`).style.width=newNeighbourFlexPercentage+"px"
-  }
-  }
-} else {
-  console.log("No matching flex pattern found.");
-  }
-
-  if (neighbour != -1 && !show){
-  if (total+0.1 > neighbourFlexPercentage && side == "left" && X <0) {
-
-  resourceMetaCopy= removeElement(neighbour, resourceMetaCopy);
-  
-  }
-  else if (total+0.1 > neighbourFlexPercentage && side == "right" && X > 0) {
-   
-    resourceMetaCopy= removeElement(neighbour, resourceMetaCopy);
+    if (show) {
+      const newStyle = setValue(side, left, style);
+      resourceMetaCopy[position].specific_style = newStyle;
+      console.log("absoluteDragger", { newStyle });
+      updateResourceMeta(resourceMetaCopy, "absoluteDragger left");
     }
+  }
+
+  if (side == "right") {
+    const currentRight = getValue("left", style, true);
+    const right = (X.x) + (currentRight ? parseFloat(currentRight) : 0.0);
+
+    if (!show) {
+      document.querySelector(`.position${position}`).style.left = right + "px";
     }
+    if (show) {
+      const newStyle = setValue("left", right, style);
+      resourceMetaCopy[position].specific_style = newStyle;
+      console.log("absoluteDragger", { newStyle });
+      updateResourceMeta(resourceMetaCopy, "absoluteDragger right");
+    }
+  }
 
+  if (side == "top") {
+    const currentTop = getValue("top", style, true);
+    const top = X.y + (currentTop ? parseFloat(currentTop) : 0.0);
 
+    if (!show) {
+      document.querySelector(`.position${position}`).style.top = top + "px";
+    }
+    if (show) {
+      const newStyle = setValue(side, top, style);
+      resourceMetaCopy[position].specific_style = newStyle;
+      console.log("absoluteDragger", { newStyle });
+      updateResourceMeta(resourceMetaCopy, "absoluteDragger top");
+    }
+  }
 
-if (!show)
-updateResourceMeta(resourceMetaCopy);
+  if (side == "bottom") {
+    const currentBottom = getValue("top", style, true);
+    const bottom = X.y + (currentBottom ? parseFloat(currentBottom) : 0.0);
+
+    if (!show) {
+      document.querySelector(`.position${position}`).style.top = bottom + "px";
+    }
+    if (show) {
+      const newStyle = setValue("top", bottom, style);
+      resourceMetaCopy[position].specific_style = newStyle;
+      console.log("absoluteDragger", { newStyle });
+      updateResourceMeta(resourceMetaCopy, "absoluteDragger bottom");
+    }
+  }
 };
-*/
-
-  
 
 
 
@@ -825,18 +750,20 @@ updateResourceMeta(resourceMetaCopy);
      * 2.b Perhaps there is never a true margin. There only exists margin-top, etc.. but we should have another function that changes one, which changes the others. 
      */
 
-    console.log("DOWNDRAG out", position, X, side, property ,show)
+    console.log("CHANGE DRAG out", position, X, side, property ,show)
+
     if (side == "down") {
+    
       console.log("DOWNDRAG", position, X, side, property ,show)
 
       const parentIndex=findParentIndex(index,resourceMeta)
 
-      const parentHeight = parseFloat(getValue("height",resourceMeta[parentIndex].specific_style).replace("px", ""))
+      const parentHeight =resourceMeta[position].rules?.freeFloat? 9999999: parseFloat(getValue("height",resourceMeta[parentIndex].specific_style).replace("px", ""))
       
       const parentFlexRow = getValue("flex-direction",resourceMeta[parentIndex].specific_style ) =="row"
 
 
-      const allNeighbours= findAllNeighbours(position, resourceMeta)
+      const allNeighbours=resourceMeta[position].rules?.freeFloat? {leftNeighbours:[], rightNeighbours:[]}: findAllNeighbours(position, resourceMeta)
 
       const leftNeighbourHeights= allNeighbours.leftNeighbours.map(n=>getTrueHeight(n.data).total)
       const leftTotal= leftNeighbourHeights.reduce((acc, cur) => cur+acc,0)
@@ -976,7 +903,8 @@ updateResourceMeta(resourceMetaCopy);
         setIndex(0)
       }
 
-      if (!show) updateResourceMeta(resourceMetaCopy);
+      if (!show) updateResourceMeta(resourceMetaCopy,"changedrag1");
+      applyOrGetPseudoStyles(resourceMeta[position], true, position)
       return;
     }
 
@@ -985,12 +913,12 @@ updateResourceMeta(resourceMetaCopy);
 
       const parentIndex=findParentIndex(index,resourceMeta)
 
-      const parentHeight = parseFloat(getValue("height",resourceMeta[parentIndex].specific_style).replace("px", ""))
+      const parentHeight = resourceMeta[position].rules?.freeFloat? 9999999: parseFloat(getValue("height",resourceMeta[parentIndex].specific_style).replace("px", ""))
       
       const parentFlexRow = getValue("flex-direction",resourceMeta[parentIndex].specific_style ) =="row"
 
 
-      const allNeighbours= findAllNeighbours(position, resourceMeta)
+      const allNeighbours=resourceMeta[position].rules?.freeFloat? {leftNeighbours:[], rightNeighbours:[]}: findAllNeighbours(position, resourceMeta)
 
       const leftNeighbourHeights= allNeighbours.leftNeighbours.map(n=>getTrueHeight(n.data).total)
       const leftTotal= leftNeighbourHeights.reduce((acc, cur) => cur+acc,0)
@@ -1029,6 +957,8 @@ updateResourceMeta(resourceMetaCopy);
           console.log("STYLE WHAT:", reducedTrueHeight)
           if (!show){
             resourceMetaCopy[nextNeighbour.index].specific_style=reducedTrueHeight.style
+            
+            
         }
         if (show){
           document.querySelector(`.position${nextNeighbour.index}`).style.marginTop=reducedTrueHeight.marginTop+"px"
@@ -1117,10 +1047,17 @@ updateResourceMeta(resourceMetaCopy);
           new RegExp(`${property}:\\s*[^;]+;`),
           `${property}:${newValue}px; `
         );
+        if (resourceMetaCopy[position].rules?.freeFloat)
+          resourceMetaCopy[position].specific_style=setValue("top",(parseFloat(getValue("top", resourceMetaCopy[position].specific_style,true))-X)+"px", resourceMetaCopy[position].specific_style,true)
+     
       }
       
       if (show) {
         document.querySelector(`.position${position}`).style[property] = `${newValue}px`;
+        
+        if (resourceMetaCopy[position].rules?.freeFloat)
+          document.querySelector(`.position${position}`).style.top=(parseFloat(getValue("top", resourceMetaCopy[position].specific_style,true))-X)+"px"
+     
       }
       
       console.log("ACTUAL DRAG:", { side, currentValue, newValue, X: X * -1 });
@@ -1132,7 +1069,8 @@ updateResourceMeta(resourceMetaCopy);
         setIndex(0)
       }
 
-      if (!show) updateResourceMeta(resourceMetaCopy);
+      if (!show) updateResourceMeta(resourceMetaCopy,"changedrag2");
+      applyOrGetPseudoStyles(resourceMeta[position], true, position)
       return;
     }
 
@@ -1142,12 +1080,12 @@ updateResourceMeta(resourceMetaCopy);
 
       const parentIndex=findParentIndex(index,resourceMeta)
 
-      const parentHeight = parseFloat(getValue("width",resourceMeta[parentIndex].specific_style).replace("px", ""))
+      const parentHeight =resourceMeta[position].rules?.freeFloat? 9999999: parseFloat(getValue("width",resourceMeta[parentIndex].specific_style).replace("px", ""))
       
       const parentFlexRow = getValue("flex-direction",resourceMeta[parentIndex].specific_style ) !="row"
 
 
-      const allNeighbours= findAllNeighbours(position, resourceMeta)
+      const allNeighbours=resourceMeta[position].rules?.freeFloat? {leftNeighbours:[], rightNeighbours:[]}: findAllNeighbours(position, resourceMeta)
 
       const leftNeighbourHeights= allNeighbours.leftNeighbours.map(n=>getTrueWidth(n.data).total)
       const leftTotal= leftNeighbourHeights.reduce((acc, cur) => cur+acc,0)
@@ -1294,7 +1232,8 @@ updateResourceMeta(resourceMetaCopy);
         setIndex(0)
       }
 
-      if (!show) updateResourceMeta(resourceMetaCopy);
+      if (!show) updateResourceMeta(resourceMetaCopy, "changedrag2");
+      applyOrGetPseudoStyles(resourceMeta[position], true, position)
       return;
     }
 
@@ -1311,12 +1250,12 @@ updateResourceMeta(resourceMetaCopy);
 
       const parentIndex=findParentIndex(index,resourceMeta)
 
-      const parentHeight = parseFloat(getValue("width",resourceMeta[parentIndex].specific_style).replace("px", ""))
+      const parentHeight = resourceMeta[position].rules?.freeFloat? 9999999: parseFloat(getValue("width",resourceMeta[parentIndex].specific_style).replace("px", ""))
       
       const parentFlexRow = getValue("flex-direction",resourceMeta[parentIndex].specific_style ) !="row"
 
 
-      const allNeighbours= findAllNeighbours(position, resourceMeta)
+      const allNeighbours=resourceMeta[position].rules?.freeFloat? {leftNeighbours:[], rightNeighbours:[]}: findAllNeighbours(position, resourceMeta)
 
       const leftNeighbourHeights= allNeighbours.leftNeighbours.map(n=>getTrueWidth(n.data).total)
       const leftTotal= leftNeighbourHeights.reduce((acc, cur) => cur+acc,0)
@@ -1451,10 +1390,16 @@ updateResourceMeta(resourceMetaCopy);
           new RegExp(`${property}:\\s*[^;]+;`),
           `${property}:${newValue}px; `
         );
+
+        if (resourceMetaCopy[position].rules?.freeFloat)
+          resourceMetaCopy[position].specific_style=setValue("left",(parseFloat(getValue("left", resourceMetaCopy[position].specific_style,true))+X)+"px", resourceMetaCopy[position].specific_style,true)
       }
       
       if (show) {
         document.querySelector(`.position${position}`).style[property] = `${newValue}px`;
+        
+        if (resourceMetaCopy[position].rules?.freeFloat)
+          document.querySelector(`.position${position}`).style.left=(parseFloat(getValue("left", resourceMetaCopy[position].specific_style,true))+X)+"px"
       }
       
       console.log("ACTUAL DRAG:", { side, currentValue, newValue, X: X * -1 });
@@ -1466,13 +1411,16 @@ updateResourceMeta(resourceMetaCopy);
         setIndex(0)
       }
 
-      if (!show) updateResourceMeta(resourceMetaCopy);
+      if (!show) updateResourceMeta(resourceMetaCopy, "changedrag3");
+      applyOrGetPseudoStyles(resourceMeta[position], true, position)
       return;
     }
 
 
 
 };
+
+
 
   
   const AddNewElement = (position) => { 
@@ -1516,7 +1464,7 @@ class_name: 'element'
     newElement.specific_style += `flex: 0 0 ${100-currentPercentage}%`;
 
       copyRM.splice(insertAt, 0, newElement)
-      updateResourceMeta(copyRM);
+      updateResourceMeta(copyRM, "addnewelement");
       return; 
 
     }
@@ -1542,7 +1490,7 @@ class_name: 'element'
     newElement.specific_style += `width: ${100 - findFullPercentage(position, copyRM)}%;`
     copyRM.splice(insertAt, 0, newElement)
     console.log("COPYRM", copyRM)
-    updateResourceMeta(copyRM);
+    updateResourceMeta(copyRM,"changeKids");
 
 
 
@@ -1585,6 +1533,7 @@ class_name: 'element'
             changeIndex={handleSetIndex}
             handleRedo={handleRedo}
             handleUndo={handleUndo}
+            changeDrag={changeDrag}
             
             >
                       <HeaderPanel isStanding={isStanding} setIsStanding={setIsStanding} size={headerSize} title={title} setTitle={setTitle}>
@@ -1616,7 +1565,7 @@ class_name: 'element'
       
       </div>
          <div className='resource-canvas' style={{border: 'none'}}>
-            <ElementBuilder  jsonData={resourceMeta} editing={true} changeElement={(i)=> handleSetIndex(i) } chosen={index} addElements={toggleModal} changeDrag={changeDrag} /> 
+            <ElementBuilder  jsonData={resourceMeta} editing={true} changeElement={(i)=> handleSetIndex(i) } chosen={index} addElements={toggleModal} changeDrag={changeDrag} absoluteDragger={absoluteDragger} /> 
           </div>
     
         </div>
@@ -1659,7 +1608,7 @@ class_name: 'element'
 
 
          <Modal isOpen={isModalOpen} onClose={toggleModal}>
-            <NewRowModal appendNewElements={appendNewElements} closeModal={toggleModal} parentDepth={resourceMeta[index].depth} parentStyle={resourceMeta[index].specific_style} />
+            <NewRowModal appendNewElements={appendNewElements} closeModal={toggleModal} resourceMeta={resourceMeta} position={index} changeElement={changeElement} updateResourceMeta={updateResourceMeta} />
         </Modal>
 
             <ResourceScaler/>

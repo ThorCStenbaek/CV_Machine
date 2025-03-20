@@ -1,13 +1,17 @@
 import React from 'react';
 import PdfViewer from './pdfViewer';
-const ElementComponent = ({editing, data, children, onClick, onMouseOver=()=>console.log("MouseOver"), onMouseOut=()=>console.log("MouseOut"), extraElement=null }) => {
+import { CVElements } from '../../custom_editor/newClasses/CVElements';
+
+const ElementComponent = ({editing, data, children, onClick, onMouseOver=()=>console.log("MouseOver"), onMouseOut=()=>console.log("MouseOut"), extraElement=null, }) => {
     if (!data) {
         return null;
     }
 
     // Destructure data for easier access
-    let { html_element, path, content_data, specific_style, class_name, number_of_children } = data;
+    let { html_element, path, content_data, specific_style, class_name, number_of_children, instruction } = data;
 
+
+   
     //use childen and mutate content_data 
     //Come back to this...
         //This function scares me
@@ -79,10 +83,26 @@ const ElementComponent = ({editing, data, children, onClick, onMouseOver=()=>con
         onMouseOut
     };
 
+
+
+
+    const CVelement= CVElements.get(instruction)
+
+    if (CVelement){
+        const RenderElement=CVelement.renderElement
+        return <RenderElement style={elementProps.style} className={elementProps.className} onClick={onClick} onMouseOver={onMouseOver} onMouseOut={onMouseOut} editing={editing} data={data} children={children} extraElement={extraElement}></RenderElement>
+    }
+
+
     // Special handling for images
  if (html_element === 'img') {
         const fullPath = ensureFullPath(path);
-        return React.createElement(html_element, { ...elementProps, src: fullPath, alt: content_data });
+        return (
+        <div style={{position: "relative", height:"fit-content", width: "fit-content"}} onMouseOut={elementProps.onMouseOut} onClick={elementProps.onClick} onMouseOver={elementProps.onMouseOver}>
+       { React.createElement(html_element, { style:elementProps.style,className:elementProps.className, src: fullPath, alt: content_data })}
+         {extraElement}
+        </div>
+        )
     }
 
     // Special handling for videos (YouTube or Vimeo)
@@ -111,6 +131,7 @@ const ElementComponent = ({editing, data, children, onClick, onMouseOver=()=>con
                     {...elementProps}
                     src={thumbnailUrl}
                     alt="Video Thumbnail"
+                   
                 />
             );
         }
@@ -166,5 +187,6 @@ export default ElementComponent;
 
 // Usage example:
 // import ElementComponent from './ElementComponent'; // adjust the import path as needed
-// const jsonData = { /* your JSON data */ };
+// const jsonData = { /* your JSON data */ };import { RenderElement } from './../../custom_editor/newClasses/testElement/renderElement';
+
 // <ElementComponent data={jsonData} />

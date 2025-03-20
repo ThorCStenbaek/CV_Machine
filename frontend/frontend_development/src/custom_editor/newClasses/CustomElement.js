@@ -25,22 +25,56 @@
             newRowButton: true,  
           }
  */
+
+
+
+
+
 export class CustomElement{
+
+
   
 
-    constructor(inputElement, buttonElement, startingMeta, renderElement){
-        this.verifyInputElement(inputElement)
-        this.verifyButtonElement(buttonElement)
-        this.verifyStartingMeta(startingMeta)
-        this.verifyRenderElement(renderElement)
+    constructor(inputElement, buttonElement, startingMeta, renderElement) {
+        this.verifyInputElement(inputElement);
+        this.verifyButtonElement(buttonElement);
+        this.verifyStartingMeta(startingMeta);
+        this.verifyRenderElement(renderElement);
 
+        // Ensure `RenderElement` is a valid React component
+
+
+        const inheritStyle={
+            color: 'inherit',
+            height:"100%",
+            width: "100%",
+            textWrap: 'auto',
+            marginBottom:"0px",
+            marginTop: "0px",
+            marginLeft:"0px",
+            marginRight: "0px"
+
+        }
+
+
+        const Component=renderElement
+        const Wrapper = ({style, className, onClick, onMouseOver, onMouseOut, editing, data, children, extraElement})=>{
+
+        
+            console.log("DATA TIME:", data)
+            return <div style={style} className={className} onClick={onClick} onMouseOver={onMouseOver}>
+                <Component style={inheritStyle} className={className} onClick={onClick} onMouseOver={onMouseOver} onMouseOut={onMouseOut} editing={editing} data={data} children={children} extraElement={extraElement}/>
+                 {extraElement}</div>
+        }
+
+
+
+        this.renderElement = Wrapper
 
         this.inputElement = inputElement;
         this.buttonElement = buttonElement;
         this.startingMeta = startingMeta;
-        this.renderElement = renderElement;
-    
-
+        this.name = startingMeta.instruction;
     }
 
     verifyInputElement(inputElement){
@@ -110,7 +144,7 @@ export class CustomElement{
 
     verifyRenderElement(renderElement) {
             this.isReactComponent(renderElement)
-          const requiredProps = ["name", "onClick"]; // Example props to check
+          const requiredProps = ["style", "className", "onClick", "onMouseOver", "onMouseOut", "editing", "data", "children", "extraElement"]; // Example props to check
           this.checkComponentProps(renderElement, requiredProps);
           
 
