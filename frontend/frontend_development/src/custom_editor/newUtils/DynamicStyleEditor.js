@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useRef } from "react";
 import { applyOrGetPseudoStyles } from "./applyOrGetPseudoStyles";
-
-
+import { setValue as setStyle } from "./getValue";
+import { getValue } from "./getValue";
 // Debounce function
 const debounce = (func, delay) => {
   let inDebounce;
@@ -60,16 +60,19 @@ export const DynamicStyleEditor = ({
   type = "color",
   options = [], // New prop for select options
   inputName="",
-  changeDrag
+  changeDrag,
+  additionalProperties=[],
+  deferUpdate=true
 }) => {
   const inputRef = useRef(null);
   const unitRef = useRef(null);
+  const updateTimeoutRef = useRef(null);
 
   // Extract the value of the specified property from the style string
   const extractPropertyValue = (styleString) => {
-    const regex = new RegExp(`${property}\\s*:\\s*([^;]+)\\s*;?`);
-    const match = styleString.match(regex);
-    return match ? match[1].trim() : defaultColor;
+   
+    const val=getValue(property, styleString)
+    return val ? val : defaultColor;
   };
 
   const [value, setValue] = useState(
@@ -85,6 +88,7 @@ export const DynamicStyleEditor = ({
 
     setValue(val)
       setNumberValue(val.replace(/[^0-9.]/g, "") )
+      
   },[position])
 
   // Split the value into number and unit parts
@@ -111,7 +115,7 @@ export const DynamicStyleEditor = ({
   };
 
   // Debounced function to update resourceMeta
-  const debouncedHandleChange = debounce((newValue) => {
+  const debouncedHandleChange = (newValue) => {
    
     //SUS THAT i commented this out. Just check back on it.
     //if (newValue === value) return;
@@ -127,16 +131,56 @@ export const DynamicStyleEditor = ({
     const currentStyles = updatedResourceMeta[position].specific_style || "";
     const newStyles = `${property}: ${newValue};`;
 
-    if (currentStyles.includes(`${property}:`)) {
-      updatedResourceMeta[position].specific_style = currentStyles.replace(
-        new RegExp(`${property}\\s*:\\s*([^;]+)\\s*;?`),
-        newStyles
-      );
-    } else {
-      updatedResourceMeta[position].specific_style = currentStyles + newStyles;
+
+      updatedResourceMeta[position].specific_style = setStyle(property,newValue, updatedResourceMeta[position].specific_style, true)
+    
+    if (additionalProperties.length>0)
+      updatedResourceMeta[position].specific_style= additionalProperties
+    .reduce((acc, cur) =>setStyle(cur, newValue,acc,true), updatedResourceMeta[position].specific_style)
+
+    //All of these are eventually calling "updateResourceMeta"... 
+    //I need to place the document.querySelector here. It should not be a problem. 
+    //but I need a parameter to check whether it is allowed to use document query and 
+    //defer the actual update, because StyleChanger uses this component and needs it to 
+    //be updated for real. 
+
+    if (!deferUpdate){
+      update(property, updatedResourceMeta)
+    
+  }
+  else{
+   [property, ...additionalProperties].forEach(p=>{
+
+    const element=document.querySelector(`.position${position}`)
+    element.style[p]=newValue
+    if (p.endsWith("top") || p.endsWith("bottom") || p.endsWith("right") || p.endsWith("left"))
+      element.style.setProperty(`--${property}`, newValue)
+   })
+
+   deferResourceMeta(updatedResourceMeta)
+
+  }
+
+  }
+
+  const deferResourceMeta= (data) => {
+    if (updateTimeoutRef.current) {
+      clearTimeout(updateTimeoutRef.current);
     }
 
-    updateResourceMeta(updatedResourceMeta, "DYNAMIC STYLE EDITOR");
+    updateTimeoutRef.current = setTimeout(() => {
+      //Make sure to add the stupid fucking variables here --margin-left or whatever they're called
+      update(property, data)
+
+
+
+      updateTimeoutRef.current = null;
+    }, 500);
+  };
+
+  const update =(property, data)=>{
+    updateResourceMeta(data);
+
     if (property.includes("left"))
       changeDrag(position, 0, "left", "width", false)
     if (property.includes("right"))
@@ -145,8 +189,7 @@ export const DynamicStyleEditor = ({
       changeDrag(position, 0, "up","height", false)
     if (property.includes("bottom"))
       changeDrag(position, 0, "down", "height", false)
-
-  }, 300); // Adjust debounce delay as needed
+  }
 
   const handleSVGClick = () => {
     if (type === "color") {

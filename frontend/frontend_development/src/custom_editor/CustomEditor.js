@@ -134,10 +134,10 @@ const ElementPanel = ({ position, resourceMeta, updateResourceMeta, handleAddNew
     const tabs = ["pageSettings", "design", "structure", "advanced"]
    return (
      <>
-       <div>
+       <div style={{background: "white", width: "40%", maxHeight: "100vh"}}>
 
 
-   <div className="tabs" style={{ display: 'flex' }}>
+   <div className="tabs" style={{ display: 'flex',  }}>
    {tabs.map(t=>(
     <button
     style={{ flex: 1, margin: 0, borderRadius: '0px', backgroundColor: activeTab === t ? '#0e7abd' : '#198fd9' }}
@@ -151,7 +151,7 @@ const ElementPanel = ({ position, resourceMeta, updateResourceMeta, handleAddNew
   </div>
 
 
-      <div className="element-panel" style={{  height: "100vh", boxShadow: 'rgba(0, 0, 0, 0.15) 1.95px 1.95px 2.6px', minWidth: '25vw', maxWidth: '30vw', padding: '10px' }}>
+      <div className="element-panel" style={{ background: "white", height: "100%", overflowY: 'scroll', boxShadow: 'rgba(0, 0, 0, 0.15) 1.95px 1.95px 2.6px', minWidth: '25vw', maxWidth: '100%', padding: '10px', paddingBottom: "0px" }}>
         
         <button onClick={handleUndo}>Undo</button>
         <button onClick={handleRedo}>Redo</button>
@@ -178,8 +178,24 @@ const ElementPanel = ({ position, resourceMeta, updateResourceMeta, handleAddNew
           <p>to do:</p>
           <ol>
 
-            <li>Make sure there is a general element for things with list in the <br/>
-            element panel elemnt<br/></li>
+            <li> See if you can make somehting that changes the innerHTML of something incase
+              <br/> it is edited like in customElement like the style thing.
+              <b> make sure this works for the base text element also.</b> 
+            </li>
+            <li> Consider making an input component that is basically the same as the baseText Quill element thing
+              <br/> so that it can be used in other components. 
+            </li>
+            <li> 
+              Make sure that the new row modal can make a column with many children. 
+              AKA no rows, if on DEFAULT element. 
+            </li>
+            
+            <li>Double check if we really need to parse resourceMeta everywhere. I have a feeling it might make it lag further.</li>
+            <p>Maybe newRowModal does not need it.</p>
+            <p>Some of the button elements, if not all, in the Custom Elements don't need it.</p>
+            <p>In fact maybe a lot of those elements in Custom Elements don't need them. I am unsure. </p>
+
+
             <li>Make sure the general UI is good</li>
             <li>Make work/education timeline element</li>
 
@@ -228,16 +244,17 @@ const ElementPanel = ({ position, resourceMeta, updateResourceMeta, handleAddNew
                 options={[{text:"relative", value:"relative"},{text: "absolute", value:"absolute"},{text: "fixed", value:"fixed"}]}
                 />
                   </div>
-                <div style={{display:"flex"}}>
+                <div>
 <p>fontSize</p>
 <DynamicStyleEditor defaultColor="0px" position={position} resourceMeta={resourceMeta} updateResourceMeta={updateResourceMeta} property={"font-size"} type="number" />
 
-
+<div> 
 
                 <DynamicStyleEditor defaultColor="0px" position={position} resourceMeta={resourceMeta} updateResourceMeta={updateResourceMeta} property={"border-top-width"} type="text" />
                 <DynamicStyleEditor  position={position} resourceMeta={resourceMeta} updateResourceMeta={updateResourceMeta} property={"border-top-style"} type="select"
                 options={[{text:"none", value:"none"},{text: "Solid", value:"solid"}, {text: "burh", value:"dashed"}]}
                 />
+                </div>
                 <p>padding</p>
                 <DynamicStyleEditor defaultColor="0px" position={position} resourceMeta={resourceMeta} updateResourceMeta={updateResourceMeta} property={"padding-top"} type="number" 
                 options={[{text:"px", value:"px"}, {text: "percentage", value:"%"}]}
@@ -309,7 +326,7 @@ const CustomEditor = ({resource=null, givenResourceMeta=null, givenCategory, Res
         ordering: 0, // Default value, change as needed
         html_element: 'div' , // Provide a value based on your application's logic
         number_of_children: 0,
-        specific_style: 'height: 1191px; width: 842px;  display: flex; flex-direction: column; box-shadow: 0px 2px 4px -1px rgba(0,0,0,0.2), 0px 4px 5px 0px rgba(0,0,0,0.14), 0px 1px 10px 0px rgba(0,0,0,0.12); overflow: hidden; z-index: 1;', // Provide a value based on your application's logic
+        specific_style: 'height: 1191px; width: 842px;  display: flex; flex-direction: column; box-shadow: 0px 2px 4px -1px rgba(0,0,0,0.2), 0px 4px 5px 0px rgba(0,0,0,0.14), 0px 1px 10px 0px rgba(0,0,0,0.12); overflow: hidden; z-index: 1; background: white;', // Provide a value based on your application's logic
         content_type: '' , // Provide a value based on your application's logic
         content_data: '', // Provide a value based on your application's logic
         instruction: 'CONTAINER', // Provide a value based on your application's logic,
@@ -1514,10 +1531,14 @@ class_name: 'element'
         <>
 
 
-            <div style={{
-          display: "flex", 
-              
-        }}>
+<div style={{
+  display: "flex", 
+  backgroundColor: "#f9f9f9",
+  backgroundImage: "linear-gradient(to right, rgba(72, 0, 255, 0.1) 1px, transparent 1px), linear-gradient(to bottom, rgba(72, 0, 255, 0.1) 1px, transparent 1px)",
+  backgroundSize: "50px 50px",
+}}>
+
+
     
 
                 <ElementPanel 

@@ -1,77 +1,82 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import React from "react";
 import { typeIcons } from "./levelIcons";
 import { StyleChanger } from "./../../newUtils/styleChanger";
-import InputList from "./InputList"; // adjust the path as needed
+import InputList from "../InputList"; // adjust the path as needed
+import { getValue } from "../../newUtils/getValue";
 
+
+import { useContentElement } from "../useContentElement";
 export const InputElement = ({ position, resourceMeta, changeElement, updateResourceMeta }) => {
-  const [element, setElement] = useState(resourceMeta[position]);
-  const [contentData, setContentData] = useState({ name: "", color: "", skills: [] });
-  const [newSkill, setNewSkill] = useState({ name: "", level: 1, type: "star" });
 
-  useEffect(() => {
-    try {
-      let data;
-      if (typeof element.content_data === "string") {
-        data = JSON.parse(element.content_data);
-      } else {
-        data = element.content_data;
+
+  // Configuration for useContentData
+  const contentConfig = {
+    defaultData: { 
+      name: "Skills", 
+      color: "", 
+      skills: [], // Note: Now an array with template object
+      innerStyle: {
+        IconSize: "height: 15px; width: 15px;",
+        IconMargin: 'margin-left:0px; margin-right: 0px;',
+        NameSize: 'font-size:15px;',
+        SkillSize: 'font-size:15px;'
       }
-      if (typeof data !== "object" || data === null) {
-        data = { name: "", color: "", skills: [] };
-      } else {
-        if (!data.hasOwnProperty("name")) data.name = "";
-        if (!Array.isArray(data.skills)) data.skills = [];
-        if (!data.hasOwnProperty("innerStyle"))
-          data.innerStyle = "IconSize: 15px; IconMargin: 0px; NameSize: 15px; SkillSize: 15px;";
-        data.skills = data.skills.map(skill => {
-          if (!skill.hasOwnProperty("type")) {
-            return { ...skill, type: "star" };
-          }
-          return skill;
-        });
-      }
-      console.log("DATA TIME:", data)
-      setContentData(data);
-    } catch (error) {
-      console.error("Failed to parse content_data", error);
+    },
+    innerStyleDefaults: {
+      IconSize: "height: 15px; width: 15px;",
+      IconMargin: 'margin-left:0px; margin-right: 0px;',
+      NameSize: 'font-size:15px;',
+      SkillSize: 'font-size:15px;'
     }
-  }, [position, element.content_data]);
-
-  const updateElement = (updatedData) => {
-    const newElement = { ...element, content_data: JSON.stringify(updatedData) };
-    setElement(newElement);
-    changeElement(position, newElement);
   };
 
-  const handleAddSkill = () => {
-    if (newSkill.name.trim() === "") return;
-    const updatedSkills = [...contentData.skills, newSkill];
-    const updatedData = { ...contentData, skills: updatedSkills };
-    setContentData(updatedData);
-    updateElement(updatedData);
+  // Use the hook
+
+
+  const {
+    setElement,
+    handleFieldChange,
+    deferHandleFieldChange,
+    element,
+    contentData,
+    setContentData,
+    handleNestedChange,
+    handleStyleChange,
+    handleAddItemToArray,
+    updateElement
+  } = useContentElement({
+    contentConfig,
+    initialElement: resourceMeta[position],
+    position,
+    changeElement
+  });
+
+  const [newSkill, setNewSkill] = useState({ name: "", level: 1, type: "star" });
+
+  // Update element when position or resourceMeta changes
+  useEffect(() => {
+    setElement(resourceMeta[position]);
+  }, [position, resourceMeta]);
+
+
+
+  // Your handler functions remain largely the same
+  const handleAddSkill = (field, skill) => {
+    handleAddItemToArray(field, skill);
     setNewSkill({ name: "", level: 1, type: "star" });
   };
 
 
 
-  const handleFieldChange = (field, value) => {
-    const updatedData = { ...contentData, [field]: value };
-    setContentData(updatedData);
-    updateElement(updatedData);
-  };
 
-  const handleStyleChange = (style) => {
-    const updatedData = { ...contentData, innerStyle: style };
-    setContentData(updatedData);
-    updateElement(updatedData);
-  };
 
-  const update =(updatedSkills)=>{
+
+  const update = (updatedSkills) => {
     const updatedData = { ...contentData, skills: updatedSkills };
     setContentData(updatedData);
     updateElement(updatedData);
-  }
+  };
 
   return (
     <div className="input-skills-container">
@@ -81,41 +86,51 @@ export const InputElement = ({ position, resourceMeta, changeElement, updateReso
         <input
           type="text"
           value={contentData.name}
-          onChange={(e) => handleFieldChange("name", e.target.value)}
+          onChange={(e) => deferHandleFieldChange("name", e.target.value)}
         />
         <StyleChanger
-          property={"NameSize"}
+          property={"font-size"}
+          name={"NameSize"}
           defaultColor={"15px"}
           type={"number"}
           inputName={"Title Size"}
           handleStyle={handleStyleChange}
           currentStyle={contentData.innerStyle}
+          position={position}
         />
       </div>
 
       <StyleChanger
-        property={"SkillSize"}
+        property={"font-size"}
+        name={"SkillSize"}
         defaultColor={"15px"}
         type={"number"}
         inputName={"Skill name size"}
         handleStyle={handleStyleChange}
         currentStyle={contentData.innerStyle}
+        position={position}
       />
       <StyleChanger
-        property={"IconSize"}
-        defaultColor={"15px"}
+        property={"height"}
+        additionalProperties={["width"]}
+        name={"IconSize"}
+        defaultColor={"11px"}
         type={"number"}
         inputName={"IconSize"}
         handleStyle={handleStyleChange}
         currentStyle={contentData.innerStyle}
+        position={position}
       />
       <StyleChanger
-        property={"IconMargin"}
+        property={"margin-left"}
+        name={"IconMargin"}
         defaultColor={"0px"}
         type={"number"}
         inputName={"Icon Space"}
         handleStyle={handleStyleChange}
         currentStyle={contentData.innerStyle}
+        additionalProperties={["margin-right"]}
+        position={position}
       />
 
       <h3>Add Skill</h3>
@@ -147,31 +162,33 @@ export const InputElement = ({ position, resourceMeta, changeElement, updateReso
           </option>
         ))}
       </select>
-      <button onClick={handleAddSkill}>Add Skill</button>
+      <button onClick={()=>handleAddSkill("skills", newSkill)}>Add Skill</button>
 
       {/* Use the InputList with a render function for custom skill rendering */}
       <InputList
-        skills={contentData.skills}
+        items={contentData.skills}
         update={update}
+        position={position}
+
       >
-        {({ skill, index, moveSkill, removeSkill, handleSkillChange }) => {
-          const icons = typeIcons[skill.type] || typeIcons.star;
+        {({ item, index, moveItem, removeItem, handleItemChange, deferHandleItemChange}) => {
+          const icons = typeIcons[item.type] || typeIcons.star;
           return (
 
               <div>
                 <input
                   type="text"
-                  value={skill.name}
-                  onChange={(e) => handleSkillChange(index, "name", e.target.value)}
+                  value={item.name}
+                  onChange={(e) => deferHandleItemChange(index, "name", e.target.value)}
                 />
                 <div>
                   <input
                     type="number"
                     min="1"
                     max="5"
-                    value={skill.level}
+                    value={item.level}
                     onChange={(e) =>
-                      handleSkillChange(
+                      handleItemChange(
                         index,
                         "level",
                         Math.min(5, Math.max(1, Number(e.target.value)))
@@ -179,8 +196,8 @@ export const InputElement = ({ position, resourceMeta, changeElement, updateReso
                     }
                   />
                   <select
-                    value={skill.type}
-                    onChange={(e) => handleSkillChange(index, "type", e.target.value)}
+                    value={item.type}
+                    onChange={(e) => handleItemChange(index, "type", e.target.value)}
                   >
                     {Object.keys(typeIcons).map((key) => (
                       <option key={key} value={key}>
@@ -190,12 +207,12 @@ export const InputElement = ({ position, resourceMeta, changeElement, updateReso
                   </select>
                 </div>
                 <span>
-                  {Array.from({ length: skill.level }, (_, i) => (
+                  {Array.from({ length: item.level }, (_, i) => (
                     <React.Fragment key={`filled-${index}-${i}`}>
                       {<icons.filled />}
                     </React.Fragment>
                   ))}
-                  {Array.from({ length: 5 - skill.level }, (_, i) => (
+                  {Array.from({ length: 5 - item.level }, (_, i) => (
                     <React.Fragment key={`unfilled-${index}-${i}`}>
                       {<icons.unfilled />}
                     </React.Fragment>

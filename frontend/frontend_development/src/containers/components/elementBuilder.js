@@ -149,14 +149,13 @@ let  initialBorderStyle = startIndex === chosen ? "#007eff 4px solid; " : abc
 
 const newStyle= applyOrGetPseudoStyles(element, false)
 
+console.log("NEWSTYLE", newStyle)
 
 
     
-const centerEmpty= ""//(element.instruction === "EMPTY" && element.number_of_children === 0) ? "display: flex; justify-content: center; align-items: center;": ""    
-  
+
 const selectedClass= startIndex === chosen ?  `selected` : " "
 
-const isAbsolute= getValue("position", element.specific_style) =="absolute"
 
 
 if (element.rules?.freeFloat && startIndex === chosen){

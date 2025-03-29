@@ -1,6 +1,8 @@
 import React from "react";
 import { typeIcons } from "./levelIcons";
 import { getValue } from "../../newUtils/getValue";
+import { convertStyleStringToObject } from './../convertStyleStringToObject';
+
 export const RenderElement = ({ 
     style, 
     className, 
@@ -14,11 +16,10 @@ export const RenderElement = ({
 }) => {
     let { html_element, path, content_data, class_name, number_of_children, instruction } = data;
     let skills = [];
-    let IconSize =""
+
     let name = "";
-    let iconMargin=""
-    let nameSize="15px"
-    let skillSize="10px"
+
+    let innerStyle={}
 
     // Parse content_data into an object and extract skills and name
     try {
@@ -31,13 +32,9 @@ export const RenderElement = ({
         if (parsedData && typeof parsedData === "object" && !Array.isArray(parsedData)) {
             skills = Array.isArray(parsedData.skills) ? parsedData.skills : [];
             name = parsedData.name;
-            IconSize =  getValue("IconSize",parsedData.innerStyle,true)
-            iconMargin=getValue("IconMargin", parsedData.innerStyle, true)
+            innerStyle=parsedData.innerStyle
 
-            nameSize=getValue("NameSize", parsedData.innerStyle)
-            skillSize=getValue("SkillSize", parsedData.innerStyle)
-
-            console.log("WHAT IS SIZE?",parsedData.innerStyle, IconSize, iconMargin)
+            console.log("WHAT IS SIZE?",parsedData.innerStyle)
         } else if (Array.isArray(parsedData)) {
             skills = parsedData;
         }
@@ -53,7 +50,7 @@ export const RenderElement = ({
             onMouseOver={onMouseOver} 
             onMouseOut={onMouseOut}
         >
-            <h6 className="NameSize" style={{ marginTop: "5px", marginBottom: "5px", fontSize: nameSize }}>{name}</h6>
+            <h6 className="NameSize cd-name" style={{...convertStyleStringToObject(innerStyle.NameSize), marginTop: "5px", marginBottom: "5px"}}>{name|| "Skills"}</h6>
             {skills.length > 0 && (
                 <div className="skills-container">
                     {skills.map((skill, index) => {
@@ -61,19 +58,19 @@ export const RenderElement = ({
                         return (
                             <div 
                                 key={index} 
-                                className="skill" 
+                                className={`item${index}`}
                                 style={{ display: "flex", flexDirection:"column", alignItems: "center" }}
                             >
-                                <span className="skill-name" style={{fontSize:skillSize}}>{skill.name}</span>
+                                <span className="SkillSize item-name" style={{...convertStyleStringToObject(innerStyle.SkillSize)}}>{skill.name }</span>
                                 <span style={{fontSize:"inherit"}} className="skill-level">
                                     {Array.from({ length: skill.level }, (_, i) => (
                                         <React.Fragment key={`filled-${index}-${i}`}>
-                                            {<icons.filled size={IconSize} margin={iconMargin}/>}
+                                            {<icons.filled className={"IconSize IconMargin"} style={innerStyle.IconSize+innerStyle.IconMargin}/>}
                                         </React.Fragment>
                                     ))}
                                     {Array.from({ length: 5 - skill.level }, (_, i) => (
                                         <React.Fragment key={`unfilled-${index}-${i}`}>
-                                            {<icons.unfilled size={IconSize} margin={iconMargin} />}
+                                            {<icons.unfilled className={"IconSize IconMargin"} style={innerStyle.IconSize+innerStyle.IconMargin} />}
                                         </React.Fragment>
                                     ))}
                                 </span>

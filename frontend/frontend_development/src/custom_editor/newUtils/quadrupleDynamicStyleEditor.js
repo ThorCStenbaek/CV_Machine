@@ -5,7 +5,7 @@ export const QuadrupleDynamicStyleEditor = ({position, resourceMeta, updateResou
 
     return(
         <>
-        <div style={{display:'flex', gap: "5px"}}>
+        <div style={{display:'flex', gap: "5px", flexWrap: "wrap"}}>
 {propertyAndName.map(s=>
         <DynamicStyleEditor position={position} resourceMeta={resourceMeta} updateResourceMeta={updateResourceMeta}
         type={type} defaultColor={defaultColor}

@@ -1,41 +1,74 @@
 
 import { DynamicStyleEditor } from "./DynamicStyleEditor"
+import { parseStyleString } from "../newClasses/parseStyleString";
+import React, {useState, useEffect, useRef} from "react"
+import { getValue } from "./getValue";
+export const StyleChanger = ({property, defaultColor, type, options, inputName, handleStyle, currentStyle, name, additionalProperties, position})=>{
 
-import React, {useState, useEffect} from "react"
-export const StyleChanger = ({property, defaultColor, type, options, inputName, handleStyle, currentStyle})=>{
+defaultColor="17px;"
 
-const [style, setStyle] = useState(currentStyle)
+      const updateTimeoutRef = useRef(null);
+const [style, setStyle] = useState(typeof currentStyle !="string" && currentStyle ?currentStyle[name] : "")
 
 
 
     useEffect(()=>{
-setStyle(currentStyle)
+setStyle(typeof currentStyle !="string" && currentStyle ?currentStyle[name] : "")
     },[currentStyle])
 
     const pseudoUpdateResourceMeta=(resourceMeta)=>{
 
         setStyle(resourceMeta[0].specific_style)
-        console.log("STYLE MOMENT:", resourceMeta[0].specific_style)
+      
         if (!handleStyle)
             return 
-        handleStyle(resourceMeta[0].specific_style)
+
+        const elements=document.querySelectorAll(`.position${position} .${name}`)
+    
+        const styleArray= parseStyleString(style)
+        elements.forEach(e=>{
+          styleArray.forEach(s=>{
+            e.style[s.property]=s.value
+          })
+        })
+
+        console.log("STYLE MOMENT:", styleArray, resourceMeta[0].specific_style)
+        deferUpdateElement(name,resourceMeta[0].specific_style)
+    
     }
+
+    const deferUpdateElement = (name, style) => {
+        if (updateTimeoutRef.current) {
+          clearTimeout(updateTimeoutRef.current);
+        }
+    
+        updateTimeoutRef.current = setTimeout(() => {
+            handleStyle(name,style)
+          updateTimeoutRef.current = null;
+        }, 500);
+      };
+
+
+
+
+
     const fakeChangeDrag = (position, p, side, property, bool) =>{
         return 
     }
 
 
-
-    return (
+   return (
         <DynamicStyleEditor position={0}
          resourceMeta={[{specific_style:style}]}
           updateResourceMeta={pseudoUpdateResourceMeta}
           property={property}
-          defaultColor={defaultColor}
+          defaultColor={style && getValue(property,style) ? getValue(property,style) : getValue(property,style)}
           type={type}
           options={options}
           inputName={inputName}
           changeDrag={fakeChangeDrag}
+          additionalProperties={additionalProperties}
+          deferUpdate={false}
 
           />
     )

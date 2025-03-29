@@ -7,10 +7,10 @@ const ImageMeta= {
     ordering: 0, // Default value, change as needed
     html_element: 'img' , // Provide a value based on your application's logic
     number_of_children: 0,
-    specific_style: '', // Provide a value based on your application's logic
+    specific_style: 'background: white;', // Provide a value based on your application's logic
     content_type: '' , // Provide a value based on your application's logic
     content_data: '', // Provide a value based on your application's logic
-    instruction: 'SKILLS', // Provide a value based on your application's logic
+    instruction: 'SOCIAL', // Provide a value based on your application's logic
     depth:0,
     rules:{
         draggable: true, 

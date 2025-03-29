@@ -29,9 +29,7 @@ table {
 .selected::after{
   position: absolute;
   content: "";
-
-
-  background:var( --background);
+  background: var(--background, white);
   z-index: -1;
   border-left: rgba(0, 107, 121, 0.225) solid var(--padding-left);
   border-right: rgba(0, 107, 121, 0.225) solid var(--padding-right);
@@ -41,7 +39,7 @@ table {
   max-height: var(--max-height);
   left:0px;
   right:0px;
-  top:0px; 
+  top:0px;
   bottom: 0px;
 }
 .selected::before {
@@ -613,7 +611,7 @@ h1, h2, h3, h4,h5,h6 {
   padding:20px;
   border-radius: 5px;
   border: 1px solid #ccc;
-  max-height: 94vh;
+  
   overflow-y: auto;
   overflow-x: auto;
   width: 100%;
