@@ -65,7 +65,7 @@ import { CVElements } from "./newClasses/CVElements.js";
 
 import { applyOrGetPseudoStyles } from './newUtils/applyOrGetPseudoStyles';
 import { setValue } from "./newUtils/getValue.js";
-
+import MarginPaddingToggle from "./panelButtons/marginPaddingToggle.js";
 
 const ElementPanel = ({ position, resourceMeta, updateResourceMeta, handleAddNewElement, removeElement, addNewElement,toggleUploadModal, children, page, changeIndex, handleRedo, handleUndo,changeDrag  }) => {
     const [elementData, setElementData] = useState(resourceMeta[position]);
@@ -178,17 +178,9 @@ const ElementPanel = ({ position, resourceMeta, updateResourceMeta, handleAddNew
           <p>to do:</p>
           <ol>
 
-            <li> See if you can make somehting that changes the innerHTML of something incase
-              <br/> it is edited like in customElement like the style thing.
-              <b> make sure this works for the base text element also.</b> 
-            </li>
-            <li> Consider making an input component that is basically the same as the baseText Quill element thing
-              <br/> so that it can be used in other components. 
-            </li>
-            <li> 
-              Make sure that the new row modal can make a column with many children. 
-              AKA no rows, if on DEFAULT element. 
-            </li>
+
+            <li></li>
+
             
             <li>Double check if we really need to parse resourceMeta everywhere. I have a feeling it might make it lag further.</li>
             <p>Maybe newRowModal does not need it.</p>
@@ -200,21 +192,18 @@ const ElementPanel = ({ position, resourceMeta, updateResourceMeta, handleAddNew
             <li>Make work/education timeline element</li>
 
           </ol>
-          
+
+          <p> Bugs:</p>
+
+
+
 </>
         )}
 
         {activeTab === 'design' && (
           <div className="design-content">
             <div className="custom-editor-form" style={{ minWidth: '350px' }} >
-              <ElementInnerChild
-                position={position}
-                resourceMeta={resourceMeta}
-                changeElement={changeElement}
-       
-                handleAddNewElement={handleAddNewElement}
-                updateResourceMeta={updateResourceMeta}
-              />
+
               <ElementChildren
                 resourceMeta={resourceMeta}
                 position={position}
@@ -318,6 +307,12 @@ const MAX_HISTORY = 25;
 
 
 
+const defaultSettings={
+  showGrid: true, 
+  showMarginAndPadding:true,
+
+}
+
 const CustomEditor = ({resource=null, givenResourceMeta=null, givenCategory, ResoursetypeName}) => {
     const defaultMeta= {
         ID: null, // This will be auto-incremented by the database
@@ -335,6 +330,7 @@ const CustomEditor = ({resource=null, givenResourceMeta=null, givenCategory, Res
           draggable: false, 
           selectable: true, 
           newRowButton: true,  
+          newRowButtonAlways: true, 
         }
     };
 
@@ -376,6 +372,19 @@ const [title, setTitle] = useState(resource?.title || '');
     //setChangeElementPanelPage(!changeElementPanelPage);
   
   };
+
+  //settings
+  const [settings, setSettings] = useState(defaultSettings);
+
+  const handleSetSettings = (field, value)=> {
+    setSettings(prevSettings => ({
+      ...prevSettings,
+      [field]: value,
+    }));
+  } 
+
+
+
 //UNDO REDO BUTTONS
   const [undoStack, setUndoStack] = useState([]);
   const [redoStack, setRedoStack] = useState([]);
@@ -623,19 +632,22 @@ const handleAddNewElement = (index, elements = [], resourceMeta, updateResourceM
 };
   
 
-  const appendNewElements = (elements = [], rows = 1) => {
-    console.log("appendNewElements CONTAINER INDEX: ", index)
+  const appendNewElements = (elements = [], rows = 1, changeFlexTo="") => {
+  
     let UM = [...resourceMeta];
 
 let neighbour = findNextNeighbourIndex(index, resourceMeta)
+
 // If no neighbour is found, set `neighbour` to `UM.length` to append at the end.
-neighbour = neighbour !== -1 ? neighbour : UM.length;
+neighbour = neighbour !== -1 ? neighbour : findLastDescendantIndex(index, UM)+1
 
 UM = UM.slice(0, neighbour).concat(elements).concat(UM.slice(neighbour));
 
-if (rows>1)
-UM[index].specific_style+= "flex-direction:column"
-  
+if (changeFlexTo!=""){
+UM[index].specific_style= setValue("flex-direction",changeFlexTo, UM[index].specific_style, true)
+UM[index].specific_style=setValue("display", "flex", UM[index].specific_style, true)
+
+}
     updateResourceMeta(UM, "appendNewElements");
    }
 
@@ -1458,7 +1470,7 @@ const absoluteDragger = (position, side, X, show = false) => {
     let newElement = {
             html_element: 'div',
             number_of_children: 0,
-            specific_style: `height: auto; minHeight: 100px; position: relative; box-shadow: rgba(0, 0, 0, 0.16) 0px 1px 4px; `,
+            specific_style: `height: auto; minHeight: 100px; position: relative; `,
             content_type: '', 
             content_data: '',
            instruction: 'EMPTY',
@@ -1560,8 +1572,11 @@ class_name: 'element'
                       <HeaderPanel isStanding={isStanding} setIsStanding={setIsStanding} size={headerSize} title={title} setTitle={setTitle}>
 
               <Hint hintText={"The grid disables or shows the grid on the page."} >
-         <GridToggle position={index} resourceMeta={resourceMeta} updateResourceMeta={updateResourceMeta} size={headerSize} />
+         <GridToggle settings={settings} handleSetSettings={handleSetSettings}   size={headerSize} />
           </Hint>
+
+
+      < MarginPaddingToggle  settings={settings} handleSetSettings={handleSetSettings}   size={50} />
 
               
               <Hint hintText={"Change the direction of the page."} >
@@ -1586,7 +1601,7 @@ class_name: 'element'
       
       </div>
          <div className='resource-canvas' style={{border: 'none'}}>
-            <ElementBuilder  jsonData={resourceMeta} editing={true} changeElement={(i)=> handleSetIndex(i) } chosen={index} addElements={toggleModal} changeDrag={changeDrag} absoluteDragger={absoluteDragger} /> 
+            <ElementBuilder  jsonData={resourceMeta} editing={true} changeElement={(i)=> handleSetIndex(i) } chosen={index} addElements={toggleModal} changeDrag={changeDrag} absoluteDragger={absoluteDragger} settings={settings}/> 
           </div>
     
         </div>

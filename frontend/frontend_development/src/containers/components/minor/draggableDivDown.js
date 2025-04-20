@@ -25,10 +25,10 @@ const DraggableDivDown = ({ startPosition,onDragEnd, onDragging }) => {
   };
 
   // Mouse up event to stop dragging and report the drag end
-  const handleMouseUp = () => {
+  const handleMouseUp = (e) => {
     setDragging(false);
     // Calculate the difference between start and end Y positions
-    const diff =-1* ( position-startDragPosition ) 
+    const diff =-1* ( e.clientY-startDragPosition ) 
       // Call the onDragEnd prop with the difference in Y
       console.log("DIFF",diff, position, startDragPosition)
     onDragEnd(diff, startPosition, "height");

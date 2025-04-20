@@ -17,6 +17,7 @@ export const ButtonElement= ({position,  resourceMeta, changeElement, updateReso
         console.log("WHAT ELEMENT",position, element, resourceMeta)
         const newElement= {...startingMeta, depth: element.depth, specific_style: mergeStyles(element.specific_style, startingMeta.specific_style) }
 
+        
         console.log("new element pog:", newElement, element, startingMeta)
         changeElement(position, newElement)
     }

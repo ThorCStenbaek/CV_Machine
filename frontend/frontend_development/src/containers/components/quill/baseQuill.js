@@ -11,14 +11,14 @@ import { set } from 'date-fns';
 
 
 
-const BaseQuill = ({ editorContent, setEditorContent, metaInfo, setMetaInfo }) => {
+const BaseQuill = ({ editorContent, setEditorContent, metaInfo, setMetaInfo, selector }) => {
   const [value, setValue] = useState(editorContent);
   const quillRef = useRef(null);
   const [resourceMeta, setResourceMeta] = useState(metaInfo) 
   const [isFocused, setIsFocused] = useState(false);
   const [isModalImageOpen, setIsModalImageOpen] = useState(false);
  const [showPage, setShowPage] = useState(false);
-  
+        const updateTimeoutRef = useRef(null);
 
 
 
@@ -68,27 +68,51 @@ const formats = [
 }
   }, [editorContent]);
 
-  const handleQuillChange = async (content, delta, source, editor) => {
+  const handleQuillChange = (content, delta, source, editor) => {
+    console.log("CONTENT TIME:  ", content)
     if (source === 'user') {
       setValue(content); // Update the content in the parent component's state
   
-    setTimeout(async() => {
-      // Code to execute after the wait
-      try {
-        
-      
-      let metaObjects = await createMetaObjects(document.querySelector(".ql-editor"));
-      setMetaInfo(metaObjects);
-      console.log('This message will be displayed after 100 milliseconds.');
-} catch (error) {
-        console.log("BROTHER", error)
+    
+      if(selector){
+        const element=document.querySelector(selector)
+        if (element) element.innerHTML=content
       }
 
-      }, 50);
-
-      }
-
+      deferUpdate(content)
+    }
     };
+
+
+    const deferUpdate =  (content) => {
+      if (updateTimeoutRef.current) {
+        clearTimeout(updateTimeoutRef.current);
+      }
+  
+      updateTimeoutRef.current = setTimeout(() => {
+
+      
+          // Code to execute after the wait
+          try {
+            
+          
+          //let metaObjects = createMetaObjects(document.querySelector(".ql-editor"));
+          setMetaInfo(content);
+         
+    } catch (error) {
+            console.log("BROTHER", error)
+          }
+    
+        
+    
+        
+        updateTimeoutRef.current = null;
+      }, 1500);
+    };
+
+
+
+
     
 
    const handleSave = async (content, delta, source, editor) => {

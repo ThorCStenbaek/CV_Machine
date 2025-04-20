@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import Modal from '../containers/components/general/modal';
 import { getValue } from './newUtils/getValue';
 import { CVElements } from './newClasses/CVElements';
-
+import findLastDescendantIndex from './newUtils/findLastDescendant';
 
 function ProportionalElements({ sizes, onClick, maxWidth= '23%', rows=1 }) {
     // Calculate the total sum of sizes
@@ -81,7 +81,7 @@ function ProportionalElements({ sizes, onClick, maxWidth= '23%', rows=1 }) {
 }
 
 
-const RowTab =  ({ appendNewElements, closeModal, parentDepth=-1, parentStyle,  }) => {
+const RowTab =  ({ appendNewElements, closeModal, parentDepth=-1, parentStyle, position, updateResourceMeta, resourceMeta }) => {
 
     const [modalIsOpen, setModalIsOpen] = useState(false)
     
@@ -93,23 +93,30 @@ const RowTab =  ({ appendNewElements, closeModal, parentDepth=-1, parentStyle,  
 
     const parentWidth = getValue("width", parentStyle)  
 
-    const parentFlex = getValue("display", parentStyle)=="flex"
-    console.log("PARENT DEPTH:", parentDepth, parentFlex  )
+    const parentHeight=getValue("height", parentStyle)  
+const lastChild=  findLastDescendantIndex(position, resourceMeta)
+    const hasNoChildren= lastChild ==position
 
+    const alwaysRule = resourceMeta[position].rules?.newRowButtonAlways
+
+    const parentFlex = getValue("display", parentStyle)=="flex"
 
 const constructChildren = (number, sizes=null, rows=1) => {
+    const initialRows=rows
     const totalSum = sizes.reduce((sum, size) => sum + size, 0);
     let elements=[]
+    const actuallyHasRow=(initialRows!=1 && !hasNoChildren || alwaysRule)
+
 
     if (rows==0 && number>0){
 
         for (let i = 0; i < number; i++) {
             const percentage = (sizes[i] / totalSum)
-            console.log("PARENT WIDTH:", parentWidth, percentage)
+        
             elements.push({
                 html_element: 'div',
                 number_of_children: 0,
-                specific_style: `height: 100px; max-height: 100%;  width: ${(parentWidth.replace("px", ""))}px; position: relative; box-shadow: rgba(0, 0, 0, 0.16) 0px 1px 4px; max-width:100%;
+                specific_style: `height: ${alwaysRule ?100 :(parseFloat(parentHeight.replace("px", ""))/sizes.length )}px; max-height: 100%;  width: ${(parentWidth.replace("px", ""))}px; position: relative; max-width:100%;
                 margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; z-index: 3;`,
                 content_type: '', 
                 content_data: '',
@@ -131,10 +138,11 @@ const constructChildren = (number, sizes=null, rows=1) => {
 
 
     while (rows > 0) {
+        if (actuallyHasRow)
      elements.push({
         html_element: 'div',
         number_of_children: number, //padding-left: 10px; padding-right: 10px; 
-        specific_style: ` height: 100px;  max-height: 100%;  width: ${parentWidth}; display:flex; align-items: stretch; position: relative; justify-content: center;  max-width: 100%; flex-direction: row;  box-shadow: rgba(0, 0, 0, 0.16) 0px 1px 4px; overflow:hidden; z-index:2;`,
+        specific_style: ` height: ${alwaysRule ? "100px" :parentHeight };  max-height: 100%;  width: ${parentWidth}; display:flex; align-items: stretch; position: relative; justify-content: center;  max-width: 100%; flex-direction: row; overflow:hidden; z-index:2;`,
         content_type: '',
         content_data: '',
         instruction: 'DEFAULT',
@@ -148,17 +156,17 @@ const constructChildren = (number, sizes=null, rows=1) => {
     })
     for (let i = 0; i < number; i++) {
         const percentage = (sizes[i] / totalSum)
-        console.log("PARENT WIDTH:", parentWidth, percentage)
+      
         elements.push({
             html_element: 'div',
             number_of_children: 0,
-            specific_style: `height: 100px; max-height: 100%;  width: ${(parentWidth.replace("px", "")*percentage)}px; position: relative; box-shadow: rgba(0, 0, 0, 0.16) 0px 1px 4px; max-width:100%;
+            specific_style: `height: ${actuallyHasRow? 100:parentHeight.replace("px", "")}px; max-height: 100%;  width: ${(parentWidth.replace("px", "")*percentage)}px; position: relative; max-width:100%;
             margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; z-index: 3;`,
             content_type: '', 
             content_data: '',
            instruction: 'EMPTY',
 class_name: 'element',
-depth: parentDepth+2,
+depth: (actuallyHasRow) ? parentDepth+2 : parentDepth+1,
 rules: {
     draggable: true, 
     selectable: true, 
@@ -177,20 +185,34 @@ return elements;
 
     const AddNewRow = (number, sizes = null, rows=1) => { 
         let elements = constructChildren(number, sizes, rows)
-        console.log("all elements", elements)
-        appendNewElements(elements, rows)
+    
+        const flex= hasNoChildren ? (rows==0 || alwaysRule ? "column": "row"):""
+        /*
+        if (hasNoChildren){
+
+            if (rows=0)
+                flex= "column"
+            else if (position==0)
+                flex= "column"
+        }
+            */
+
+       
+        appendNewElements(elements, rows, flex)
         closeModal()
 
     }
     
-    const normalList = [[],[6], [3,3], [2,2,2],[1,1,1,1], [1,1,1,1,1], [1,1,1,1,1,1]]
+    const normalList = [ [3,3], [2,2,2],[1,1,1,1], [1,1,1,1,1], [1,1,1,1,1,1]]
     const strangerLists = [[5,1], [4,2], [2,3], [2,1,1], [2,2,1,1], [2,1,1,1,1],]
-    const columns =[[6], [6,6], [6,6,6],[6,6,6,6],[6,6,6,6,6], [6,6,6,6,6,6]]
+    const columns =[ [6,6], [6,6,6],[6,6,6,6],[6,6,6,6,6], [6,6,6,6,6,6]]
     const NormalRows = () => {
         return (
             <>
         
                 <div style={{display: 'flex', flexWrap: 'wrap'}}>
+                <ProportionalElements  sizes={[6] } rows={0} onClick={() =>
+                        AddNewRow(1, [6],0)} />
                 {normalList.map((list, index) => (
                     <ProportionalElements key={index} sizes={list} onClick={() =>
                         AddNewRow(list.length, list)} />
@@ -319,7 +341,8 @@ const NewRowModal = ({ appendNewElements, closeModal, resourceMeta, position, ch
 
             <div className="tab-content">
                 {activeTab === "Row" && (
-                    <RowTab appendNewElements={appendNewElements} closeModal={closeModal} parentDepth={parentDepth} parentStyle={parentStyle} />
+                    <RowTab appendNewElements={appendNewElements} closeModal={closeModal} parentDepth={parentDepth} parentStyle={parentStyle}
+                         resourceMeta={resourceMeta} position={position} updateResourceMeta={updateResourceMeta} />
                 )}
                 {activeTab === "Other" && (
                     <div>

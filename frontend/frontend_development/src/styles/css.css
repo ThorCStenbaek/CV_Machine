@@ -53,6 +53,35 @@ table {
   z-index: -2; /* Place it behind the element */
 }
 
+.baseText p{
+  margin:0px;
+}
+.ql-indent-1 { padding-left: 3em; }
+.ql-indent-2 { padding-left: 6em; }
+.ql-indent-3 { padding-left: 9em; }
+.ql-indent-4 { padding-left: 12em; }
+.ql-indent-5 { padding-left: 15em; }
+.ql-indent-6 { padding-left: 18em; }
+.ql-indent-7 { padding-left: 21em; }
+.ql-indent-8 { padding-left: 24em; }
+
+.ql-align-justify{
+  text-align: justify;
+}
+blockquote {
+  border-left: 4px solid #ccc;
+  margin-bottom: 5px;
+  margin-top: 5px;
+  padding-left: 16px;
+}
+.baseText{
+  color:inherit;
+  font-size:inherit;
+}
+.baseText p, li{
+font-size: inherit;
+color:inherit;
+}
 
 /* Add this class to the element when you want the animation to run */
 .error-animation {
@@ -708,9 +737,7 @@ h1, h2, h3, h4,h5,h6 {
     font-weight: bold;
 }
 
-.element{
-  box-shadow: rgba(0, 0, 0, 0.16) 0px 1px 4px;
-}
+
 
 .newRowElement:hover{
   border: solid #3a70ff 1px  !important; 

@@ -1,4 +1,4 @@
-
+import { allRules } from "../allRules";
 
 const ImageMeta= {
     ID: null, // This will be auto-incremented by the database
@@ -12,7 +12,7 @@ const ImageMeta= {
     content_data: '', // Provide a value based on your application's logic
     instruction: 'IMAGE', // Provide a value based on your application's logic
     depth:0,
-    rules:{
+    rules:{ ...allRules,
         draggable: true, 
         selectable: true, 
         newRowButton:false

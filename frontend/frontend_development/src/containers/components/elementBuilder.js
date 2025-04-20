@@ -12,54 +12,16 @@ import { DraggableAbsolute } from "./minor/draggableAbsolute";
 import { applyOrGetPseudoStyles } from './../../custom_editor/newUtils/applyOrGetPseudoStyles';
 
 // Function to build elements recursively
-const buildElements = (elements, startIndex = 0, editing, changeElement, chosen, addElements, changeDrag,absoluteDragger ) => {
-  console.log("elements",elements)
+const buildElements = (elements, startIndex = 0, editing, changeElement, chosen, addElements, changeDrag,absoluteDragger, settings ) => {
+ 
   if (startIndex >= elements.length) {
     console.error(`Error: Element at index ${startIndex - 1} expects more children than are available in the array.`);
     return null;
   }
 
-console.log("STARTINDEXQ", startIndex)
-  
-  const solveRules = (rules, position, chosen = false) => { 
- 
-    console.log("SOLVE RULES:", rules, position, elements[position], chosen, absoluteDragger)
-  if (!chosen)
-    return null
-      const changeDragHandler = (X, side, property) => {
-        changeDrag(position, X, side, property, false)
-      }
-      const changeDragShow = (X, side, property) => {
-        changeDrag(position, X, side,property, true)
-      }
 
-      const changeAbsoluteDragger=(side, X )=>{
-        absoluteDragger( position,side,X, false)
-      }
-      const absoluteEnd=(side, X)=>{
-        absoluteDragger( position,side,X, true)
-      }
-      return (
-        <>
-         {rules.newRowButton && <button style={{position: "absolute", bottom: "20px", width: "100%", margin:"0px", left:"0px"}} onClick={(e) => { addElements(position) }}>+</button> }
-         
-         {rules.draggable && 
-         
-         <><DraggableDiv startPosition={'left'} onDragEnd={changeDragHandler} onDragging={changeDragShow}/>
-          <DraggableDiv startPosition={'right'} onDragEnd={changeDragHandler} onDragging={changeDragShow}/> 
-          <DraggableDivDown startPosition={'down'} onDragEnd={changeDragHandler} onDragging={changeDragShow}/>
-          <DraggableDivDown startPosition={'up'} onDragEnd={changeDragHandler} onDragging={changeDragShow}/> </> }
-   
-          {rules.freeFloat && 
-          <>
-<DraggableAbsolute direction={"left"} onDragEnd={absoluteEnd} onDragging={changeAbsoluteDragger}/>
-<DraggableAbsolute direction={"right"} onDragEnd={absoluteEnd} onDragging={changeAbsoluteDragger}/>
-<DraggableAbsolute direction={"top"} onDragEnd={absoluteEnd} onDragging={changeAbsoluteDragger}/>
-<DraggableAbsolute direction={"bottom"} onDragEnd={absoluteEnd} onDragging={changeAbsoluteDragger}/>
-  </>}
-</>
-          )
-}
+  
+
 
 
 
@@ -86,7 +48,7 @@ console.log("STARTINDEXQ", startIndex)
       break // ????
     }
 
-    const child = buildElements(elements, nextIndex, editing, changeElement, chosen,addElements, changeDrag, absoluteDragger );
+    const child = buildElements(elements, nextIndex, editing, changeElement, chosen,addElements, changeDrag, absoluteDragger, settings );
     if (child) { // Ensure child is not null before pushing
       children.push(child.element);
       nextIndex = child.nextIndex;
@@ -120,6 +82,48 @@ console.log("STARTINDEXQ", startIndex)
   }
 
 
+
+  const solveRules = (rules, position, chosen = false) => { 
+ 
+  if (!chosen)
+    return null
+      const changeDragHandler = (X, side, property) => {
+        changeDrag(position, X, side, property, false)
+      }
+      const changeDragShow = (X, side, property) => {
+        changeDrag(position, X, side,property, true)
+      }
+
+      const changeAbsoluteDragger=(side, X )=>{
+        absoluteDragger( position,side,X, false)
+      }
+      const absoluteEnd=(side, X)=>{
+        absoluteDragger( position,side,X, true)
+      }
+      return (
+        <>
+         {((rules.newRowButton && children.length==0) || rules?.newRowButtonAlways) && <button style={{position: "absolute", bottom: "20px", width: "100%", margin:"0px", left:"0px"}} onClick={(e) => { addElements(position) }}>+</button> }
+         
+         {rules.draggable && 
+         
+         <><DraggableDiv startPosition={'left'} onDragEnd={changeDragHandler} onDragging={changeDragShow}/>
+          <DraggableDiv startPosition={'right'} onDragEnd={changeDragHandler} onDragging={changeDragShow}/> 
+          <DraggableDivDown startPosition={'down'} onDragEnd={changeDragHandler} onDragging={changeDragShow}/>
+          <DraggableDivDown startPosition={'up'} onDragEnd={changeDragHandler} onDragging={changeDragShow}/> </> }
+   
+          {rules.freeFloat && 
+          <>
+<DraggableAbsolute direction={"left"} onDragEnd={absoluteEnd} onDragging={changeAbsoluteDragger}/>
+<DraggableAbsolute direction={"right"} onDragEnd={absoluteEnd} onDragging={changeAbsoluteDragger}/>
+<DraggableAbsolute direction={"top"} onDragEnd={absoluteEnd} onDragging={changeAbsoluteDragger}/>
+<DraggableAbsolute direction={"bottom"} onDragEnd={absoluteEnd} onDragging={changeAbsoluteDragger}/>
+  </>}
+</>
+          )
+}
+
+
+
   let currentElement = null
   let elementStyle= element.specific_style
 
@@ -131,7 +135,6 @@ console.log("STARTINDEXQ", startIndex)
 
     }
   if (editing) {
-    console.log("StartIndex", startIndex, "chosen", chosen);
 
 
 
@@ -149,12 +152,12 @@ let  initialBorderStyle = startIndex === chosen ? "#007eff 4px solid; " : abc
 
 const newStyle= applyOrGetPseudoStyles(element, false)
 
-console.log("NEWSTYLE", newStyle)
+
 
 
     
 
-const selectedClass= startIndex === chosen ?  `selected` : " "
+const selectedClass= settings.showMarginAndPadding && startIndex === chosen ?  `selected` : " "
 
 
 
@@ -163,13 +166,18 @@ if (element.rules?.freeFloat && startIndex === chosen){
   elementStyle= getValue("position", element.specific_style) ?
   setValue("overflow", "visible", elementStyle, true) : elementStyle
   elementStyle=setValue("z-index",parseInt(getValue("z-index", element.specific_style, true)),elementStyle, true)
-console.log("NEW STYLE THING:", element.specific_style)
+
+}
+
+if (settings.showGrid){
+  const boxShadow= getValue("box-shadow", elementStyle)
+  if (!boxShadow)
+    elementStyle= setValue("box-shadow", "rgba(0, 0, 0, 0.16) 0px 1px 4px;", elementStyle, true)
+
 }
 
 
-    if (element.html_element === "p") {
-      element.specific_style+= "color: inherit; "
-    }
+
     let isPage = element.instruction === "CONTAINER" ? "page-container" : ""
     
     currentElement = (
@@ -180,7 +188,7 @@ console.log("NEW STYLE THING:", element.specific_style)
     data={{ ...element, specific_style: `${elementStyle}; outline: ${initialBorderStyle};   ${newStyle} `, class_name: element.class_name+` position${startIndex} ${isPage} ${selectedClass}` }}
     children={children}
     onClick={(e) => {
-      console.log("I AM CLICKED");
+
       handleElementClick(e, startIndex);
     
 
@@ -194,13 +202,16 @@ console.log("NEW STYLE THING:", element.specific_style)
 
     
           onMouseOver={(e) => {
-            console.log("START MOUSEOVER", startIndex, elements[startIndex])
+ 
 
         
             e.target.style.cursor = "pointer";
             if (element.instruction != "ELEMENT") {
                 e.stopPropagation()
-              if (startIndex === chosen) { console.log(" INSstartIndex:", startIndex, " chosen:", chosen) }
+              if (startIndex === chosen)
+                 { 
+                  
+                  }
 
               else {
                 if(element.rules.selectable)
@@ -224,7 +235,7 @@ console.log("NEW STYLE THING:", element.specific_style)
         //e.target.border = "purple 4px solid"
       }
       else{
-console.log("MOUSE OUT;",abc, element.specific_style)
+
         e.target.style.outline = abc}
       
    
@@ -240,7 +251,7 @@ console.log("MOUSE OUT;",abc, element.specific_style)
          
         </ElementComponent>
       
-      {(startIndex === chosen) && false ? <button onClick={(e) => { console.log("bruh"); e.stopPropagation() }}></button>: null}
+      {(startIndex === chosen) && false ? <button onClick={(e) => {  e.stopPropagation() }}></button>: null}
         </>
 );
 
@@ -249,7 +260,7 @@ console.log("MOUSE OUT;",abc, element.specific_style)
   }
   else {
     let isPage = element.instruction === "CONTAINER" ? "page-container" : ""
-    console.log("ISPAGE", isPage, element)
+ 
      currentElement = (
     <ElementComponent key={startIndex} data={{...element,specific_style:elementStyle, class_name: element.class_name+` position${startIndex} ${isPage}`}} children={children} onClick={()=>console.log("bruh")}>
       {element.html_element==='br' ? '': children}
@@ -265,11 +276,11 @@ console.log("MOUSE OUT;",abc, element.specific_style)
 };
 
 
-const allElements = (jsonData, index=0, editing, changeElement, chosen,addElements, changeDrag,absoluteDragger  ) => {
+const allElements = (jsonData, index=0, editing, changeElement, chosen,addElements, changeDrag,absoluteDragger, settings  ) => {
 
   let allElements = []
   while (true) {
-    let elements = buildElements(jsonData, index, editing, changeElement, chosen, addElements, changeDrag,absoluteDragger );
+    let elements = buildElements(jsonData, index, editing, changeElement, chosen, addElements, changeDrag,absoluteDragger, settings );
     if (elements == null) {
     break
     }
@@ -286,9 +297,9 @@ const allElements = (jsonData, index=0, editing, changeElement, chosen,addElemen
 let n=0
 
 // Main function to initiate the recursive building of elements
-const ElementBuilder = ({ jsonData, editing = false, changeElement, chosen, addElements, changeDrag,absoluteDragger }) => {
-  console.log("json", jsonData);
-  console.log("RERENDER TRIGGERED:", n++)
+const ElementBuilder = ({ jsonData, editing = false, changeElement, chosen, addElements, changeDrag,absoluteDragger, settings }) => {
+
+  console.log("RERENDER TRIGGERED:", n++, jsonData)
 
   //const elementRef = useRef(null); // Ref for the .resource-elements div
 
@@ -325,8 +336,8 @@ const ElementBuilder = ({ jsonData, editing = false, changeElement, chosen, addE
     };
   }, [editing]); // Dependency on editing ensures this effect runs when editing state changes
 */
-  const elements = jsonData.length !== 0 ? allElements(jsonData, 0, editing, changeElement, chosen, addElements, changeDrag, absoluteDragger) : null;
-console.log("ELEMENTS", elements,jsonData)
+  const elements = jsonData.length !== 0 ? allElements(jsonData, 0, editing, changeElement, chosen, addElements, changeDrag, absoluteDragger, settings) : null;
+
 
   if (elements.length == 1 && jsonData[0].instruction == "PDF")
     return ( elements.map((element, index) => <div key={index}>{element.element}</div>))

@@ -1,10 +1,17 @@
 export function mergeStyles(style1, style2) {
     const parseStyles = (styleString) => {
-        return styleString.split(';').reduce((acc, rule) => {
-            const [property, value] = rule.split(':').map(s => s.trim());
-            if (property) acc[property] = value;
-            return acc;
-        }, {});
+        if (!styleString) return {};
+        return styleString.split(';')
+            .map(rule => rule.trim())
+            .filter(rule => rule)  // remove empty rules
+            .reduce((acc, rule) => {
+                const colonIndex = rule.indexOf(':');
+                if (colonIndex === -1) return acc;
+                const property = rule.substring(0, colonIndex).trim();
+                const value = rule.substring(colonIndex + 1).trim();
+                if (property) acc[property] = value;
+                return acc;
+            }, {});
     };
 
     const styles1 = parseStyles(style1);
@@ -15,5 +22,5 @@ export function mergeStyles(style1, style2) {
 
     return Object.entries(mergedStyles)
         .map(([key, value]) => `${key}: ${value}`)
-        .join('; ');
+        .join('; ')+";"
 }

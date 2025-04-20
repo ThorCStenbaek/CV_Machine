@@ -24,7 +24,7 @@ const ElementPanelElement = ({ position, resourceMeta, changeElement, updateReso
     useEffect(() => {
         setElement(resourceMeta[position]);
         
-        console.log("ELEMENT CHOSEN:", resourceMeta[position])
+  
         }, [position, resourceMeta]);
 
 
@@ -75,7 +75,6 @@ const ElementPanelElement = ({ position, resourceMeta, changeElement, updateReso
 
 
 
-    console.log("SELECTED ELEMENT", element, elementID)
     if (element.instruction === 'CONTAINER' || element.instruction ==='DEFAULT')
         return null
 
@@ -134,7 +133,7 @@ const ElementPanelElement = ({ position, resourceMeta, changeElement, updateReso
 
 
 const ElementChildren = ({ position, resourceMeta, removeElement, changeElement, updateResourceMeta }) => {
-    console.log("MYRESOURCE", resourceMeta[position])
+
 
     useEffect(() => { }, [resourceMeta]);
 

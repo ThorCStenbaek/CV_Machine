@@ -29,14 +29,12 @@ const DraggableDiv = ({ startPosition, onDragEnd, onDragging }) => {
   // Mouse move event to handle dragging
   const handleMouseMove = (e) => {
       if (dragging) {
-        console.log("DRAGGING:", e)
-          if (startPosition === 'left') {
+        if (startPosition === 'left') {
             let diff = {
               x: e.clientX - startDragPosition
          
               };
 
-            console.log(`DRAGAA ${startPosition}, X: ${diff.x}, start: ${startDragPosition}`)
             onDragging(diff.x, startPosition, "width")
               setPosition((prevPosition) => ({
                   ...prevPosition,
@@ -48,7 +46,6 @@ const DraggableDiv = ({ startPosition, onDragEnd, onDragging }) => {
         x:  e.clientX  - startDragPosition
    
         };
-      console.log(`DRAGAA ${startPosition}, X: ${diff.x}, start: ${startDragPosition}, pos: ${position.x}`)
       onDragging(diff.x, startPosition, "width")
             setPosition((prevPosition) => ({
                 ...prevPosition,
@@ -60,25 +57,24 @@ const DraggableDiv = ({ startPosition, onDragEnd, onDragging }) => {
   };
 
   // Mouse up event to stop dragging and report the drag end
-  const handleMouseUp = () => {
+  const handleMouseUp = (e) => {
     
     setDragging(false);
-      // Calculate the difference between start and end positions
+        // Calculate the difference between tart and end positions
       
 
     let diff = {
-      x: position.x - startDragPosition
+      x: e.clientX - startDragPosition
  
       };
       if (startPosition === 'right') {
           
             diff = {
-                x:  position.x - startDragPosition,
+                x:  e.clientX - startDragPosition,
               
             };
        }
     // Call the onDragEnd prop with the difference
-    console.log(`DRAGAA END ${startPosition}, X: ${diff.x}, start: ${startDragPosition}`)
       onDragEnd(diff.x, startPosition, "width");
       setPosition({ x: 0, y: 0 });
       
