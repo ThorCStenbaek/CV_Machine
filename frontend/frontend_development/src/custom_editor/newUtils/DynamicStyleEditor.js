@@ -62,7 +62,8 @@ export const DynamicStyleEditor = ({
   inputName="",
   changeDrag,
   additionalProperties=[],
-  deferUpdate=true
+  deferUpdate=true,
+  alignItems="center",
 }) => {
   const inputRef = useRef(null);
   const unitRef = useRef(null);
@@ -198,7 +199,7 @@ export const DynamicStyleEditor = ({
   };
 
   return (
-    <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+    <div style={{ display: "flex", alignItems: 'center', gap: "10px" }}>
       {type === "color" && (
         <input
           type="color"
@@ -233,7 +234,7 @@ export const DynamicStyleEditor = ({
       )}
       {type === "number" && (
         <div style={{ display: "flex", gap: "5px" }}>
-          <div style={{display:"flex", flexDirection: 'column', alignItems:"center"}}>
+          <div style={{display:"flex", flexDirection: 'column', alignItems:alignItems}}>
             <p style={{marginBottom:'0px', fontSize:"16px"}}>{inputName}</p>
             <div style={{display: 'flex', alignItems:'center'}}>
           <input className="input-boxed"

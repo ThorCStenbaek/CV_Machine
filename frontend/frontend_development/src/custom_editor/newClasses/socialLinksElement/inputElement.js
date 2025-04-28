@@ -5,7 +5,7 @@ import InputList from "../InputList";
 import { useContentElement } from "../useContentElement";
 import { socialIcons } from "./socialLinks";
 // Icons for different social platforms
-
+import CoolInput from "../../../containers/components/general/coolInput";
 
 export const InputElement = ({ position, resourceMeta, changeElement, updateResourceMeta }) => {
   // Configuration for useContentData
@@ -61,6 +61,11 @@ export const InputElement = ({ position, resourceMeta, changeElement, updateReso
     handleAddItemToArray(field, link);
     setNewLink({ platform: "linkedin", url: "", text: "" });
   };
+  
+  const addBlankLink = () => {
+    handleAddItemToArray("links", newLink);
+  };
+
 
   const update = (updatedLinks) => {
     const updatedData = { ...contentData, links: updatedLinks };
@@ -72,11 +77,12 @@ export const InputElement = ({ position, resourceMeta, changeElement, updateReso
     <div className="input-social-links-container">
       <h3>Social Links</h3>
       <div>
-        <label>Section Name: </label>
-        <input
+
+        <CoolInput
           type="text"
           value={contentData.name}
-          onChange={(e) => deferHandleFieldChange("name", e.target.value)}
+          onChange={(e) => deferHandleFieldChange("name", e)}
+          label={"Section Name"}
         />
         <StyleChanger
           property={"font-size"}
@@ -90,6 +96,61 @@ export const InputElement = ({ position, resourceMeta, changeElement, updateReso
         />
       </div>
 
+
+
+      <InputList
+        name="Links"
+        items={contentData.links}
+        update={update}
+        addNewItem={addBlankLink}
+        position={position}
+        collapsedItem ={(item) => {
+          const Icon = socialIcons[item.platform]?.icon || socialIcons.website.icon;
+          return(
+            <div style={{ display: 'flex', alignItems: 'center' }}>
+            <Icon />
+            <span style={{ marginLeft: '5px' }}>
+              {item.text || item.platform}
+            </span>
+          </div>)}}
+      >
+        {({ item, index, moveItem, removeItem, handleItemChange, deferHandleItemChange }) => {
+          const Icon = socialIcons[item.platform]?.icon || socialIcons.website.icon;
+          return (
+            <div>
+              <select
+                value={item.platform}
+                onChange={(e) => handleItemChange(index, "platform", e.target.value)}
+              >
+                {Object.keys(socialIcons).map((key) => (
+                  <option key={key} value={key}>
+                    {key.charAt(0).toUpperCase() + key.slice(1)}
+                  </option>
+                ))}
+              </select>
+              <CoolInput
+                type="text"
+                value={item.url}
+                onChange={(v) => deferHandleItemChange(index, "url", v)}
+                label="URL"
+              />
+              <CoolInput
+                type="text"
+                value={item.text}
+                onChange={(v) => deferHandleItemChange(index, "text", v)}
+                label="Display Text"
+              />
+              <div style={{ display: 'flex', alignItems: 'center' }}>
+                <Icon />
+                <span style={{ marginLeft: '5px' }}>
+                  {item.text || item.platform}
+                </span>
+              </div>
+            </div>
+          );
+        }}
+      </InputList>
+      
       <StyleChanger
         property={"font-size"}
         name={"LinkSize"}
@@ -133,73 +194,6 @@ export const InputElement = ({ position, resourceMeta, changeElement, updateReso
         //additionalProperties={["margin-right"]}
         position={position}
       />
-
-      <h3>Add Social Link</h3>
-      <select
-        value={newLink.platform}
-        onChange={(e) => setNewLink({ ...newLink, platform: e.target.value })}
-      >
-        {Object.keys(socialIcons).map((key) => (
-          <option key={key} value={key}>
-            {key.charAt(0).toUpperCase() + key.slice(1)}
-          </option>
-        ))}
-      </select>
-      <input
-        type="text"
-        placeholder="URL"
-        value={newLink.url}
-        onChange={(e) => setNewLink({ ...newLink, url: e.target.value })}
-      />
-      <input
-        type="text"
-        placeholder="Display Text (optional)"
-        value={newLink.text}
-        onChange={(e) => setNewLink({ ...newLink, text: e.target.value })}
-      />
-      <button onClick={() => handleAddLink("links", newLink)}>Add Link</button>
-
-      <InputList
-        items={contentData.links}
-        update={update}
-        position={position}
-      >
-        {({ item, index, moveItem, removeItem, handleItemChange, deferHandleItemChange }) => {
-          const Icon = socialIcons[item.platform]?.icon || socialIcons.website.icon;
-          return (
-            <div>
-              <select
-                value={item.platform}
-                onChange={(e) => handleItemChange(index, "platform", e.target.value)}
-              >
-                {Object.keys(socialIcons).map((key) => (
-                  <option key={key} value={key}>
-                    {key.charAt(0).toUpperCase() + key.slice(1)}
-                  </option>
-                ))}
-              </select>
-              <input
-                type="text"
-                value={item.url}
-                onChange={(e) => deferHandleItemChange(index, "url", e.target.value)}
-                placeholder="URL"
-              />
-              <input
-                type="text"
-                value={item.text}
-                onChange={(e) => deferHandleItemChange(index, "text", e.target.value)}
-                placeholder="Display Text"
-              />
-              <div style={{ display: 'flex', alignItems: 'center' }}>
-                <Icon />
-                <span style={{ marginLeft: '5px' }}>
-                  {item.text || item.platform}
-                </span>
-              </div>
-            </div>
-          );
-        }}
-      </InputList>
     </div>
   );
 };

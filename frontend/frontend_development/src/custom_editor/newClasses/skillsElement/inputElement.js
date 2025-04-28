@@ -67,6 +67,9 @@ export const InputElement = ({ position, resourceMeta, changeElement, updateReso
     setNewSkill({ name: "", level: 1, type: "star" });
   };
 
+  const addBlankSkill= () => {
+    handleAddItemToArray("skills", newSkill);
+  }
 
 
 
@@ -100,75 +103,34 @@ export const InputElement = ({ position, resourceMeta, changeElement, updateReso
         />
       </div>
 
-      <StyleChanger
-        property={"font-size"}
-        name={"SkillSize"}
-        defaultColor={"15px"}
-        type={"number"}
-        inputName={"Skill name size"}
-        handleStyle={handleStyleChange}
-        currentStyle={contentData.innerStyle}
-        position={position}
-      />
-      <StyleChanger
-        property={"height"}
-        additionalProperties={["width"]}
-        name={"IconSize"}
-        defaultColor={"11px"}
-        type={"number"}
-        inputName={"IconSize"}
-        handleStyle={handleStyleChange}
-        currentStyle={contentData.innerStyle}
-        position={position}
-      />
-      <StyleChanger
-        property={"margin-left"}
-        name={"IconMargin"}
-        defaultColor={"0px"}
-        type={"number"}
-        inputName={"Icon Space"}
-        handleStyle={handleStyleChange}
-        currentStyle={contentData.innerStyle}
-        additionalProperties={["margin-right"]}
-        position={position}
-      />
 
-      <h3>Add Skill</h3>
-      <input
-        type="text"
-        placeholder="Skill Name"
-        value={newSkill.name}
-        onChange={(e) => setNewSkill({ ...newSkill, name: e.target.value })}
-      />
-      <input
-        type="number"
-        min="1"
-        max="5"
-        value={newSkill.level}
-        onChange={(e) =>
-          setNewSkill({
-            ...newSkill,
-            level: Math.min(5, Math.max(1, Number(e.target.value))),
-          })
-        }
-      />
-      <select
-        value={newSkill.type}
-        onChange={(e) => setNewSkill({ ...newSkill, type: e.target.value })}
-      >
-        {Object.keys(typeIcons).map((key) => (
-          <option key={key} value={key}>
-            {key.charAt(0).toUpperCase() + key.slice(1)}
-          </option>
-        ))}
-      </select>
-      <button onClick={()=>handleAddSkill("skills", newSkill)}>Add Skill</button>
 
       {/* Use the InputList with a render function for custom skill rendering */}
       <InputList
+        name="Skills"
         items={contentData.skills}
         update={update}
         position={position}
+        addNewItem={addBlankSkill}
+        collapsedItem={(item) =>{
+          const icons = typeIcons[item.type] || typeIcons.star;
+          return(
+          <div style={{display:"flex", alignItems:"flex-start", flexDirection:"column"}}>
+                    <span>{item.name }</span>
+                    <span>
+          {Array.from({ length: item.level }, (_, i) => (
+            <React.Fragment key={`filled-${i}`}>
+              {<icons.filled />}
+            </React.Fragment>
+          ))}
+          {Array.from({ length: 5 - item.level }, (_, i) => (
+            <React.Fragment key={`unfilled-${i}`}>
+              {<icons.unfilled />}
+            </React.Fragment>
+          ))}
+          </span>
+        </div>)
+        }}
 
       >
         {({ item, index, moveItem, removeItem, handleItemChange, deferHandleItemChange}) => {
@@ -223,6 +185,39 @@ export const InputElement = ({ position, resourceMeta, changeElement, updateReso
           );
         }}
       </InputList>
+
+      <StyleChanger
+        property={"font-size"}
+        name={"SkillSize"}
+        defaultColor={"15px"}
+        type={"number"}
+        inputName={"Skill name size"}
+        handleStyle={handleStyleChange}
+        currentStyle={contentData.innerStyle}
+        position={position}
+      />
+      <StyleChanger
+        property={"height"}
+        additionalProperties={["width"]}
+        name={"IconSize"}
+        defaultColor={"11px"}
+        type={"number"}
+        inputName={"IconSize"}
+        handleStyle={handleStyleChange}
+        currentStyle={contentData.innerStyle}
+        position={position}
+      />
+      <StyleChanger
+        property={"margin-left"}
+        name={"IconMargin"}
+        defaultColor={"0px"}
+        type={"number"}
+        inputName={"Icon Space"}
+        handleStyle={handleStyleChange}
+        currentStyle={contentData.innerStyle}
+        additionalProperties={["margin-right"]}
+        position={position}
+      />
     </div>
   );
 };

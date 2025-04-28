@@ -8,6 +8,7 @@ table {
   width: 80%; /* or any desired width */
 }
 
+
 .meta-selected::before{
   content: '';
   width:100%;
@@ -126,8 +127,51 @@ color:inherit;
   }
 }
 
+
+.element-panel input,
+.element-panel select {
+  /*width: 100%; */
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 16px;
+  padding: 12px;
+  outline: none;
+  transition: border-color 0.3s ease;
+  box-sizing: border-box;
+  background-color: aliceblue;
+}
+
+.element-panel input:focus,
+.element-panel select:focus {
+  border-color: #0066ff;
+}
+/*
+.element-panel label {
+  position: absolute;
+  top: -50px;
+  font-size: 18px;
+  color: #666;
+  padding: 0 4px;
+  transition: all 0.2s ease;
+  pointer-events: none;
+}
+  */
+
+.element-panel input:focus + label,
+.element-panel select:focus + label,
+.element-panel input:not(:placeholder-shown) + label {
+  color: #0066ff;
+  font-weight: bold;
+}
+
 .input-boxed{
   border:2px solid #ccc;
+}
+
+.divBreak{
+  border-bottom: 1px solid lightgrey;
+  padding-bottom: 10px;
+  padding-left: 10px;
 }
   
 table,
@@ -318,6 +362,7 @@ button:hover {
 
 /* Input and Textarea Styles */
 /* Input and Textarea Styles */
+/*
 input[type="text"]
  {
   width: 100%;
@@ -325,13 +370,14 @@ input[type="text"]
   margin: 8px 0;
   display: inline-block;
   border: none;
-  /* Removes the default border */
+
   border-bottom: 2px solid #ccc;
-  /* Grey bottom border */
+
   box-sizing: border-box;
   background-color: transparent;
-  /* Ensures the background is transparent */
+
 }
+*/
 
 input[type="text"]:focus {
   border-bottom: 2px solid #333;
@@ -637,8 +683,8 @@ h1, h2, h3, h4,h5,h6 {
 
 .resource-canvas{
   text-align: left;
-  padding:20px;
-  border-radius: 5px;
+  /*padding:20px;*/
+
   border: 1px solid #ccc;
   
   overflow-y: auto;
@@ -977,7 +1023,7 @@ color: blue
 .container {
   position: relative;
   padding-top: 15px;
-  margin-bottom: 20px;
+  margin-bottom: 5px;
 }
 
 .label {
@@ -1074,7 +1120,7 @@ color: blue
   background: #555;
 }
 
-.custom-editor-form > * {
+.element-panel > * {
 
 
 }

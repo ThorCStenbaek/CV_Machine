@@ -49,9 +49,7 @@ const HeaderPanel = ({ isStanding, setIsStanding, children, size, title, setTitl
                  // Hide content when collapsed
                 transition: 'max-height 0.5s ease-in-out' // Smooth transition for sliding effect
                 }}>
-                    <Hint hintText="Choose between portrait and landscape orientation">
-                <PortraitLandscapeSVG chosen={isStanding} onclick={() => setIsStanding(!isStanding)} degrees={-90} size={size} />
-                </Hint>
+
                         {children}
             </div>
             </div>

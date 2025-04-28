@@ -49,8 +49,20 @@ setStyle(typeof currentStyle !="string" && currentStyle ?currentStyle[name] : ""
       };
 
 
-
-
+      const handleHover=()=>{
+        const elements=document.querySelectorAll(`.position${position} .${name}`)
+    
+        elements.forEach(e=>{
+          e.style.outline="1px solid red"
+        })
+      }
+      const handleLeave=()=>{
+        const elements=document.querySelectorAll(`.position${position} .${name}`)
+    
+        elements.forEach(e=>{
+          e.style.outline="none"
+        })
+      }
 
     const fakeChangeDrag = (position, p, side, property, bool) =>{
         return 
@@ -58,6 +70,7 @@ setStyle(typeof currentStyle !="string" && currentStyle ?currentStyle[name] : ""
 
 
    return (
+    <div onMouseEnter={handleHover} onMouseLeave={handleLeave}>
         <DynamicStyleEditor position={0}
          resourceMeta={[{specific_style:style}]}
           updateResourceMeta={pseudoUpdateResourceMeta}
@@ -69,7 +82,9 @@ setStyle(typeof currentStyle !="string" && currentStyle ?currentStyle[name] : ""
           changeDrag={fakeChangeDrag}
           additionalProperties={additionalProperties}
           deferUpdate={false}
+          alignItems="flex-start"
 
           />
+          </div>
     )
 }

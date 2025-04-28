@@ -9,6 +9,7 @@ const ChangeRulesForElement = ({ resourceMeta, index, updateResourceMeta }) => {
   // Update rules when resourceMeta or index changes
   useEffect(() => {
     setRules(resourceMeta[index].rules);
+    console.log("RULES?", resourceMeta[index])
   }, [resourceMeta, index]);
 
   // Function to handle rule changes

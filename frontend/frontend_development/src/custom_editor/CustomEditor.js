@@ -66,6 +66,8 @@ import { CVElements } from "./newClasses/CVElements.js";
 import { applyOrGetPseudoStyles } from './newUtils/applyOrGetPseudoStyles';
 import { setValue } from "./newUtils/getValue.js";
 import MarginPaddingToggle from "./panelButtons/marginPaddingToggle.js";
+import PortraitLandscapeSVG from "./icons/portraitLandscape.js";
+
 
 const ElementPanel = ({ position, resourceMeta, updateResourceMeta, handleAddNewElement, removeElement, addNewElement,toggleUploadModal, children, page, changeIndex, handleRedo, handleUndo,changeDrag  }) => {
     const [elementData, setElementData] = useState(resourceMeta[position]);
@@ -83,19 +85,21 @@ const ElementPanel = ({ position, resourceMeta, updateResourceMeta, handleAddNew
         instruction: 'ELEMENT' // Provide a value based on your application's logic
   };
   
-  const [activeTab, setActiveTab] = useState('pageSettings');
+  const [activeTab, setActiveTab] = useState('style');
   const [exitModal, setExitModal] = useState(false);
   const navigate = useNavigate();
 
 
-  useEffect(() => {
-    setActiveTab('design')
-  }, [page]);
-  
+
   
   useEffect(() => {
     setElementData(resourceMeta[position]);
+
   }, [position, resourceMeta]);
+
+  useEffect(() => {
+    setActiveTab( resourceMeta[position].rules.hasDesign ? 'design' : 'style')
+  }, [position,elementData.instruction]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -130,11 +134,14 @@ const ElementPanel = ({ position, resourceMeta, updateResourceMeta, handleAddNew
   console.log("CV ELEMENTS", CVElements.getAllButtonElements())
   
   const safeElementData = elementData || {}; // Fallback to an empty object if elementData is null or undefined
-
-    const tabs = ["pageSettings", "design", "structure", "advanced"]
+  
+    const tabs = ["pageSettings", 
+      elementData.rules.hasDesign? "design" : null,
+      "style", 
+      "advanced"].filter(t=>t!==null)
    return (
      <>
-       <div style={{background: "white", width: "40%", maxHeight: "100vh"}}>
+       <div style={{background: "white", width: "40%", minWidth: "550px",maxHeight: "100vh"}}>
 
 
    <div className="tabs" style={{ display: 'flex',  }}>
@@ -161,12 +168,65 @@ const ElementPanel = ({ position, resourceMeta, updateResourceMeta, handleAddNew
 
 
         {activeTab==="advanced"&& (
+          <>
           <ChangeRulesForElement resourceMeta={resourceMeta} index={position} updateResourceMeta={updateResourceMeta}/>
+          <h2>Structure</h2>
+          <ShowMetaStructure  resourceMeta={resourceMeta} changeIndex={changeIndex} index={position}/>
+          </>
         )}
 
-        {activeTab ==='structure' && (
-          <ShowMetaStructure  resourceMeta={resourceMeta} changeIndex={changeIndex} index={position}/>
-        )}
+
+
+        {activeTab === 'style' && (
+              <div style={{ display: 'flex', gap: '15px', flexDirection: 'column' }}>
+
+              <div className="divBreak">
+                <h4 style={{ marginBottom: '0px' }}>Background Color</h4>
+                <DynamicColorEditor position={position} resourceMeta={resourceMeta} updateResourceMeta={updateResourceMeta} property={"background"} />
+              </div>
+       
+
+              <div className="divBreak">
+              <h4 style={{ marginBottom: '0px' }}>Font/Icon Color</h4>
+              <DynamicColorEditor position={position} resourceMeta={resourceMeta} updateResourceMeta={updateResourceMeta} property={"color"} />
+              </div>
+<div>
+              <div>
+
+<DynamicStyleEditor  inputName="FontSize" alignItems="" defaultColor="0px" position={position} resourceMeta={resourceMeta} updateResourceMeta={updateResourceMeta} property={"font-size"} type="number" />
+
+<div> 
+
+              <DynamicStyleEditor  position={position} resourceMeta={resourceMeta} updateResourceMeta={updateResourceMeta} property={"border-top-style"} type="select"
+              options={[{text:"none", value:"none"},{text: "Solid", value:"solid"}, {text: "burh", value:"dashed"}]}
+              />
+              </div>
+
+
+              </div>
+              <div> 
+<p>Border Radius</p>
+<DynamicStyleEditor defaultColor="0px" position={position} resourceMeta={resourceMeta} updateResourceMeta={updateResourceMeta} property={"border-radius"} type="number" />
+              </div>
+
+              <p>padding</p>
+<QuadrupleDynamicStyleEditor defaultColor="0px" position={position} resourceMeta={resourceMeta} updateResourceMeta={updateResourceMeta} property={"padding-$"} type="number"
+changeDrag={changeDrag}
+/>
+              
+<p>margin</p>
+<QuadrupleDynamicStyleEditor defaultColor="0px" position={position} resourceMeta={resourceMeta} updateResourceMeta={updateResourceMeta} property={"margin-$"} type="number"
+changeDrag={changeDrag}/>
+
+              </div>
+
+
+            </div>
+
+
+
+
+    )}
 
         {activeTab === 'pageSettings' && (
           <>
@@ -191,6 +251,8 @@ const ElementPanel = ({ position, resourceMeta, updateResourceMeta, handleAddNew
             <li>Make sure the general UI is good</li>
             <li>Make work/education timeline element</li>
 
+            <li>Make a "style map" that has all the style properties and their default values</li>
+<li>Make sure that each new element has a 'relevant styles' section that works with the map.</li>
           </ol>
 
           <p> Bugs:</p>
@@ -211,63 +273,7 @@ const ElementPanel = ({ position, resourceMeta, updateResourceMeta, handleAddNew
                 changeElement={changeElement}
                 updateResourceMeta={updateResourceMeta}
               />
-              <div style={{ display: 'flex', gap: '15px', flexDirection: 'column' }}>
-                {elementData.instruction === "TEXT" && (
-                  <div style={{ borderBottom: '1px solid lightgrey', paddingBottom: "10px", paddingLeft: '10px' }}>
-                    <h4 style={{ marginBottom: '0px' }}>Font Color</h4>
-                    <ChangeColor position={position} resourceMeta={resourceMeta} updateResourceMeta={updateResourceMeta} />
-                  </div>
-                )}
-                <div style={{ borderBottom: '1px solid lightgrey', paddingBottom: "10px", paddingLeft: '10px' }}>
-                  <h4 style={{ marginBottom: '0px' }}>Background Color</h4>
-                  <DynamicColorEditor position={position} resourceMeta={resourceMeta} updateResourceMeta={updateResourceMeta} property={"background"} />
-                </div>
-         
 
-                <div>
-                <DynamicColorEditor position={position} resourceMeta={resourceMeta} updateResourceMeta={updateResourceMeta} property={"color"} />
-                
-                <div>
-                  <p>display</p>
-                  <DynamicStyleEditor position={position} resourceMeta={resourceMeta} updateResourceMeta={updateResourceMeta} property={"position"} type="select"
-                options={[{text:"relative", value:"relative"},{text: "absolute", value:"absolute"},{text: "fixed", value:"fixed"}]}
-                />
-                  </div>
-                <div>
-<p>fontSize</p>
-<DynamicStyleEditor defaultColor="0px" position={position} resourceMeta={resourceMeta} updateResourceMeta={updateResourceMeta} property={"font-size"} type="number" />
-
-<div> 
-
-                <DynamicStyleEditor defaultColor="0px" position={position} resourceMeta={resourceMeta} updateResourceMeta={updateResourceMeta} property={"border-top-width"} type="text" />
-                <DynamicStyleEditor  position={position} resourceMeta={resourceMeta} updateResourceMeta={updateResourceMeta} property={"border-top-style"} type="select"
-                options={[{text:"none", value:"none"},{text: "Solid", value:"solid"}, {text: "burh", value:"dashed"}]}
-                />
-                </div>
-                <p>padding</p>
-                <DynamicStyleEditor defaultColor="0px" position={position} resourceMeta={resourceMeta} updateResourceMeta={updateResourceMeta} property={"padding-top"} type="number" 
-                options={[{text:"px", value:"px"}, {text: "percentage", value:"%"}]}
-                />
-
-                </div>
-                <div> 
-<p>Border Radius</p>
-<DynamicStyleEditor defaultColor="0px" position={position} resourceMeta={resourceMeta} updateResourceMeta={updateResourceMeta} property={"border-radius"} type="number" />
-                </div>
-
-                <p>padding</p>
-<QuadrupleDynamicStyleEditor defaultColor="0px" position={position} resourceMeta={resourceMeta} updateResourceMeta={updateResourceMeta} property={"padding-$"} type="number"
-changeDrag={changeDrag}
-/>
-                
-<p>margin</p>
-<QuadrupleDynamicStyleEditor defaultColor="0px" position={position} resourceMeta={resourceMeta} updateResourceMeta={updateResourceMeta} property={"margin-$"} type="number"
-changeDrag={changeDrag}/>
-
-                </div>
-
-
-              </div>
               
               {elementData.instruction !== 'CONTAINER' && (
                 <>
@@ -1535,7 +1541,7 @@ class_name: 'element'
 
   }
   
-  const headerSize= "35"
+  const headerSize= "45"
   
 
 
@@ -1569,20 +1575,7 @@ class_name: 'element'
             changeDrag={changeDrag}
             
             >
-                      <HeaderPanel isStanding={isStanding} setIsStanding={setIsStanding} size={headerSize} title={title} setTitle={setTitle}>
 
-              <Hint hintText={"The grid disables or shows the grid on the page."} >
-         <GridToggle settings={settings} handleSetSettings={handleSetSettings}   size={headerSize} />
-          </Hint>
-
-
-      < MarginPaddingToggle  settings={settings} handleSetSettings={handleSetSettings}   size={50} />
-
-              
-              <Hint hintText={"Change the direction of the page."} >
-                <ChangeDirection size={headerSize} />
-              </Hint>
-        </HeaderPanel>
 
        
 
@@ -1597,14 +1590,37 @@ class_name: 'element'
            
 
 
-          <div style={{ width: '20px', }}>
+       
       
-      </div>
-         <div className='resource-canvas' style={{border: 'none'}}>
-            <ElementBuilder  jsonData={resourceMeta} editing={true} changeElement={(i)=> handleSetIndex(i) } chosen={index} addElements={toggleModal} changeDrag={changeDrag} absoluteDragger={absoluteDragger} settings={settings}/> 
-          </div>
     
-        </div>
+         <div className='resource-canvas' style={{border: 'none', padding: "0px"}}>
+          <div style={{background: "white", gap: "40px", padding: "15px", paddingBottom: "0px", paddingTop:"8px", height:"fit-content", display: "flex"}}>
+
+          <Hint hintText="Choose between portrait and landscape orientation">
+                <PortraitLandscapeSVG chosen={isStanding} onclick={() => setIsStanding(!isStanding)} degrees={-90} size={headerSize} />
+                </Hint>
+<Hint hintText={"The grid disables or shows the grid on the page."} >
+<GridToggle settings={settings} handleSetSettings={handleSetSettings}   size={headerSize} />
+</Hint>
+
+
+< MarginPaddingToggle  settings={settings} handleSetSettings={handleSetSettings}   size={50} />
+
+{/*
+<Hint hintText={"Change the direction of the page."} >
+  <ChangeDirection size={headerSize} />
+</Hint>
+*/ }
+
+
+
+          </div>
+          <div style={{padding: "30px"}}>
+            <ElementBuilder  jsonData={resourceMeta} editing={true} changeElement={(i)=> handleSetIndex(i) } chosen={index} addElements={toggleModal} changeDrag={changeDrag} absoluteDragger={absoluteDragger} settings={settings}/> 
+            </div>
+          </div>
+          </div>
+     
 
         <Modal isOpen={uploadModalOpen} onClose={toggleUploadModal}>
 

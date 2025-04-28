@@ -54,7 +54,7 @@ export const RenderElement = ({
                         const Icon = socialIcons[link.platform]?.icon || socialIcons.website.icon;
                         const displayText = link.text || link.platform;
                         return (
-                            <a 
+                            <a className={`item${index}`}
                                 key={index}
                                 href={link.url}
                                 target="_blank"
@@ -72,7 +72,7 @@ export const RenderElement = ({
                                         innerStyle.IconSize+innerStyle.IconMargin
                                     } 
                                 />
-                                <span className="LinkSize" style={{
+                                <span className="LinkSize item-text" style={{
                                     ...convertStyleStringToObject(innerStyle.LinkSize)
                                 }}>
                                     {displayText}

@@ -3,6 +3,8 @@ import Modal from '../containers/components/general/modal';
 import { getValue } from './newUtils/getValue';
 import { CVElements } from './newClasses/CVElements';
 import findLastDescendantIndex from './newUtils/findLastDescendant';
+import { allRules } from './newClasses/allRules';
+
 
 function ProportionalElements({ sizes, onClick, maxWidth= '23%', rows=1 }) {
     // Calculate the total sum of sizes
@@ -123,11 +125,12 @@ const constructChildren = (number, sizes=null, rows=1) => {
                instruction: 'EMPTY',
     class_name: 'element',
     depth: parentDepth+1,
-    rules: {
+    rules: {...allRules,
         draggable: true, 
         selectable: true, 
         newRowButton: true,  
-        freeFloat: false
+        freeFloat: false, 
+        hasDesign:false
       }
     
     })
@@ -147,11 +150,12 @@ const constructChildren = (number, sizes=null, rows=1) => {
         content_data: '',
         instruction: 'DEFAULT',
         depth: parentDepth+1,
-        rules: {
+        rules: { ...allRules, 
             draggable: true, 
             selectable: true, 
             newRowButton: true,  
             freeFloat:false,
+            hasDesign: false
           }
     })
     for (let i = 0; i < number; i++) {
@@ -167,11 +171,12 @@ const constructChildren = (number, sizes=null, rows=1) => {
            instruction: 'EMPTY',
 class_name: 'element',
 depth: (actuallyHasRow) ? parentDepth+2 : parentDepth+1,
-rules: {
+rules: { ...allRules, 
     draggable: true, 
     selectable: true, 
     newRowButton: true,  
-    freeFloat: false
+    freeFloat: false,
+    hasDesign:false
   }
 
 })
