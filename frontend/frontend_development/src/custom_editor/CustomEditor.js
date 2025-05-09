@@ -67,6 +67,9 @@ import { applyOrGetPseudoStyles } from './newUtils/applyOrGetPseudoStyles';
 import { setValue } from "./newUtils/getValue.js";
 import MarginPaddingToggle from "./panelButtons/marginPaddingToggle.js";
 import PortraitLandscapeSVG from "./icons/portraitLandscape.js";
+import ArrowButton from "./panelButtons/arrowButton.js";
+import About from './../pages/about';
+import UserAdderToGroup from './../containers/components/users/addUserToGroup';
 
 
 const ElementPanel = ({ position, resourceMeta, updateResourceMeta, handleAddNewElement, removeElement, addNewElement,toggleUploadModal, children, page, changeIndex, handleRedo, handleUndo,changeDrag  }) => {
@@ -160,8 +163,6 @@ const ElementPanel = ({ position, resourceMeta, updateResourceMeta, handleAddNew
 
       <div className="element-panel" style={{ background: "white", height: "100%", overflowY: 'scroll', boxShadow: 'rgba(0, 0, 0, 0.15) 1.95px 1.95px 2.6px', minWidth: '25vw', maxWidth: '100%', padding: '10px', paddingBottom: "0px" }}>
         
-        <button onClick={handleUndo}>Undo</button>
-        <button onClick={handleRedo}>Redo</button>
 
 
        
@@ -253,6 +254,26 @@ changeDrag={changeDrag}/>
 
             <li>Make a "style map" that has all the style properties and their default values</li>
 <li>Make sure that each new element has a 'relevant styles' section that works with the map.</li>
+
+<li> Where do we put the spececial pin point styles of each element? Under styles? Under a new banner called something with styles?About
+  <br/>
+  Maybe we do actually put them under styles, and then we collapse the other styles or something?
+  <br/>
+  we should atleast make it clear that they are special in some way. 
+  In this was a noob user would only have to look under "design", but a medium User
+  could look under style. 
+  <br/>
+  I am unsure 
+  
+  
+</li>
+<li> Perhaps style itself should have multiple tabs? Always defaulting to just the specific_style
+<br/>Perhaps they could be 
+<li>Pin point</li>
+<li>Color</li>
+<li>Size</li>
+<li>Other?</li>
+</li>
           </ol>
 
           <p> Bugs:</p>
@@ -525,36 +546,9 @@ const [title, setTitle] = useState(resource?.title || '');
  
   
 
-/*
-  useEffect(() => {
- 
-
- 
-
-    console.log("TRYYYYYY")
-    const [bool, newResourceMeta] = findProblemPage(resourceMeta, isStanding);
-    console.log("AFTER FUNC")
-        setIsProblemPage(true);
-    if (bool && isProblemPage) {
-      console.log("BEFORE SET", bool, newResourceMeta)
-      setResourceMeta(newResourceMeta);
-          //setIsProblemPage(false);
-    }
-
-      console.log("AFTER SET")
-
-  }, [resourceMeta]);
-*/
-
-
-/**DOWNLOAD ATTMEPT */
 
 
 
-
-
-
-/**DOWNLOAD ATTMEPT */
 
   const removeElement = (index, resourceMeta, updateResourceMeta) => {
     // Find the last descendant of the element at the given index
@@ -585,18 +579,6 @@ const [title, setTitle] = useState(resource?.title || '');
 
 
 
-  const fixOverreachingParent =(index, resourceMeta) =>{
-
-    const parent = resourceMeta[findParentIndex(index, resourceMeta)]
-    const directionRow =  getValue("flex-direction") =="column" ? false : true
-
-    const {leftNeighbours, rightNeighbours} = findAllNeighbours(index, resourceMeta)
-    if (directionRow){
-      
-    }
-    
-
-  }
 
 
 
@@ -1595,6 +1577,12 @@ class_name: 'element'
     
          <div className='resource-canvas' style={{border: 'none', padding: "0px"}}>
           <div style={{background: "white", gap: "40px", padding: "15px", paddingBottom: "0px", paddingTop:"8px", height:"fit-content", display: "flex"}}>
+
+<div style={{display: "flex", gap: "-10px", marginRight: "10px"}}>   
+  <ArrowButton doFunc={handleUndo} canDo={undoStack.length>0} type="undo" />
+       
+        <ArrowButton doFunc={handleRedo} canDo={redoStack.length>0} type="redo" />
+        </div>
 
           <Hint hintText="Choose between portrait and landscape orientation">
                 <PortraitLandscapeSVG chosen={isStanding} onclick={() => setIsStanding(!isStanding)} degrees={-90} size={headerSize} />

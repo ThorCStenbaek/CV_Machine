@@ -88,13 +88,13 @@ export const DynamicStyleEditor = ({
     : defaultColor
 
     setValue(val)
-      setNumberValue(val.replace(/[^0-9.]/g, "") )
-      
+      setNumberValue(val ? val.replace(/[^0-9.]/g, "") :0)
+
   },[position])
 
   // Split the value into number and unit parts
-  const [numberValue, setNumberValue] = useState(value.replace(/[^0-9.]/g, ""));
-  const [unitValue, setUnitValue] = useState(value.replace(/[0-9.]/g, "") || "px");
+  const [numberValue, setNumberValue] = useState(value ?value.replace(/[^0-9.]/g, "") :0);
+  const [unitValue, setUnitValue] = useState(value ? value.replace(/[0-9.]/g, "") || "px"   :"px");
 
   // Update the value state immediately on input change
   const handleChange = (event) => {

@@ -3,6 +3,8 @@ import { useState, useEffect } from "react";
 import { useContentElement } from "../useContentElement";
 import InputList from "../InputList";
 
+import { StyleChanger } from './../../newUtils/styleChanger';
+
 export const InputElement = ({ position, resourceMeta, changeElement, updateResourceMeta }) => {
   const contentConfig = {
     defaultData: {
@@ -16,6 +18,8 @@ export const InputElement = ({ position, resourceMeta, changeElement, updateReso
         EntryRole: "font-size:14px;",
         EntryDate: "font-size:14px;",
         EntryDescription: "font-size:14px;",
+        line: "font-size:5px;",
+          dotSize: "width:25px; height:25px;"
       }
     },
     innerStyleDefaults: {
@@ -25,6 +29,8 @@ export const InputElement = ({ position, resourceMeta, changeElement, updateReso
       EntryRole: "font-size:14px;",
       EntryDate: "font-size:14px;",
       EntryDescription: "font-size:14px; white-space: pre-wrap;",
+          line: "font-size:5px;",
+          dotSize: "width:25px; height:25px;"
     }
   };
 
@@ -232,6 +238,33 @@ export const InputElement = ({ position, resourceMeta, changeElement, updateReso
           </div>
         )}
       </InputList>
+
+            <StyleChanger
+              property={"width"}
+              name={"line"}
+              defaultColor={"5px"}
+              type={"number"}
+              inputName={"line width"}
+              handleStyle={handleStyleChange}
+              currentStyle={contentData.innerStyle}
+              position={position}
+            />
+
+            
+
+
+                        
+<StyleChanger
+              property={"height"}
+              additionalProperties={["width"]}
+              name={"dotSize"}
+              defaultColor={"25px"}
+              type={"number"}
+              inputName={"Dot Size"}
+              handleStyle={handleStyleChange}
+              currentStyle={contentData.innerStyle}
+              position={position}
+            />
     </div>
   );
 };

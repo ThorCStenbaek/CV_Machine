@@ -27,13 +27,15 @@ setStyle(typeof currentStyle !="string" && currentStyle ?currentStyle[name] : ""
     
         const styleArray= parseStyleString(style)
         elements.forEach(e=>{
+          const classNames= e.classList
           styleArray.forEach(s=>{
+            if (!classNames.contains(`${name}-not-${s.property}`))
+
             e.style[s.property]=s.value
           })
         })
 
-        console.log("STYLE MOMENT:", styleArray, resourceMeta[0].specific_style)
-        deferUpdateElement(name,resourceMeta[0].specific_style)
+deferUpdateElement(name,resourceMeta[0].specific_style)
     
     }
 

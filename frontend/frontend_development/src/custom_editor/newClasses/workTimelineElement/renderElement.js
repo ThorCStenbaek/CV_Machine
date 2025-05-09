@@ -1,4 +1,4 @@
-import React from "react";
+import React, {useState, useEffect, useRef} from "react";
 import { typeIcons } from "./levelIcons";
 import { getValue } from "../../newUtils/getValue";
 import { convertStyleStringToObject } from './../convertStyleStringToObject';
@@ -6,10 +6,13 @@ import { convertStyleStringToObject } from './../convertStyleStringToObject';
 export const RenderElement = ({ style, className, onClick, onMouseOver, onMouseOut, editing, data, children, extraElement }) => {
   let { content_data } = data;
 
+  let position = className.match(/\bposition\d+\b/)?.at(-1);
   let timeline = [];
   let title = "";
   let innerStyle = {};
   let type=""
+
+  console.log("POS:", position)
 
   try {
     let parsedData = typeof content_data === "string" ? JSON.parse(content_data) : content_data;
@@ -39,6 +42,27 @@ export const RenderElement = ({ style, className, onClick, onMouseOver, onMouseO
     return startDate;
   };
 
+  const containerRef = useRef(null);
+  const [lineHeight, setLineHeight] = useState(0);
+
+  
+  useEffect(() => {
+    if (containerRef.current) {
+      const entries = containerRef.current.querySelectorAll(`.${position} .Entry`); // Using the actual class name from EntryWrapper
+      if (entries.length > 0) {
+        const firstDot = entries[0].querySelector('.dot');
+        const lastDot = entries[entries.length - 1].querySelector('.dot');
+        
+        if (firstDot && lastDot) {
+          const firstRect = firstDot.getBoundingClientRect();
+          const lastRect = lastDot.getBoundingClientRect();
+          const height = lastRect.bottom - firstRect.top;
+          setLineHeight(height-10);
+        }
+      }
+    }
+  }, [timeline]);
+
 
   const Title= ({style}) =>        <h6 className="TitleSize cd-title" style={{...style, ...convertStyleStringToObject(innerStyle.TitleSize)}}>{title || "Work Experience"}</h6>
 
@@ -54,6 +78,42 @@ export const RenderElement = ({ style, className, onClick, onMouseOver, onMouseO
 
     const EntryDescription = ({style, description}) => <div className="item-description EntryDescription" style={{...style, ...convertStyleStringToObject(innerStyle.EntryDescription)}}>{description}</div>
 
+    const DotContainer=({containerStyle, dotStyle, children}) =>                 
+    <div className="dotSize" style={{
+      display: "flex", 
+      alignItems: "flex-start",
+      justifyContent: "center", 
+...convertStyleStringToObject(innerStyle.dotSize)
+    }}>
+      <div className="dot dotSize" style={{
+
+        borderRadius: "50%",
+        backgroundColor: "#3498db",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        color: "white",
+        ...convertStyleStringToObject(innerStyle.dotSize)
+      }} />
+      {children}
+    </div>
+
+    const LineContainer = ({containerStyle, lineStyle, children}) =>             <div
+    className="dotSize dotSize-not-height" style={{
+      position: "absolute", 
+      display: "flex", 
+      alignItems: "flex-start",
+      justifyContent: "center", 
+      ...convertStyleStringToObject(innerStyle.dotSize),
+      height: `${lineHeight}px`
+    }}>
+      <div className="line" style={{
+        width: "5px", 
+        height: "100%",
+        background: "red", 
+        marginTop: "3px",
+      ...convertStyleStringToObject(innerStyle.line)}}></div>
+    </div>
 
     if (type==="test")
         return (
@@ -95,54 +155,46 @@ index={index} >
 
         
 
-    if (type === "modern")
-        return (
+    if (type === "modern"){
+
+      return (
+        <div 
+          style={{ ...style, position: "relative" }} 
+          onClick={onClick} 
+          onMouseOver={onMouseOver} 
+          onMouseOut={onMouseOut}
+        >
+          <Title style={{ 
+            marginBottom: "3rem",
+            textTransform: "uppercase",
+            letterSpacing: "1px",
+            color: "#34495e"
+          }} />
+          
           <div 
-            style={{ ...style, position: "relative" }} 
-            
-            onClick={onClick} 
-            onMouseOver={onMouseOver} 
-            onMouseOut={onMouseOut}
-          >
-            <Title style={{ 
-              marginBottom: "3rem",
-              textTransform: "uppercase",
-              letterSpacing: "1px",
-              color: "#34495e"
-            }} />
-            
-            <div style={{ 
+            style={{ 
               position: "relative",
               paddingLeft: "30px",
-              borderLeft: "2px solid #3498db"
-            }}>
-              {timeline.map((entry, index) => (
-                <EntryWrapper 
-                  key={index}
-index={index}
-                  style={{
-                    marginBottom: "2rem",
-                    position: "relative",
-                    paddingLeft: "2rem"
-                  }}
-                >
-                  <div style={{
-                    position: "absolute",
-                    left: "-38px",
-                    top: "0",
-                    width: "24px",
-                    height: "24px",
-                    borderRadius: "50%",
-                    backgroundColor: "#3498db",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    color: "white",
-                  }}>
-                
-                  </div>
-                  
-                  <EntryDate 
+            }}
+            ref={containerRef}
+          >
+
+<LineContainer></LineContainer>
+            
+            {timeline.map((entry, index) => (
+              <EntryWrapper 
+                key={index}
+                index={index}
+                className="entry-wrapper"
+                style={{
+                  marginBottom: "2rem",
+                  position: "relative",
+                  display: "flex"
+                }}
+              >
+                <DotContainer></DotContainer>
+                  <div>
+                    <EntryDate 
                     date={formatDateRange(entry)} 
                     style={{
                       color: "#3498db",
@@ -173,12 +225,14 @@ index={index}
                       border: "1px solid #e0f0ff"
                     }} 
                   />
-                </EntryWrapper>
-              ))}
-            </div>
-            {children}
+                </div>
+              </EntryWrapper>
+            ))}
           </div>
-        );
+          {children}
+        </div>
+      );
+    }
 
     if (type === "compact")
         return (

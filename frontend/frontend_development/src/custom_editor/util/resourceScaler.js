@@ -72,7 +72,7 @@ const zoomStyles = {
         <div className="resource-scaler-buttons" style={{position: `${position}`, }}>
             <button style={zoomStyles} onClick={increaseScale}>+</button>
             <button style={zoomStyles} onClick={decreaseScale}>-</button>
-            <span> Zoom: {scale.toFixed(1)*100}%</span>
+            <span> Zoom: {Math.round(scale.toFixed(1)*100)}%</span>
         </div>
     );
 }
