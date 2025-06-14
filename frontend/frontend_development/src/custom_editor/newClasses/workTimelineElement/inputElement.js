@@ -5,7 +5,7 @@ import InputList from "../InputList";
 
 import { StyleChanger } from './../../newUtils/styleChanger';
 
-export const InputElement = ({ position, resourceMeta, changeElement, updateResourceMeta }) => {
+export const InputElement = ({ position, resourceMeta, changeElement, updateResourceMeta, isStyle }) => {
   const contentConfig = {
     defaultData: {
       title: "Work Experience",
@@ -95,8 +95,9 @@ export const InputElement = ({ position, resourceMeta, changeElement, updateReso
   const currentYear = new Date().getFullYear();
   const years = Array.from({ length: 50 }, (_, i) => currentYear - i);
 
-  return (
-    <div className="input-timeline-container">
+
+  if (!isStyle) return(
+<><div className="input-timeline-container">
       <h3>Work Timeline</h3>
       <div>
         <label>Title: </label>
@@ -237,34 +238,44 @@ export const InputElement = ({ position, resourceMeta, changeElement, updateReso
             </div>
           </div>
         )}
-      </InputList>
+ </InputList>
+    </div>
+</>
+  )
+if (isStyle) return(
+<>
 
-            <StyleChanger
-              property={"width"}
-              name={"line"}
-              defaultColor={"5px"}
-              type={"number"}
-              inputName={"line width"}
-              handleStyle={handleStyleChange}
-              currentStyle={contentData.innerStyle}
-              position={position}
-            />
+<StyleChanger
+  property={"width"}
+  name={"line"}
+  defaultColor={"5px"}
+  type={"number"}
+  inputName={"line width"}
+  handleStyle={handleStyleChange}
+  currentStyle={contentData.innerStyle}
+  position={position}
+/>
+
+
+
 
             
-
-
-                        
 <StyleChanger
-              property={"height"}
-              additionalProperties={["width"]}
-              name={"dotSize"}
-              defaultColor={"25px"}
-              type={"number"}
-              inputName={"Dot Size"}
-              handleStyle={handleStyleChange}
-              currentStyle={contentData.innerStyle}
-              position={position}
-            />
-    </div>
-  );
+  property={"height"}
+  additionalProperties={["width"]}
+  name={"dotSize"}
+  defaultColor={"25px"}
+  type={"number"}
+  inputName={"Dot Size"}
+  handleStyle={handleStyleChange}
+  currentStyle={contentData.innerStyle}
+  position={position}
+/>
+ </>
+)
+    
+
+
+
+
 };

@@ -58,19 +58,26 @@ const ElementComponent = ({editing, data, children, onClick, onMouseOver=()=>con
     };
 
     // Determine the type of element to create
-  const convertStyleStringToObject = (styleString) => {
+    const convertStyleStringToObject = (styleString) => {
         const styleObject = {};
-
+        
         if (styleString) {
-            const styleEntries = styleString.split(';');
+            // Split by semicolon but be careful about quoted semicolons
+            const styleEntries = styleString.split(';').filter(entry => entry.trim() !== '');
+            
             styleEntries.forEach(entry => {
-                const [property, value] = entry.split(':');
-                if (property && value) {
-                    styleObject[property.trim()] = value.trim();
+                // Split at the first colon only
+                const colonIndex = entry.indexOf(':');
+                if (colonIndex > -1) {
+                    const property = entry.slice(0, colonIndex).trim();
+                    const value = entry.slice(colonIndex + 1).trim();
+                    if (property && value) {
+                        styleObject[property] = value;
+                    }
                 }
             });
         }
-
+        
         return styleObject;
     };
 

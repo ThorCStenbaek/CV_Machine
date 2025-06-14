@@ -149,15 +149,25 @@ const buildElements = (elements, startIndex = 0, editing, changeElement, chosen,
 let  initialBorderStyle = startIndex === chosen ? "#007eff 4px solid; " : abc
 
 
+//consider not having these...
+const hasPadding = () => (getValue("padding", element.specific_style, true) || 
+  getValue("padding-top", element.specific_style, true) || 
+  getValue("padding-bottom", element.specific_style, true) || 
+  getValue("padding-left", element.specific_style, true) || 
+  getValue("padding-right", element.specific_style,true)) >0
 
-const newStyle= applyOrGetPseudoStyles(element, false)
+const hasMargin = () => (getValue("margin", element.specific_style, true) || 
+  getValue("margin-top", element.specific_style, true) || 
+  getValue("margin-bottom", element.specific_style, true) || 
+  getValue("margin-left", element.specific_style, true) || 
+  getValue("margin-right", element.specific_style,true) ) >0
+
+const newStyle = applyOrGetPseudoStyles(element, false)
 
 
+    console.log("EBT:", hasMargin(), hasPadding(), element)
 
-
-    
-
-const selectedClass= settings.showMarginAndPadding && startIndex === chosen ?  `selected` : " "
+const selectedClass= settings.showMarginAndPadding && startIndex === chosen&& (hasPadding()  || hasMargin() ) ?  `selected` : " "
 
 
 
@@ -185,7 +195,7 @@ if (settings.showGrid){
         <ElementComponent
           editing={editing}
     key={Math.random()*100000}
-    data={{ ...element, specific_style: `${elementStyle}; outline: ${initialBorderStyle};   ${newStyle} `, class_name: element.class_name+` position${startIndex} ${isPage} ${selectedClass}` }}
+    data={{ ...element, specific_style: `${elementStyle}; outline: ${initialBorderStyle};   ${newStyle} `, class_name: element.class_name+` position${startIndex} ${isPage} ${selectedClass} can-select` }}
     children={children}
     onClick={(e) => {
 
@@ -202,8 +212,11 @@ if (settings.showGrid){
 
     
           onMouseOver={(e) => {
- 
-
+            /*
+            //Makes it better, but doesnt work
+            if(!e.target.className?.includes("can-select"))
+              return
+*/
         
             e.target.style.cursor = "pointer";
             if (element.instruction != "ELEMENT") {

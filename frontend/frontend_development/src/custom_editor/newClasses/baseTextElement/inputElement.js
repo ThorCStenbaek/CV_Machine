@@ -7,7 +7,7 @@ import BaseQuill from "../../../containers/components/quill/baseQuill";
 import { useContentElement } from "../useContentElement";
 
 
-export const InputElement = ({ position, resourceMeta, changeElement, updateResourceMeta }) => {
+export const InputElement = ({ position, resourceMeta, changeElement, updateResourceMeta, isStyle }) => {
   
 
 
@@ -92,6 +92,8 @@ const contentConfig = {
 
         console.log("BASEQUILL OUTER", editorContent)
                 //here
+
+                if (!isStyle)
         return (
   
                 <BaseQuill
@@ -101,4 +103,6 @@ const contentConfig = {
                 setEditorContent={setEditorContent} setMetaInfo={onQuillChange}  />
            
         );
+        if (isStyle)
+            return null
     }

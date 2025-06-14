@@ -7,7 +7,7 @@ import { getValue } from "../../newUtils/getValue";
 
 
 import { useContentElement } from "../useContentElement";
-export const InputElement = ({ position, resourceMeta, changeElement, updateResourceMeta }) => {
+export const InputElement = ({ position, resourceMeta, changeElement, updateResourceMeta, isStyle }) => {
 
 
   // Configuration for useContentData
@@ -81,6 +81,7 @@ export const InputElement = ({ position, resourceMeta, changeElement, updateReso
     updateElement(updatedData);
   };
 
+  if (!isStyle)
   return (
     <div className="input-skills-container">
       <h3>Content Data</h3>
@@ -91,16 +92,7 @@ export const InputElement = ({ position, resourceMeta, changeElement, updateReso
           value={contentData.name}
           onChange={(e) => deferHandleFieldChange("name", e.target.value)}
         />
-        <StyleChanger
-          property={"font-size"}
-          name={"NameSize"}
-          defaultColor={"15px"}
-          type={"number"}
-          inputName={"Title Size"}
-          handleStyle={handleStyleChange}
-          currentStyle={contentData.innerStyle}
-          position={position}
-        />
+
       </div>
 
 
@@ -186,7 +178,26 @@ export const InputElement = ({ position, resourceMeta, changeElement, updateReso
         }}
       </InputList>
 
-      <StyleChanger
+
+
+
+    </div>
+  );
+
+  if (isStyle)
+    return(
+  <>
+        <StyleChanger
+          property={"font-size"}
+          name={"NameSize"}
+          defaultColor={"15px"}
+          type={"number"}
+          inputName={"Title Size"}
+          handleStyle={handleStyleChange}
+          currentStyle={contentData.innerStyle}
+          position={position}
+        />
+        <StyleChanger
         property={"font-size"}
         name={"SkillSize"}
         defaultColor={"15px"}
@@ -217,9 +228,7 @@ export const InputElement = ({ position, resourceMeta, changeElement, updateReso
         currentStyle={contentData.innerStyle}
         additionalProperties={["margin-right"]}
         position={position}
-      />
-    </div>
-  );
+      /></>)
 };
 
 export default InputElement;

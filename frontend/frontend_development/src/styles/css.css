@@ -42,6 +42,7 @@ table {
   right:0px;
   top:0px;
   bottom: 0px;
+  background-image: var(--background-image);
 }
 .selected::before {
   content: "";

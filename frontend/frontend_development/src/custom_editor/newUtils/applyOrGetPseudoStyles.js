@@ -22,6 +22,7 @@ export function applyOrGetPseudoStyles(element, applyStyles = false, position) {
           "--max-width": computedStyle.getPropertyValue("width") || "0px",
           "--max-height": computedStyle.getPropertyValue("height") || "0px",
           "--background": computedStyle.getPropertyValue("background") || "white",
+          "--background-image": computedStyle.getPropertyValue("background-image") || "none",
         };
     } else {
         if (!element.specific_style) return '';
@@ -39,6 +40,7 @@ export function applyOrGetPseudoStyles(element, applyStyles = false, position) {
           "--max-width": (getValue("width", element.specific_style, true) || 0) + "px",
           "--max-height": (getValue("height", element.specific_style, true) || 0) + "px",
           "--background": getValue("background", element.specific_style) || "white",
+          "--background-image": getValue("background-image", element.specific_style) || "none",
         };
     }
 

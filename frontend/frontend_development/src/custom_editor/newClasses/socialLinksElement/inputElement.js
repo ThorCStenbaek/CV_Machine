@@ -7,7 +7,7 @@ import { socialIcons } from "./socialLinks";
 // Icons for different social platforms
 import CoolInput from "../../../containers/components/general/coolInput";
 
-export const InputElement = ({ position, resourceMeta, changeElement, updateResourceMeta }) => {
+export const InputElement = ({ position, resourceMeta, changeElement, updateResourceMeta, isStyle }) => {
   // Configuration for useContentData
   const contentConfig = {
     defaultData: { 
@@ -73,7 +73,9 @@ export const InputElement = ({ position, resourceMeta, changeElement, updateReso
     updateElement(updatedData);
   };
 
-  return (
+  if (!isStyle){
+    return(
+
     <div className="input-social-links-container">
       <h3>Social Links</h3>
       <div>
@@ -84,16 +86,7 @@ export const InputElement = ({ position, resourceMeta, changeElement, updateReso
           onChange={(e) => deferHandleFieldChange("name", e)}
           label={"Section Name"}
         />
-        <StyleChanger
-          property={"font-size"}
-          name={"NameSize"}
-          defaultColor={"15px"}
-          type={"number"}
-          inputName={"Title Size"}
-          handleStyle={handleStyleChange}
-          currentStyle={contentData.innerStyle}
-          position={position}
-        />
+
       </div>
 
 
@@ -150,7 +143,26 @@ export const InputElement = ({ position, resourceMeta, changeElement, updateReso
           );
         }}
       </InputList>
+
+
       
+    </div>
+  ); }
+
+  if (isStyle){
+    return(
+<>
+      
+<StyleChanger
+          property={"font-size"}
+          name={"NameSize"}
+          defaultColor={"15px"}
+          type={"number"}
+          inputName={"Title Size"}
+          handleStyle={handleStyleChange}
+          currentStyle={contentData.innerStyle}
+          position={position}
+        />
       <StyleChanger
         property={"font-size"}
         name={"LinkSize"}
@@ -194,8 +206,10 @@ export const InputElement = ({ position, resourceMeta, changeElement, updateReso
         //additionalProperties={["margin-right"]}
         position={position}
       />
-    </div>
-  );
+
+</>
+)
+  }
 };
 
 export default InputElement

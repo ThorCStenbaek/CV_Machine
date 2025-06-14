@@ -70,6 +70,7 @@ import PortraitLandscapeSVG from "./icons/portraitLandscape.js";
 import ArrowButton from "./panelButtons/arrowButton.js";
 import About from './../pages/about';
 import UserAdderToGroup from './../containers/components/users/addUserToGroup';
+import StyleTab from "./StyleTab.js";
 
 
 const ElementPanel = ({ position, resourceMeta, updateResourceMeta, handleAddNewElement, removeElement, addNewElement,toggleUploadModal, children, page, changeIndex, handleRedo, handleUndo,changeDrag  }) => {
@@ -101,7 +102,7 @@ const ElementPanel = ({ position, resourceMeta, updateResourceMeta, handleAddNew
   }, [position, resourceMeta]);
 
   useEffect(() => {
-    setActiveTab( resourceMeta[position].rules.hasDesign ? 'design' : 'style')
+    setActiveTab( resourceMeta[position].rules.hasDesign ? 'content' : 'style')
   }, [position,elementData.instruction]);
 
   const handleChange = (e) => {
@@ -139,9 +140,14 @@ const ElementPanel = ({ position, resourceMeta, updateResourceMeta, handleAddNew
   const safeElementData = elementData || {}; // Fallback to an empty object if elementData is null or undefined
   
     const tabs = ["pageSettings", 
-      elementData.rules.hasDesign? "design" : null,
+      elementData.rules.hasDesign? "content" : null,
       "style", 
       "advanced"].filter(t=>t!==null)
+
+const CVelementInput= CVElements.get(elementData.instruction)?.inputElement
+let Content, Style;
+
+
    return (
      <>
        <div style={{background: "white", width: "40%", minWidth: "550px",maxHeight: "100vh"}}>
@@ -178,56 +184,17 @@ const ElementPanel = ({ position, resourceMeta, updateResourceMeta, handleAddNew
 
 
 
-        {activeTab === 'style' && (
-              <div style={{ display: 'flex', gap: '15px', flexDirection: 'column' }}>
+{activeTab === 'style' && (
+  <StyleTab 
+    position={position}
+    resourceMeta={resourceMeta}
+    changeElement={changeElement}
+    updateResourceMeta={updateResourceMeta}
+    CVelementInput={CVelementInput}
+    changeDrag={changeDrag}
 
-              <div className="divBreak">
-                <h4 style={{ marginBottom: '0px' }}>Background Color</h4>
-                <DynamicColorEditor position={position} resourceMeta={resourceMeta} updateResourceMeta={updateResourceMeta} property={"background"} />
-              </div>
-       
-
-              <div className="divBreak">
-              <h4 style={{ marginBottom: '0px' }}>Font/Icon Color</h4>
-              <DynamicColorEditor position={position} resourceMeta={resourceMeta} updateResourceMeta={updateResourceMeta} property={"color"} />
-              </div>
-<div>
-              <div>
-
-<DynamicStyleEditor  inputName="FontSize" alignItems="" defaultColor="0px" position={position} resourceMeta={resourceMeta} updateResourceMeta={updateResourceMeta} property={"font-size"} type="number" />
-
-<div> 
-
-              <DynamicStyleEditor  position={position} resourceMeta={resourceMeta} updateResourceMeta={updateResourceMeta} property={"border-top-style"} type="select"
-              options={[{text:"none", value:"none"},{text: "Solid", value:"solid"}, {text: "burh", value:"dashed"}]}
-              />
-              </div>
-
-
-              </div>
-              <div> 
-<p>Border Radius</p>
-<DynamicStyleEditor defaultColor="0px" position={position} resourceMeta={resourceMeta} updateResourceMeta={updateResourceMeta} property={"border-radius"} type="number" />
-              </div>
-
-              <p>padding</p>
-<QuadrupleDynamicStyleEditor defaultColor="0px" position={position} resourceMeta={resourceMeta} updateResourceMeta={updateResourceMeta} property={"padding-$"} type="number"
-changeDrag={changeDrag}
-/>
-              
-<p>margin</p>
-<QuadrupleDynamicStyleEditor defaultColor="0px" position={position} resourceMeta={resourceMeta} updateResourceMeta={updateResourceMeta} property={"margin-$"} type="number"
-changeDrag={changeDrag}/>
-
-              </div>
-
-
-            </div>
-
-
-
-
-    )}
+  />
+)}
 
         {activeTab === 'pageSettings' && (
           <>
@@ -254,7 +221,7 @@ changeDrag={changeDrag}/>
 
             <li>Make a "style map" that has all the style properties and their default values</li>
 <li>Make sure that each new element has a 'relevant styles' section that works with the map.</li>
-
+<s>
 <li> Where do we put the spececial pin point styles of each element? Under styles? Under a new banner called something with styles?About
   <br/>
   Maybe we do actually put them under styles, and then we collapse the other styles or something?
@@ -267,33 +234,63 @@ changeDrag={changeDrag}/>
   
   
 </li>
+
 <li> Perhaps style itself should have multiple tabs? Always defaulting to just the specific_style
 <br/>Perhaps they could be 
 <li>Pin point</li>
 <li>Color</li>
 <li>Size</li>
 <li>Other?</li>
+
 </li>
+</s>
+
+<li>
+  Add more styles, especially color to the work timeline one. 
+</li>
+<li> Make another one called education timeline or something. It should copy work timeline</li>
+          
+          <li>
+            Get Basic backend working. I imagine you just have to delete a whole lot from pyc2
+and add depth to datastructure
+          </li>
+
+<li> Add either a modal or something similar so you can immediately see what the type looks like for
+  <br/> elements with type like the timelines. 
+</li>
+
+<li>
+  Make sure the background image works properly
+</li>
+
+
+<li> Get better icons for the newRowModal</li>
+<li> Makes sure that in certain cases the class elements should be shown first.
+  <br/> Perhaps in all other cases than "CONTAINER", it shows the CVElements first, 
+  then the other ones? <br/> Almost certainly, this should be a rule instead.
+</li>
+
+          
           </ol>
 
           <p> Bugs:</p>
 
 
+<li>Something weird happens to the right when you change the width of a border. 
+<br/> Not sure why but it has something to do with ChangeDrag.
+</li>
+
 
 </>
         )}
 
-        {activeTab === 'design' && (
+        {activeTab === 'content' && (
           <div className="design-content">
             <div className="custom-editor-form" style={{ minWidth: '350px' }} >
 
-              <ElementChildren
-                resourceMeta={resourceMeta}
-                position={position}
-                removeElement={removeElement}
-                changeElement={changeElement}
-                updateResourceMeta={updateResourceMeta}
-              />
+
+        {CVelementInput && <CVelementInput position={position} resourceMeta={resourceMeta} changeElement={changeElement} updateResourceMeta={updateResourceMeta} isStyle={false}/>}
+        
 
               
               {elementData.instruction !== 'CONTAINER' && (
@@ -324,9 +321,7 @@ changeDrag={changeDrag}/>
     </>
   );
 
-};
-  // Create a new element based on the defaultMeta structure
-  
+};  // Create a new element based on the defaultMeta structure  
 
   
 
