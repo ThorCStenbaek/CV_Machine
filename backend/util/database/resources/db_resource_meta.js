@@ -43,7 +43,9 @@ const createResourceMetaTable = () => {
             specific_style TEXT,
             content_type TEXT,
             content_data TEXT,
-            instruction TEXT
+            instruction TEXT,
+            depth INTEGER NOT NULL,
+            rules TEXT
         )`, (err) => {
             if (err) {
                 reject(err);
@@ -97,32 +99,6 @@ const createResourceClassesTable = () => {
 
 
 
-const insertIntoResourceMeta = (resourceId, order, htmlElement, numberOfChildren = 0, specificStyle, contentType, contentData,  instruction) => {
-    return new Promise((resolve, reject) => {
-        const sql = `
-            INSERT INTO resource_meta (resource_id, ordering, html_element, number_of_children, specific_style, content_type, content_data)
-            VALUES (?, ?, ?, ?, ?, ?, ?)
-        `;
-
-        db.run(sql, [resourceId, order, htmlElement, numberOfChildren, specificStyle, contentType, contentData], function(err) {
-            if (err) {
-                reject(err);
-                return;
-            }
-            console.log('Data inserted into Resource Meta table with ID:', this.lastID);
-            resolve(this.lastID);
-        });
-    });
-}
-
-// Usage example:
-// insertIntoResourceMeta(1, 2, 'div', 0, 'background-color: red;', 'text', 'Hello World')
-//     .then(id => {
-//         console.log('Insert successful with ID:', id);
-//     })
-//     .catch(err => {
-//         console.error('Error inserting into table:', err);
-//     });
 
 
 
@@ -142,7 +118,23 @@ const getResourceMetaByResourceId = (resourceId) => {
                 reject(err);
                 return;
             }
-            resolve(rows);
+            
+            // JSONify content_data and rules for each meta
+            const processedRows = rows.map(row => {
+                try {
+                    if (row.content_data && typeof row.content_data === 'string') {
+                        row.content_data = JSON.parse(row.content_data);
+                    }
+                    if (row.rules && typeof row.rules === 'string') {
+                        row.rules = JSON.parse(row.rules);
+                    }
+                } catch (e) {
+                    console.error('Error parsing JSON for resource meta:', e);
+                }
+                return row;
+            });
+            
+            resolve(processedRows);
         });
     });
 }
@@ -215,8 +207,8 @@ const insertNewResource = async (category_id, created_by, title, description, po
             order++;
             console.log(meta);
             await new Promise((resolve, reject) => {
-                db.run(`INSERT INTO resource_meta (resource_id, fileID, ordering, html_element, number_of_children, specific_style, content_type, content_data, instruction) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-                    [resourceId, meta.fileID, order, meta.html_element, meta.number_of_children, meta.specific_style, meta.content_type, meta.content_data, meta.instruction || null], function(err) {
+                db.run(`INSERT INTO resource_meta (resource_id, fileID, ordering, html_element, number_of_children, specific_style, content_type, content_data, instruction,depth, rules) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?,?, ?)`,
+                    [resourceId, meta.fileID, order, meta.html_element, meta.number_of_children, meta.specific_style, meta.content_type, JSON.stringify(meta.content_data), meta.instruction || null, meta.depth, JSON.stringify(meta.rules)], function(err) {
                         if (err) reject(err);
                         else resolve();
                     });
@@ -273,12 +265,16 @@ const removeResourceMetaByResourceId = (resourceId) => {
 
 const insertResourceMetaRows = (resourceId, metaRows) => {
     return new Promise((resolve, reject) => {
-        const sql = `INSERT INTO resource_meta (resource_id, fileID, ordering, html_element, number_of_children, specific_style, content_type, content_data, instruction) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`;
+        const sql = `INSERT INTO resource_meta (resource_id, fileID, ordering, html_element, number_of_children, specific_style, content_type, content_data, instruction,depth, rules) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?,?)`;
 
         let order = 0;
         const insertPromises = metaRows.map(row =>
             new Promise((resolve, reject) => {
-                db.run(sql, [resourceId, row.fileID, order++, row.html_element, row.number_of_children, row.specific_style, row.content_type, row.content_data, row.instruction], function(err) {
+                // Convert content_data and rules to string if they are objects
+                const contentData = typeof row.content_data === 'object' ? JSON.stringify(row.content_data) : row.content_data;
+                const rules = typeof row.rules === 'object' ? JSON.stringify(row.rules) : row.rules;
+                
+                db.run(sql, [resourceId, row.fileID, order++, row.html_element, row.number_of_children, row.specific_style, row.content_type, contentData, row.instruction, row.depth, rules], function(err) {
                     if (err) {
                         reject(err);
                         return;
@@ -296,7 +292,6 @@ const insertResourceMetaRows = (resourceId, metaRows) => {
             .catch(reject);
     });
 };
-
 
 
 

@@ -28,7 +28,7 @@ const resourceToParentRoutes = require('./routes/resources/resourceToParentsRout
 const tokenRoutes = require('./routes/tokens/tokenRoutes')
 const appResourceRoutes = require('./routes/resources/resourceToAppRoutes')
 const fileRightsRoutes = require('./routes/files/fileRightsRoutes')
-
+const { db } = require('./util/database/database_core');
 
 const  {generateScreenshots }= require('./util/screenshots/resourceShots')
 
@@ -69,112 +69,11 @@ app.use('/uploads/public', express.static(path.join(__dirname, 'uploads/public')
 app.use('/uploads/private', checkCookie, express.static(path.join(__dirname, 'uploads/private')));
 
 
-
-/*
-const j = [
-    {
-        "caption": "Blanketter & information",
-        "description": "Blanketter och Information"
-    },
-    {
-        "caption": "Övrigt",
-        "description": "Övrigt"
-    }
-]
-
-const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms));
-
-const myFunction = async () => {
-  for (let i = 0; i < j.length; i++) {
-    console.log("inserting", j[i].caption);
-    await dbUtils.categories.insertCategory(j[i].caption, j[i].description, 1, 12);
-    await delay(100); // Delay for 100 milliseconds
-  }
-};
-
-myFunction();
-
-*/
-
-
-//dbUtils.createAllTables()
-/*
-dbUtils.files.insertFileCategory("Bad")
-dbUtils.files.insertFileCategory("Barnets hälsa")
-dbUtils.files.insertFileCategory("Första hjälpen")
-dbUtils.files.insertFileCategory("Kläder")
-dbUtils.files.insertFileCategory("Livsmedel")
-dbUtils.files.insertFileCategory("Övrigt")
-dbUtils.files.insertFileCategory("Personlig hygien")
-dbUtils.files.insertFileCategory("Sakerhet")
-dbUtils.files.insertFileCategory("Samspel & lek")
-dbUtils.files.insertFileCategory("Säng & sömn")
-dbUtils.files.insertFileCategory("Städa & tvätta")
-*/
-
-//dbUtils.files.insertFileCategory("resursbilder")
-
-/*
-dbUtils.files.rights.insertIntoRightsId("https://openclipart.org/")
-
-dbUtils.files.rights.insertIntoRightsId("https://mulberrysymbols.org/")
-
-dbUtils.files.rights.insertIntoRightsId("http://tawasolsymbols.org/")
-
-dbUtils.files.rights.insertIntoRightsId("http://arasaac.org/")
-*/
-//dbUtils.parent.updateParentUserIdsForSosuUser(1, [2,3])
-//dbUtils.parent.getParentUserIdsForSosuUser(1).then(result => console.log(result))
-//dbUtils.parent.addResourceToUser(15, 1).then(result => console.log(result))
-//dbUtils.parent.addResourceToUser(15, 2).then(result => console.log(result))
-//dbUtils.parent.addResourceToUser(15, 3).then(result => console.log(result))
-
-//dbUtils.editors.insertEditor("Advanced Editor", "Editor that let's you make multiple rows and columns", "admin")
-
-//testdb.initialDatabase()
-//testdb.initialDatabase().then(()=> testdb.insertAllCategories()).then(()=>testdb.insertRandomResources(80));
-
-//dbUtils.user.insertUser("test", "test@test.dk", "testFN", "testLN", "test", "ADMIN")
-
-//timeout
-/*
-setTimeout(() => {
-  const li = generateScreenshots(1).then(result => console.log("THE LIST",result))
-
-}, 5000);
-*/
-
-//dbUtils.resources.screenshots.createResourceImagePathTable()
-
-//dbUtils.files.getFileByID(1).then(data => console.log(data))
-//dbUtils.files.getFileByID(2).then(data=>console.log(data))
-//console.log(dbUtils.files.getFileByID(0))
-//dbUtils.categories.unfoldCategories().then(result => console.log(result))
-    //testdb.insertRandomResources(1)
-/*
-   dbUtils.resources.getResourcesByCategory(1).then(result => {
-        console.log("result: ",result);
-    })
-    .catch(error => {
-        console.error('Error:', error);
-    });
-    
+//dbUtils.createAllTables();
 
 
 
 
-       dbUtils.resources.getResourceMetaByResourceId(5).then(result => {
-        console.log("meta: ",result);
-    })
-    .catch(error => {
-        console.error('Error:', error);
-    });
-
-*/
-
-
-
-//dbUtils.resources.createResourceLastUpdatedTable()
 
 app.get('/test', (req, res) => {
     res.send("Hello there")
@@ -183,76 +82,112 @@ app.get('/test', (req, res) => {
 //should refactor. This works for now, but we should save pdfs on the server and then 
 //deliver them.
 app.get('/api/generate-pdf', async (req, res) => {
+  const browser = await puppeteer.launch();
   try {
-    const browser = await puppeteer.launch();
+    const isLandscape = req.query.landscape === 'true';
+    const targetUrl   = 'http://localhost:8000/resource4';
+
     const page = await browser.newPage();
+    await page.setViewport({ width: 1920, height: 1080, deviceScaleFactor: 2 });
 
-    // Extract query parameters
-    const targetUrl = req.query.url; // The URL to navigate to
-    const isLandscape = req.query.landscape === 'true'; // Whether the PDF should be in landscape
-
-    // Validate the URL parameter
-    if (!targetUrl) {
-      res.status(400).send('URL parameter is required');
-      return;
-    }
-
-    // Assuming cookies are sent with the request, set them in Puppeteer
-    let cookies = [];
-    const cookiesStr = req.headers.cookie;
-    if (cookiesStr) {
-      cookies = cookiesStr.split(';').map(pair => {
-        const [name, value] = pair.split('=').map(s => s.trim());
-        return { name, value, url: targetUrl }; // Use the URL from the query parameter
+    /* forward session cookies so the HTML renders exactly as in the browser */
+    if (req.headers.cookie) {
+      const cookies = req.headers.cookie.split(';').map(c => {
+        const [name, value] = c.trim().split('=');
+        return { name, value, url: targetUrl };
       });
       await page.setCookie(...cookies);
     }
 
-    // Navigate to the provided URL
-    await page.goto(targetUrl, { waitUntil: 'networkidle2' });
-    await page.waitForSelector('.page-container', { timeout: 5000 });
+    await page.goto(targetUrl, { waitUntil: 'networkidle0' });
 
-    // Optional: Modify styles of .page-container elements
-    await page.evaluate(() => {
-      const containers = document.querySelectorAll('.page-container');
-      containers.forEach(el => {
-        el.style.padding = '0px';
-          el.style.boxShadow = 'none';
-
-      });
+    /* PRINT STYLES –––––––––––––––––––––––––––––––––––––– */
+    /*  1. @page … removes all printer margins
+        2. preferCSSPageSize tells Chrome to trust @page           */
+    await page.addStyleTag({
+      content: `
+        @page {
+           size: ${isLandscape ? '297mm 210mm' : '210mm 297mm'};
+           margin: 0;
+        }
+        html, body {
+           margin: 0 !important;
+           padding: 0 !important;
+        }
+      `
     });
 
-    // Concatenate all .page-container elements
-    const fullHtml = await page.$$eval('.page-container', elements => 
-      elements.map(e => e.outerHTML + '<div style="page-break-after: always;"></div>').join(''));
+    /* If your design has a wrapper with a drop-shadow, kill it here */
+    await page.$$eval('.page-container', els =>
+      els.forEach(el => {
+        el.style.margin   = '0';
+        el.style.padding  = '0';
+        el.style.boxShadow = 'none';
+        el.style.width    = '100%';
+      })
+    );
 
-    if (!fullHtml) {
-      res.status(404).send('No elements found');
+    /* ────────────────────────────
+       Assemble all .page-container nodes into one long document
+       with a manual page break in between each.                 */
+    const html = await page.$$eval('.page-container', els =>
+      els.map(e => e.outerHTML + '<div style="page-break-after:always"></div>').join('')
+    );
+    if (!html) {
+      res.status(404).send('No .page-container elements found');
       return;
     }
 
-    // Create a new page for the concatenated HTML
     const pdfPage = await browser.newPage();
-    if (cookies.length > 0) {
-      await pdfPage.setCookie(...cookies);
+await pdfPage.setContent(html, { waitUntil: 'networkidle0' });
+await pdfPage.emulateMediaType('print');
+
+await pdfPage.addStyleTag({
+  content: `
+    @page {
+       size: ${isLandscape ? '297mm 210mm' : '210mm 297mm'};
+       margin: 0;
+    }
+    html, body {
+       margin: 0 !important;
+       padding: 0 !important;
+    }
+    .page-container {
+       margin: 0 !important;
+       padding: 0 !important;
+       box-shadow: none !important;
+       width: 100% !important;
     }
 
-    await pdfPage.setContent(fullHtml, { waitUntil: ['load', 'domcontentloaded', 'networkidle0'] });
-    const pdfBuffer = await pdfPage.pdf({
-      format: 'A4',
-      printBackground: true,
-      landscape: isLandscape, // Set landscape based on query parameter
-    });
-    
-    await pdfPage.close();
-    await browser.close();
+        .page-container {
+      
+      height: 1122.52px !important; 
+    }
+  `
+});
 
-    res.setHeader('Content-Type', 'application/pdf');
-    res.setHeader('Content-Disposition', `attachment; filename=element-page.pdf`);
-    res.send(pdfBuffer);
-  } catch (error) {
-    console.error(error);
+const pdf = await pdfPage.pdf({
+  format: 'A4',
+  printBackground: true,
+  preferCSSPageSize: true,
+  scale: 1,
+  margin: { top: 0, right: 0, bottom: 0, left: 0 }
+});
+
+
+
+// take a screenshot and save it as debug.png
+await page.screenshot({ path: 'debug.png', fullPage: true })
+
+
+    res.setHeader('Content-Type',        'application/pdf');
+    res.setHeader('Content-Disposition', 'attachment; filename="element-page.pdf"');
+    res.send(pdf);
+  } catch (err) {
+    console.error(err);
     res.status(500).send('Error generating PDF');
+  } finally {
+    await browser.close();
   }
 });
 
