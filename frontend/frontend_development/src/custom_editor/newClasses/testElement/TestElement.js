@@ -4,4 +4,4 @@ import { InputElement } from "./inputElement"
 import { RenderElement } from "./renderElement"
 import { CustomElement } from "../CustomElement"
 
-export const TestElement= new CustomElement(InputElement, ButtonElement, startingMeta, RenderElement)
+//export const TestElement= new CustomElement(InputElement, ButtonElement, startingMeta, RenderElement)

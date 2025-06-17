@@ -351,6 +351,8 @@ const ElementBuilder = ({ jsonData, editing = false, changeElement, chosen, addE
 */
   const elements = jsonData.length !== 0 ? allElements(jsonData, 0, editing, changeElement, chosen, addElements, changeDrag, absoluteDragger, settings) : null;
 
+if (elements == null || elements.length==0)
+  return <p>No resource? 0:</p>
 
   if (elements.length == 1 && jsonData[0].instruction == "PDF")
     return ( elements.map((element, index) => <div key={index}>{element.element}</div>))

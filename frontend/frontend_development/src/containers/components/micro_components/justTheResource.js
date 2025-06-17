@@ -73,6 +73,30 @@ const JustTheResource = ({ resource }) => {
 
     return (
         <>
+              <style>
+        {`
+          @media print {
+            @page {
+              size: A4;
+              margin: 0;
+            }
+
+            html, body {
+              margin: 0 !important;
+              padding: 0 !important;
+              width: 210mm;
+              height: 297mm;
+            }
+
+            .page-container {
+              margin: 0 !important;
+              padding: 0 !important;
+              box-shadow: none !important;
+              width: 100% !important;
+            }
+          }
+        `}
+      </style>
 
                 <div style={{position: 'relative'}}>
             <div style={{display: 'flex', flexDirection: 'column'}} onClick={handleGenerateScreenshot}>

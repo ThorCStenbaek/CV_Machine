@@ -69,10 +69,7 @@ const generateRoutes = (categories, basePath = "", type) => {
       />
      );
       console.log("making routes", resource)
-      routes.push(
-        //just the resource
-        <Route path={`/resource${resource.id}`} element={<CenteredWrapper><JustTheResource resource={resource} /> </CenteredWrapper>} />
-      )
+
      })
     if (category.subcategories.length > 0) {
       routes = routes.concat(generateRoutes(category.subcategories, currentPath, type));
@@ -81,6 +78,29 @@ const generateRoutes = (categories, basePath = "", type) => {
 
   return routes;
 };
+  //give me a similar function that does something similar to the generateRoutes function but instead of returning a list of routes it returns a list of paths
+  // but just this part: 
+  /*
+        routes.push(
+          //just the resource
+          <Route path={`/resource${resource.id}`} element={<CenteredWrapper><JustTheResource resource={resource} /> </CenteredWrapper>} />
+        )
+ */
+
+  const generateJustResourceThings = (categories) => {
+    let routes = [];
+
+    categories.forEach(category => {
+      category.resources.forEach(resource => {
+        routes.push(
+          //just the resource
+          <Route path={`/resource${resource.id}`} element={<JustTheResource resource={resource} />} />
+        )
+      });
+    });
+  
+    return routes;
+  };
 
 
 const generateResourcePathsMap = (categories, basePath = "", type) => {
@@ -253,6 +273,15 @@ function App() {
     <PathsContext.Provider value={{ allPaths, setAllPaths }}>
     <CurrentUserContext.Provider value={{ currentUser, setCurrentUser }}>
     <Router>
+      <Routes>
+
+        {Object.keys(categoriesData).map((type) => {
+                return (
+                <React.Fragment key={type}>
+      {generateJustResourceThings(categoriesData[type])} 
+      </React.Fragment> ) } ) }
+
+      </Routes>
 
         <Header types={idToType } />
 

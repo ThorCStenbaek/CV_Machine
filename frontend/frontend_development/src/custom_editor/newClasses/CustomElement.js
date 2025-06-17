@@ -36,10 +36,10 @@ export class CustomElement{
   
 
     constructor(inputElement, buttonElement, startingMeta, renderElement) {
-        this.verifyInputElement(inputElement);
-        this.verifyButtonElement(buttonElement);
-        this.verifyStartingMeta(startingMeta);
-        this.verifyRenderElement(renderElement);
+        //this.verifyInputElement(inputElement);
+        //this.verifyButtonElement(buttonElement);
+        //this.verifyStartingMeta(startingMeta);
+        //this.verifyRenderElement(renderElement);
 
         // Ensure `RenderElement` is a valid React component
 

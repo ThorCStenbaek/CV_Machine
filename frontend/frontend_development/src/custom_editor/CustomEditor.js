@@ -76,18 +76,7 @@ import StyleTab from "./StyleTab.js";
 const ElementPanel = ({ position, resourceMeta, updateResourceMeta, handleAddNewElement, removeElement, addNewElement,toggleUploadModal, children, page, changeIndex, handleRedo, handleUndo,changeDrag  }) => {
     const [elementData, setElementData] = useState(resourceMeta[position]);
     const [direction, setDirection] = useState("row");
-      const PMeta= {
-        ID: null, // This will be auto-incremented by the database
-        resource_id: null, // You might need to provide this value based on your application's logic
-        fileID: null,
-        ordering: 0, // Default value, change as needed
-        html_element: 'img' , // Provide a value based on your application's logic
-        number_of_children: 0,
-        specific_style: 'height: auto;', // Provide a value based on your application's logic
-        content_type: '' , // Provide a value based on your application's logic
-        content_data: '', // Provide a value based on your application's logic
-        instruction: 'ELEMENT' // Provide a value based on your application's logic
-  };
+
   
   const [activeTab, setActiveTab] = useState('style');
   const [exitModal, setExitModal] = useState(false);
@@ -343,7 +332,7 @@ const CustomEditor = ({resource=null, givenResourceMeta=null, givenCategory, Res
         ordering: 0, // Default value, change as needed
         html_element: 'div' , // Provide a value based on your application's logic
         number_of_children: 0,
-        specific_style: 'height: 1191px; width: 842px;  display: flex; flex-direction: column; box-shadow: 0px 2px 4px -1px rgba(0,0,0,0.2), 0px 4px 5px 0px rgba(0,0,0,0.14), 0px 1px 10px 0px rgba(0,0,0,0.12); overflow: hidden; z-index: 1; background: white;', // Provide a value based on your application's logic
+        specific_style: 'height: 1122.52px; width: 842px;  display: flex; flex-direction: column; box-shadow: 0px 2px 4px -1px rgba(0,0,0,0.2), 0px 4px 5px 0px rgba(0,0,0,0.14), 0px 1px 10px 0px rgba(0,0,0,0.12); overflow: hidden; z-index: 1; background: white;', // Provide a value based on your application's logic
         content_type: '' , // Provide a value based on your application's logic
         content_data: '', // Provide a value based on your application's logic
         instruction: 'CONTAINER', // Provide a value based on your application's logic,

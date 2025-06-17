@@ -82,15 +82,19 @@ app.get('/test', (req, res) => {
 //should refactor. This works for now, but we should save pdfs on the server and then 
 //deliver them.
 app.get('/api/generate-pdf', async (req, res) => {
-  const browser = await puppeteer.launch();
+  const browser = await puppeteer.launch({
+    headless: true, // ✅ BACK TO HEADLESS
+    args: ['--start-maximized'],
+    defaultViewport: null
+  });
+
   try {
     const isLandscape = req.query.landscape === 'true';
-    const targetUrl   = 'http://localhost:8000/resource4';
+    const targetUrl = 'http://localhost:8000/resource4';
 
     const page = await browser.newPage();
     await page.setViewport({ width: 1920, height: 1080, deviceScaleFactor: 2 });
 
-    /* forward session cookies so the HTML renders exactly as in the browser */
     if (req.headers.cookie) {
       const cookies = req.headers.cookie.split(';').map(c => {
         const [name, value] = c.trim().split('=');
@@ -100,87 +104,65 @@ app.get('/api/generate-pdf', async (req, res) => {
     }
 
     await page.goto(targetUrl, { waitUntil: 'networkidle0' });
+    await page.screenshot({ path: 'debug-initial.png', fullPage: true });
 
-    /* PRINT STYLES –––––––––––––––––––––––––––––––––––––– */
-    /*  1. @page … removes all printer margins
-        2. preferCSSPageSize tells Chrome to trust @page           */
-    await page.addStyleTag({
-      content: `
-        @page {
-           size: ${isLandscape ? '297mm 210mm' : '210mm 297mm'};
-           margin: 0;
-        }
-        html, body {
-           margin: 0 !important;
-           padding: 0 !important;
-        }
-      `
-    });
-
-    /* If your design has a wrapper with a drop-shadow, kill it here */
-    await page.$$eval('.page-container', els =>
-      els.forEach(el => {
-        el.style.margin   = '0';
-        el.style.padding  = '0';
-        el.style.boxShadow = 'none';
-        el.style.width    = '100%';
-      })
+    const containersHTML = await page.$$eval('.page-container', els =>
+      els.map(e => e.outerHTML + '<div style="page-break-after:always;"></div>').join('')
     );
-
-    /* ────────────────────────────
-       Assemble all .page-container nodes into one long document
-       with a manual page break in between each.                 */
-    const html = await page.$$eval('.page-container', els =>
-      els.map(e => e.outerHTML + '<div style="page-break-after:always"></div>').join('')
-    );
-    if (!html) {
+    if (!containersHTML) {
       res.status(404).send('No .page-container elements found');
       return;
     }
 
-    const pdfPage = await browser.newPage();
-await pdfPage.setContent(html, { waitUntil: 'networkidle0' });
-await pdfPage.emulateMediaType('print');
+    const stylesHTML = await page.evaluate(() => {
+      const styles = Array.from(document.querySelectorAll('style, link[rel="stylesheet"]'));
+      return styles.map(el => el.outerHTML).join('');
+    });
 
-await pdfPage.addStyleTag({
-  content: `
-    @page {
-       size: ${isLandscape ? '297mm 210mm' : '210mm 297mm'};
-       margin: 0;
-    }
-    html, body {
-       margin: 0 !important;
-       padding: 0 !important;
-    }
-    .page-container {
-       margin: 0 !important;
-       padding: 0 !important;
-       box-shadow: none !important;
-       width: 100% !important;
-    }
+    const fullHTML = `
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <meta charset="utf-8">
+        ${stylesHTML}
+        <style>
+          @page {
+            size: ${isLandscape ? '297mm 210mm' : '210mm 297mm'};
+            margin: 0;
+          }
+          html, body {
+            margin: 0;
+            padding: 0;
+          }
+          .page-container {
+            width: 100% !important;
+            height: 1122.52px !important;
+            box-shadow: none !important;
+            margin: 0 !important;
+            padding: 0 !important;
+          }
+        </style>
+      </head>
+      <body>
+        ${containersHTML}
+      </body>
+      </html>
+    `;
 
-        .page-container {
-      
-      height: 1122.52px !important; 
-    }
-  `
-});
-
-const pdf = await pdfPage.pdf({
-  format: 'A4',
-  printBackground: true,
-  preferCSSPageSize: true,
-  scale: 1,
-  margin: { top: 0, right: 0, bottom: 0, left: 0 }
-});
-
-
-
-// take a screenshot and save it as debug.png
-await page.screenshot({ path: 'debug.png', fullPage: true })
+    const pdfPage = page; // still using same page
+    await pdfPage.setContent(fullHTML, { waitUntil: 'networkidle0' });
+    await pdfPage.emulateMediaType('print');
+    await pdfPage.screenshot({ path: 'debug-pdf-content.png', fullPage: true });
 
 
-    res.setHeader('Content-Type',        'application/pdf');
+    const pdf = await pdfPage.pdf({
+      printBackground: true,
+      preferCSSPageSize: true,
+      scale: 1,
+      margin: { top: 0, right: 0, bottom: 0, left: 0 }
+    });
+
+    res.setHeader('Content-Type', 'application/pdf');
     res.setHeader('Content-Disposition', 'attachment; filename="element-page.pdf"');
     res.send(pdf);
   } catch (err) {
@@ -190,6 +172,9 @@ await page.screenshot({ path: 'debug.png', fullPage: true })
     await browser.close();
   }
 });
+
+
+
 
 
 

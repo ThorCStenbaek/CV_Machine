@@ -2,6 +2,7 @@
   "name": "frontend_development",
   "version": "0.1.0",
   "private": true,
+  "proxy": "http://localhost:8000",
   "dependencies": {
     "@react-pdf-viewer/core": "^3.12.0",
     "@react-pdf-viewer/default-layout": "^3.12.0",
@@ -22,7 +23,9 @@
   },
   "scripts": {
     "start": "react-scripts start",
+    "build:basic": "react-scripts build",
     "build": "react-scripts build && rm -rf ../../backend/build && mv build ../../backend",
+      "build:windows": "react-scripts build && (if exist \"..\\..\\backend\\build\" rmdir /s /q \"..\\..\\backend\\build\") && xcopy /E /I build \"..\\..\\backend\\build\" && rmdir /s /q build",
     "test": "react-scripts test",
     "eject": "react-scripts eject"
   },

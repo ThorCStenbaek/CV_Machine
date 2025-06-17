@@ -1,7 +1,7 @@
 {
   "files": {
     "main.css": "/static/css/main.bb3605c2.css",
-    "main.js": "/static/js/main.e36c8f02.js",
+    "main.js": "/static/js/main.e6c79f17.js",
     "static/js/498.8228a8f5.chunk.js": "/static/js/498.8228a8f5.chunk.js",
     "static/js/404.42366fce.chunk.js": "/static/js/404.42366fce.chunk.js",
     "static/js/198.7d5b09fc.chunk.js": "/static/js/198.7d5b09fc.chunk.js",
@@ -13,13 +13,13 @@
     "static/media/redoArrow.svg": "/static/media/redoArrow.d125822e4b993206e6a96831668d47f3.svg",
     "index.html": "/index.html",
     "main.bb3605c2.css.map": "/static/css/main.bb3605c2.css.map",
-    "main.e36c8f02.js.map": "/static/js/main.e36c8f02.js.map",
+    "main.e6c79f17.js.map": "/static/js/main.e6c79f17.js.map",
     "498.8228a8f5.chunk.js.map": "/static/js/498.8228a8f5.chunk.js.map",
     "198.7d5b09fc.chunk.js.map": "/static/js/198.7d5b09fc.chunk.js.map",
     "787.17c394f0.chunk.js.map": "/static/js/787.17c394f0.chunk.js.map"
   },
   "entrypoints": [
     "static/css/main.bb3605c2.css",
-    "static/js/main.e36c8f02.js"
+    "static/js/main.e6c79f17.js"
   ]
 }
