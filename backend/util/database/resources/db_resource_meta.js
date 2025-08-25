@@ -265,7 +265,7 @@ const removeResourceMetaByResourceId = (resourceId) => {
 
 const insertResourceMetaRows = (resourceId, metaRows) => {
     return new Promise((resolve, reject) => {
-        const sql = `INSERT INTO resource_meta (resource_id, fileID, ordering, html_element, number_of_children, specific_style, content_type, content_data, instruction,depth, rules) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?,?)`;
+        const sql = `INSERT INTO resource_meta (resource_id, fileID, ordering, html_element, number_of_children, specific_style, content_type, content_data, instruction,depth, rules) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?,?,?)`;
 
         let order = 0;
         const insertPromises = metaRows.map(row =>

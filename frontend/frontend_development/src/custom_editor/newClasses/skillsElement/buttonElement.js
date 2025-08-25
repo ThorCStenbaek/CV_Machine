@@ -3,6 +3,8 @@ import {useEffect, useState} from "react";
 
 import { BaseButtonElement } from './../baseButtonElement';
 import { SkillsIcon } from "../../icons/skillsIcon";
+import { useHandleClick } from "../useHandleButtonClick";
+
 
 export const ButtonElement= ({position,  resourceMeta, changeElement, updateResourceMeta  }) => {
   
@@ -13,12 +15,8 @@ export const ButtonElement= ({position,  resourceMeta, changeElement, updateReso
     },[resourceMeta, position])
 
 
-    const handleClick = ()=>{
-        console.log("WHAT ELEMENT",position, element, resourceMeta)
-        const newElement= {...startingMeta, depth: element.depth, specific_style: element.specific_style }
+  const handleClick = useHandleClick(position, element, changeElement, startingMeta);
 
-        changeElement(position, newElement)
-    }
 
     return <>
     <BaseButtonElement Icon={SkillsIcon} onClick={handleClick} name="Skills"/>

@@ -1,6 +1,6 @@
 import { startingMeta } from "./startingMeta";
 import {useEffect, useState} from "react";
-
+import { useHandleClick } from "../useHandleButtonClick";
 export const ButtonElement= ({position,  resourceMeta, changeElement, updateResourceMeta  }) => {
   
     const [element, setElement] = useState(resourceMeta[position]);
@@ -10,12 +10,10 @@ export const ButtonElement= ({position,  resourceMeta, changeElement, updateReso
     },[resourceMeta, position])
 
 
-    const handleClick = ()=>{
-        console.log("WHAT ELEMENT",position, element, resourceMeta)
-        const newElement= {...startingMeta, depth: element.depth }
 
-        changeElement(position, newElement)
-    }
+
+  const handleClick = useHandleClick(position, element, changeElement, startingMeta);
+
 
     return <>
     <button onClick={handleClick}>TEST</button>

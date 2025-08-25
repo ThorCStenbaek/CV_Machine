@@ -4,6 +4,9 @@ import DynamicColorEditor from './newUtils/dynamicColorEditor';
 import { DynamicStyleEditor } from './newUtils/DynamicStyleEditor';
 import { QuadrupleDynamicStyleEditor } from './newUtils/quadrupleDynamicStyleEditor';
 
+import { ImagePathSelector } from './../containers/components/images/ImagePathSelector';
+
+
 const StyleTab = ({
   position,
   resourceMeta,
@@ -171,15 +174,17 @@ const StyleTab = ({
 
 {/* Add these to the color tab */}
 <div className="divBreak">
-  <h4 style={{ marginBottom: '0px' }}>Background Image not working</h4>
-  <DynamicStyleEditor
+  <h4 style={{ marginBottom: '0px' }}>Background Image</h4>
+  {<DynamicStyleEditor
     position={position}
     resourceMeta={resourceMeta}
     updateResourceMeta={updateResourceMeta}
     property={"background-image"}
-    type="text"
+    type="image"
     placeholder="url('...')"
-  />
+    defaultColor=''
+  />}
+ 
   <div style={{ display: 'flex', gap: '10px', marginTop: '10px' }}>
     <DynamicStyleEditor
       position={position}
@@ -200,8 +205,8 @@ const StyleTab = ({
       property={"background-repeat"}
       type="select"
       options={[
+                {text: "Repeat", value: "repeat"},
         {text: "No Repeat", value: "no-repeat"},
-        {text: "Repeat", value: "repeat"},
         {text: "Repeat-X", value: "repeat-x"},
         {text: "Repeat-Y", value: "repeat-y"}
       ]}

@@ -30,6 +30,9 @@ const appResourceRoutes = require('./routes/resources/resourceToAppRoutes')
 const fileRightsRoutes = require('./routes/files/fileRightsRoutes')
 const { db } = require('./util/database/database_core');
 
+const dotenv = require('dotenv');
+dotenv.config();
+
 const  {generateScreenshots }= require('./util/screenshots/resourceShots')
 
 
@@ -68,6 +71,7 @@ app.use('/api', fileRightsRoutes)
 app.use('/uploads/public', express.static(path.join(__dirname, 'uploads/public'))); // serve public files
 app.use('/uploads/private', checkCookie, express.static(path.join(__dirname, 'uploads/private')));
 
+app.use('/screenshots', express.static(path.join(__dirname, 'screenshots')));
 
 //dbUtils.createAllTables();
 
@@ -90,8 +94,9 @@ app.get('/api/generate-pdf', async (req, res) => {
 
   try {
     const isLandscape = req.query.landscape === 'true';
-    const targetUrl = 'http://localhost:8000/resource4';
+    const targetUrl = `${process.env.DOMAIN_URL}/resource${req.query.id}`
 
+    console.log("TARGET URL:", targetUrl)
     const page = await browser.newPage();
     await page.setViewport({ width: 1920, height: 1080, deviceScaleFactor: 2 });
 
@@ -152,7 +157,36 @@ app.get('/api/generate-pdf', async (req, res) => {
     const pdfPage = page; // still using same page
     await pdfPage.setContent(fullHTML, { waitUntil: 'networkidle0' });
     await pdfPage.emulateMediaType('print');
-    await pdfPage.screenshot({ path: 'debug-pdf-content.png', fullPage: true });
+
+
+    //help me get a screenshot of only the .page-container
+    const pageContainer = await pdfPage.$('.page-container');
+    if (!pageContainer) {
+      res.status(404).send('No .page-container element found');
+      return;
+    }
+
+    const boundingBox = await pageContainer.boundingBox();
+    if (!boundingBox) {
+      res.status(404).send('Could not determine container dimensions');
+      return;
+    }
+
+      const screenshotPath = `./screenshots/${req.query.id}.webp`;
+      const containerScreenshot = await pageContainer.screenshot({
+        type: 'webp',
+        path: screenshotPath,
+        clip: {
+          x: boundingBox.x,
+          y: boundingBox.y,
+          width: Math.min(boundingBox.width, 1920),
+          height: boundingBox.height
+        }
+      });
+
+
+
+
 
 
     const pdf = await pdfPage.pdf({

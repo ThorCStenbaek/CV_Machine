@@ -2,13 +2,47 @@ import { useState, useEffect } from "react";
 import Modal from "../../../containers/components/general/modal";
 import PictureIcon from "../../icons/imageIcon";
 import FileUploadAndGallery from "../../../containers/components/images/fileUploadAndGallery";
+import { useContentElement } from "../useContentElement";
+
+
+
 export const InputElement = ({ position, resourceMeta, changeElement, updateResourceMeta }) => {
   
-    const [element, setElement] = useState(resourceMeta[position]);
+
 
 
     const [isModalOpen, setIsModalOpen] = useState(false);
   
+const contentConfig = {
+    defaultData: { 
+      path:""
+    },
+    innerStyleDefaults: {
+     
+    }
+  };
+
+  const {
+    setElement,
+    handleFieldChange,
+    deferHandleFieldChange,
+    element,
+    contentData,
+    setContentData,
+    handleNestedChange,
+    handleStyleChange,
+    handleAddItemToArray,
+    updateElement
+  } = useContentElement({
+    contentConfig,
+    initialElement: resourceMeta[position],
+    position,
+    changeElement
+  });
+  
+
+
+
 
 
     useEffect(() => {
@@ -27,7 +61,8 @@ export const InputElement = ({ position, resourceMeta, changeElement, updateReso
                 // Provide a value based on your application's logic
                 
             }
-            changeElement(position, updatedElement);
+            handleFieldChange("path", image.path);
+            //updateElement(updatedElement);
     
             setIsModalOpen(false);
         };
@@ -55,9 +90,9 @@ export const InputElement = ({ position, resourceMeta, changeElement, updateReso
                 <label>
          
                     <div  onClick={() => setIsModalOpen(true)}>
-                        {element.path && (element.path) ? (
+                        {contentData.path && (contentData.path) ? (
                         
-                        <img src={"/"+element.path} alt="Selected" style={{ width: "150px", height: "150px" }} />
+                        <img src={"/"+contentData.path} alt="Selected" style={{ width: "150px", height: "150px" }} />
                         ) : 
                         
                             <div style={{position: 'relative',fill: 'grey'}}> 

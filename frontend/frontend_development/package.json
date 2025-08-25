@@ -16,6 +16,7 @@
     "jspdf": "^3.0.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
+    "react-icons": "^5.5.0",
     "react-quill": "^2.0.0",
     "react-router-dom": "^6.15.0",
     "react-scripts": "5.0.1",
@@ -25,7 +26,7 @@
     "start": "react-scripts start",
     "build:basic": "react-scripts build",
     "build": "react-scripts build && rm -rf ../../backend/build && mv build ../../backend",
-      "build:windows": "react-scripts build && (if exist \"..\\..\\backend\\build\" rmdir /s /q \"..\\..\\backend\\build\") && xcopy /E /I build \"..\\..\\backend\\build\" && rmdir /s /q build",
+    "build:windows": "react-scripts build && (if exist \"..\\..\\backend\\build\" rmdir /s /q \"..\\..\\backend\\build\") && xcopy /E /I build \"..\\..\\backend\\build\" && rmdir /s /q build",
     "test": "react-scripts test",
     "eject": "react-scripts eject"
   },

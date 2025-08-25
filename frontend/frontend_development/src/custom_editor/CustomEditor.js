@@ -68,7 +68,7 @@ import { setValue } from "./newUtils/getValue.js";
 import MarginPaddingToggle from "./panelButtons/marginPaddingToggle.js";
 import PortraitLandscapeSVG from "./icons/portraitLandscape.js";
 import ArrowButton from "./panelButtons/arrowButton.js";
-import About from './../pages/about';
+
 import UserAdderToGroup from './../containers/components/users/addUserToGroup';
 import StyleTab from "./StyleTab.js";
 
@@ -248,8 +248,9 @@ and add depth to datastructure
   <br/> elements with type like the timelines. 
 </li>
 
-<li>
+<li><s>
   Make sure the background image works properly
+  </s>
 </li>
 
 
@@ -258,6 +259,7 @@ and add depth to datastructure
   <br/> Perhaps in all other cases than "CONTAINER", it shows the CVElements first, 
   then the other ones? <br/> Almost certainly, this should be a rule instead.
 </li>
+<li> <s> Look at the button element, something about the style of the startingMeta. I should probably make it more generic, so I don't have to repeat the logic.</s></li>
 
           
           </ol>
@@ -287,7 +289,7 @@ and add depth to datastructure
                   <button type="button" onClick={ ()=>removeElement(position, resourceMeta, updateResourceMeta)} style={{ background: "red" }}>
                     Delete {elementData.instruction === 'DEFAULT' ? 'row' : 'block'}
                   </button>
-                  <button type="button" onClick={() => addNewElement(position)}>add block</button>
+
                 </>
               )}
             </div>

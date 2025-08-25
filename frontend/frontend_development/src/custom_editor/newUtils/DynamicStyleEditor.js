@@ -2,6 +2,12 @@ import React, { useEffect, useState, useRef } from "react";
 import { applyOrGetPseudoStyles } from "./applyOrGetPseudoStyles";
 import { setValue as setStyle } from "./getValue";
 import { getValue } from "./getValue";
+import { ImagePathSelector } from '../../containers/components/images/ImagePathSelector';
+
+
+
+
+
 // Debounce function
 const debounce = (func, delay) => {
   let inDebounce;
@@ -107,6 +113,12 @@ export const DynamicStyleEditor = ({
       debouncedHandleChange(newValue);
     }
   };
+
+  const handleImageChange = (newValue) => {
+    console.log("new  Value", newValue);
+    setValue(newValue);
+    debouncedHandleChange(newValue);
+  }
 
   // Handle unit change
   const handleUnitChange = (event) => {
@@ -284,6 +296,22 @@ export const DynamicStyleEditor = ({
           />
         </svg>
       )}
+
+      {type === "image" && (
+              <div style={{display: 'flex', alignItems: 'center', gap: '10px'}}>
+                <ImagePathSelector onImageSelected={(path) => {
+                  // Replace all backslashes with forward slashes
+                  const formattedPath = path.replace(/\\/g, "/")
+                  handleImageChange(`url(/${formattedPath})`)
+                }} currentPath={value.replace("url(/", "").replace(")", "")} />
+{value!="" &&  value!="#000000"  && value!="none"&&              <button 
+                  onClick={() => handleImageChange("none")}
+                  style={{padding: '8px', cursor: 'pointer'}}
+                >
+                  Remove Image
+                </button>}
+              </div>
+            )}
     </div>
   );
 };

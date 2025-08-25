@@ -281,6 +281,7 @@ router.get('/user-saved-resources', checkCookie, (req, res) => {
     const start = parseInt(req.query.start) || 0; // default to 0 if not provided
     const numberOfSaved = parseInt(req.query.numberOfSaved) || 10; // default to 10 if not provided
 
+
    
     getUserId(userCookie, async (err, userId) => {
         if (err) {
@@ -293,7 +294,11 @@ router.get('/user-saved-resources', checkCookie, (req, res) => {
         }
 
         try {
-            const userSavedResources = await getUserSavedResources(userId, start, numberOfSaved);
+            let userSavedResources = await getUserSavedResources(userId, start, numberOfSaved);
+            
+   
+            //get the meta too
+
             console.log("User saved resources fetched:", userSavedResources);
             res.json(userSavedResources);
         } catch (err) {
@@ -310,6 +315,7 @@ router.get('/user-created-resources', checkCookie, (req, res) => {
     const start = parseInt(req.query.start) || 0; // default to 0 if not provided
     const numberOfResources = parseInt(req.query.numberOfResources) || 10; // default to 10 if not provided
     const status = req.query.status || "published"; // default to 'published' if not provided
+    const withMeta = req.query.withMeta === 'true';
 
 
     getUserId(userCookie, async (err, userId) => {
@@ -323,7 +329,19 @@ router.get('/user-created-resources', checkCookie, (req, res) => {
         }
 
         try {
-            const userResources = await getUserResources(userId, status, start, numberOfResources);
+           let userResources = await getUserResources(userId, status, start, numberOfResources);
+            
+           userResources= userResources.map(r=>{return({...r, screenshot: process.env.DOMAIN_URL + "/screenshots/" + r.id + ".webp"})})
+
+           if (withMeta) {
+                userResources = await Promise.all(userResources.map(async (r) => ({
+                    ...r,
+                    meta: await resources.getResourceMetaByResourceId(r.id),
+                })));
+            }
+            
+            
+            
             console.log("User created resources fetched:", userResources);
             res.json(userResources);
         } catch (err) {

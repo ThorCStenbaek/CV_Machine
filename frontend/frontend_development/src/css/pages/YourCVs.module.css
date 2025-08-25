@@ -1,0 +1,120 @@
+.cvContainer {
+  padding: 20px;
+}
+
+.cvGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 20px;
+}
+
+.cvCard {
+  background: white;
+  border-radius: 10px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  transition: transform 0.2s;
+}
+
+.cvCard:hover {
+  transform: translateY(-5px);
+}
+
+
+.cvPreview {
+  width: 100%;
+
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #f5f5f5;
+  position: relative; 
+
+}
+
+.cvCover {
+   display: flex;
+   justify-content: center;
+   align-items: center;
+   flex-direction: column;
+   /*background: rgba(0, 221, 255, 0.5); */
+   opacity: 0;
+   height: 100%;
+   width: 100%;
+   position: absolute;
+   top: 0;
+   left: 0;
+   transition: opacity 0.3s ease;
+   cursor: pointer;
+}
+
+.cvCover:hover{
+opacity: 1;
+}
+
+.resourcePreview {
+  max-width: 80%; /* Changed from 100% to 80% */
+  max-height: 80%; /* Changed from 100% to 80% */
+  object-fit: contain;
+  object-position: center;
+  border-radius: 4px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+/* Optional: Add a nice border effect */
+.cvCard:hover .resourcePreview {
+  transform: scale(1.02);
+  transition: transform 0.2s ease;
+}
+
+.cvInfo {
+  padding: 15px;
+}
+
+.cvTitle {
+
+  font-size: 1.1rem;
+  color: #009dff;
+  font-weight: bold;
+}
+
+.cvDate {
+  margin: 5px 0 0;
+  font-size: 0.9rem;
+  color: #666;
+}
+
+.cvActions {
+  display: flex;
+  padding: 10px 15px;
+  border-top: 1px solid #eee;
+  background: #009dff;
+  border-radius: 100px;
+}
+
+.cvAction {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 8px;
+  margin-right: 10px;
+  color: #ffffff;
+  font-size: 1.2rem;
+  transition: color 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.cvAction:hover {
+  color: #0066cc;
+  background: white;
+  border-radius: 100px;
+}
+
+.cvAction:last-child {
+  margin-right: 0;
+}

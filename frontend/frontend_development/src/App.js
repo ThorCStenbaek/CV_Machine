@@ -38,7 +38,10 @@ import JustTheResource from './containers/components/micro_components/justTheRes
 import ClassicForum from './containers/components/classic_forum/classic_forum';
 
 import isAdmin from './util/isAdmin';
-import About from './pages/about';
+import Dashboard from './pages/dashBoard';
+
+
+
 import Footer
   from './containers/components/footer/footer';
 
@@ -248,13 +251,14 @@ function App() {
     }
    },[])
 
+   /*
    return (
    
    <Router>
         <Routes>
           <Route path="/" element={<CustomEditor/>}></Route> </Routes></Router>
 )
-
+*/
   if (!isAuthenticated) {
     return <CenteredWrapper><Login /> </CenteredWrapper>;
   }
@@ -287,6 +291,8 @@ function App() {
 
       <Routes>
         <Route path="/login" element={<CenteredWrapper><Login /> </CenteredWrapper>} />
+
+        <Route path="/" element={<Dashboard />} />
 
         {Object.keys(categoriesData).map((type) => {
           // Base path for each resource type
@@ -340,17 +346,13 @@ function App() {
         <Route path="/editing/:postID" element={<EditPostComponent />} /> {/* Dynamic route for editing posts */}
 
 
-        <Route path='/about' element={<About />} />
+
 
             <Route path='/profile' element={<CenteredWrapper> <Profile /> </CenteredWrapper>} />
 
-          <Route path='/quill' element={<QuillComponent />} />
             <Route path='/bildBank' element={<CenteredWrapper><FileUploadAndGallery displayConfig={{ CanBeSelected: false }} /> </CenteredWrapper>} />
-            <Route path='/ppf' element={<NameInitialsAvatar firstName="John" lastName="Doe"></NameInitialsAvatar>}></Route>
-            
 
-            <Route path='/base' element={<BaseQuill />}></Route>
-            
+
 
         <Route path="/*" element={<CenteredWrapper><Login /> </CenteredWrapper>} />
         

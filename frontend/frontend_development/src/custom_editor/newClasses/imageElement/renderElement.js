@@ -3,8 +3,11 @@ import React from "react";
 
 export const RenderElement = ({style, className, onClick, onMouseOver, onMouseOut, editing, data, children, extraElement})=>{
 
-    let { html_element, path, content_data, specific_style, class_name, number_of_children, instruction } = data;
+    let { html_element, content_data, specific_style, class_name, number_of_children, instruction } = data;
    
+    //content_data = JSON.parse(content_data);
+
+
     const ensureFullPath = (path) => {
   
         const domain = window.location.origin; // Automatically gets the current domain
@@ -21,13 +24,13 @@ export const RenderElement = ({style, className, onClick, onMouseOver, onMouseOu
     };
 
  if (html_element === 'img') {
-        const fullPath = ensureFullPath(path);
+        const fullPath = ensureFullPath(content_data.path);
+        console.log("FULL PATH:", fullPath)
         return (
-        <div style={{position: "relative", height:"fit-content", width: "fit-content"}} onMouseOut={elementProps.onMouseOut} onClick={elementProps.onClick} onMouseOver={elementProps.onMouseOver}>
-         
-       { React.createElement(html_element, { style:elementProps.style,className:elementProps.className, src: fullPath, alt: content_data })}
+ 
+      React.createElement(html_element, { style:elementProps.style,className:elementProps.className, src: fullPath, alt: content_data })
        
-        </div>
+ 
         )
     }
 

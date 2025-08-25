@@ -99,8 +99,8 @@ const FileUploadAndGallery = ({ onImageSelect, displayConfig }) => {
 
 return (
     <div style={{display: 'flex', flexDirection: 'row', alignItems: 'flex-start', width: '100%'}}>
-        <div style={{display: 'flex', marginBottom: '20px', flexDirection: 'column', width: '25vh', marginTop: '30vh'}}>
-            <button   onClick={() => setModalOpen(true)}>Upload File</button>
+            {/* <div style={{display: 'flex', marginBottom: '20px', flexDirection: 'column', width: '25vh', marginTop: '30vh'}}>
+
             <button className={`clickable-button ${chosen=='all' ? 'chosen-button' : ''}`} onClick={() => handleClick('/api/files?fileId=-1', 'all')}>All Images</button>
             <button className={`clickable-button ${chosen=='mine' ? 'chosen-button' : ''}`}  onClick={() => handleClick('/api/my_files', 'mine')}>My uploads</button>
       
@@ -113,15 +113,19 @@ return (
           <button className={`clickable-button ${chosen==category.ID ? 'chosen-button' : ''}`} onClick={()=>  handleClick(`/api/files/category/${category.ID}`, `${category.ID}`)} key={category} >{category.Name}</button>
         ))}
       </div>
+
             
       
 
 
-        </div>
+        </div>      */}
         <div style={{width: '100%'}}>
             <h2 style={{ textAlign: 'center' }}>Image Gallery</h2>
+                                      <button   onClick={() => setModalOpen(true)}>Upload File</button>
+       
             { chosen != 'imagesByUsers' || loading ?
             <div style={{ display: 'flex', justifyContent: 'center', flexWrap: 'wrap', gap: '10px', marginBottom: '20px' }}>
+
                 <ImageGallery 
                     images={images} 
                     loading={loading} 

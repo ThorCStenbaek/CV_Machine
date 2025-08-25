@@ -3,7 +3,7 @@ import {useEffect, useState} from "react";
 
 import { BaseButtonElement } from './../baseButtonElement';
 import { SkillsIcon } from "../../icons/skillsIcon";
-
+import { useHandleClick } from "../useHandleButtonClick";
 export const ButtonElement= ({position,  resourceMeta, changeElement, updateResourceMeta  }) => {
   
     const [element, setElement] = useState(resourceMeta[position]);
@@ -13,12 +13,10 @@ export const ButtonElement= ({position,  resourceMeta, changeElement, updateReso
     },[resourceMeta, position])
 
 
-    const handleClick = ()=>{
-        console.log("WHAT ELEMENT",position, element, resourceMeta)
-        const newElement= {...startingMeta, depth: element.depth, specific_style: element.specific_style }
 
-        changeElement(position, newElement)
-    }
+
+  const handleClick = useHandleClick(position, element, changeElement, startingMeta);
+
 
     return <>
     <BaseButtonElement Icon={SkillsIcon} onClick={handleClick} name="Social"/>

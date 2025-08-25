@@ -7,7 +7,7 @@ const ImageMeta= {
     ordering: 0, // Default value, change as needed
     html_element: 'img' , // Provide a value based on your application's logic
     number_of_children: 0,
-    specific_style: 'height: auto;', // Provide a value based on your application's logic
+    specific_style: ' overflow: hidden;', // Provide a value based on your application's logic
     content_type: '' , // Provide a value based on your application's logic
     content_data: '', // Provide a value based on your application's logic
     instruction: 'IMAGE', // Provide a value based on your application's logic

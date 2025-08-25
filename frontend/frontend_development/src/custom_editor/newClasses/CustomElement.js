@@ -52,7 +52,8 @@ export class CustomElement{
             marginBottom:"0px",
             marginTop: "0px",
             marginLeft:"0px",
-            marginRight: "0px"
+            marginRight: "0px",
+            
 
         }
 

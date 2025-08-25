@@ -4,18 +4,19 @@ import React, { useState, useEffect } from 'react';
 function FileUploadComponent({ onAppendMetaInfo, type, onImageSelect, buttonText="Upload", showButton=true, showCats=false, categories=null, accept= "image/*" }) {
     const [file, setFile] = useState(null);
     const [filename, setFilename] = useState('');
-    const [isPrivate, setIsPrivate] = useState(null);
+    const [isPrivate, setIsPrivate] = useState(true);
     const [rights, setRights] = useState([]);
     const [selectedRight, setSelectedRight] = useState(null);
     const [selectedCategories, setSelectedCategories] = useState([]);
     const [step, setStep] = useState(1);
 
+   
     const onFileChange = (e) => {
         setFile(e.target.files[0]);
         console.log("file:", e.target.files[0])
         
         showButton ? console.log("not used") : uploadFile(e.target.files[0])
-
+   setStep(4);
     };
 
         useEffect(() => {
@@ -155,7 +156,7 @@ const uploadFile = (givenFile = null) => {
                     style={{ width: '100%', padding: '10px', border: '1px solid #ccc', borderRadius: '4px' }}
                 />
             </div>
-            { (step >= 1 && showCats ) &&
+            { /*(step >= 1 && showCats ) &&
             <div style={{ marginBottom: '20px' }}>
                 <h4>Step 1: Is this image private?</h4>
                 <label style={{ display: 'block', marginBottom: '10px' }}>
@@ -176,9 +177,9 @@ const uploadFile = (givenFile = null) => {
                     />
                     No, I want it to be public, so everyone can see it
                 </label>
-            </div>
+            </div> */
 }
-            {showCats && step >= 2 && (
+           {/*  showCats && step >= 2 && (
                 <>
                     <div style={{ marginBottom: '20px' }}>
                         <h4>Step 2: Choose at least one category</h4>
@@ -231,7 +232,8 @@ const uploadFile = (givenFile = null) => {
                         ))}
                     </div> }
                 </>
-            )}
+            )*/}            
+
 
             {showButton && (
                 <button
