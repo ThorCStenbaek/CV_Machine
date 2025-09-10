@@ -83,7 +83,7 @@ export const DraggableAbsolute = ({ direction, onDragEnd, onDragging }) => {
   }
 
   return (
-    <div style={divStyle} onMouseDown={handleMouseDown}>
+    <div style={divStyle} onMouseDown={handleMouseDown} onMouseEnter={(e) =>e.stopPropagation()}>
       <svg
         xmlns="http://www.w3.org/2000/svg"
         viewBox="0 0 24 24"

@@ -119,7 +119,7 @@ const constructChildren = (number, sizes=null, rows=1) => {
                 html_element: 'div',
                 number_of_children: 0,
                 specific_style: `height: ${alwaysRule ?100 :(parseFloat(parentHeight.replace("px", ""))/sizes.length )}px; max-height: 100%;  width: ${(parentWidth.replace("px", ""))}px; position: relative; max-width:100%;
-                margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; z-index: 3;`,
+                margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; z-index: 3; overflow:hidden;`,
                 content_type: '', 
                 content_data: '',
                instruction: 'EMPTY',
@@ -165,7 +165,7 @@ const constructChildren = (number, sizes=null, rows=1) => {
             html_element: 'div',
             number_of_children: 0,
             specific_style: `height: ${actuallyHasRow? 100:parentHeight.replace("px", "")}px; max-height: 100%;  width: ${(parentWidth.replace("px", "")*percentage)}px; position: relative; max-width:100%;
-            margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; z-index: 3;`,
+            margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; z-index: 3; overflow:hidden;`,
             content_type: '', 
             content_data: '',
            instruction: 'EMPTY',

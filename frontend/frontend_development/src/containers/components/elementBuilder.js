@@ -12,7 +12,7 @@ import { DraggableAbsolute } from "./minor/draggableAbsolute";
 import { applyOrGetPseudoStyles } from './../../custom_editor/newUtils/applyOrGetPseudoStyles';
 
 // Function to build elements recursively
-const buildElements = (elements, startIndex = 0, editing, changeElement, chosen, addElements, changeDrag,absoluteDragger, settings ) => {
+const buildElements = (elements, startIndex = 0, editing, changeElement, chosen, addElements, changeDrag,absoluteDragger, settings, closeContextMenu, openContextMenu ) => {
  
   if (startIndex >= elements.length) {
     console.error(`Error: Element at index ${startIndex - 1} expects more children than are available in the array.`);
@@ -48,7 +48,7 @@ const buildElements = (elements, startIndex = 0, editing, changeElement, chosen,
       break // ????
     }
 
-    const child = buildElements(elements, nextIndex, editing, changeElement, chosen,addElements, changeDrag, absoluteDragger, settings );
+    const child = buildElements(elements, nextIndex, editing, changeElement, chosen,addElements, changeDrag, absoluteDragger, settings, closeContextMenu, openContextMenu );
     if (child) { // Ensure child is not null before pushing
       children.push(child.element);
       nextIndex = child.nextIndex;
@@ -133,7 +133,7 @@ const buildElements = (elements, startIndex = 0, editing, changeElement, chosen,
       elementStyle= setValue("max-width", "999999px", elementStyle, true)
       elementStyle=setValue("z-index",parseInt(getValue("z-index", element.specific_style, true))-1,elementStyle, true)
 
-    }
+ }
   if (editing) {
 
 
@@ -172,11 +172,19 @@ const selectedClass= settings.showMarginAndPadding && startIndex === chosen&& (h
 
 
 if (element.rules?.freeFloat && startIndex === chosen){
-  elementStyle= setValue("position", "fixed", elementStyle, true)
+  elementStyle= setValue("position", 
+    "absolute"
+    //"fixed"
+    , elementStyle, true)
   elementStyle= getValue("position", element.specific_style) ?
   setValue("overflow", "visible", elementStyle, true) : elementStyle
   elementStyle=setValue("z-index",parseInt(getValue("z-index", element.specific_style, true)),elementStyle, true)
 
+  console.log("what is going on???", findParentIndex(startIndex, elements), document.querySelector(`.position${findParentIndex(startIndex, elements)}`))
+       
+  setTimeout(()=>{
+  document.querySelector(`.position${findParentIndex(startIndex, elements)}`).style.overflow="visible"
+    },10)
 }
 
 if (settings.showGrid){
@@ -188,6 +196,15 @@ if (settings.showGrid){
 
 
 
+  const handleRightClick = (event) => {
+    changeElement(startIndex)
+    closeContextMenu()
+    event.preventDefault(); // ⛔ prevent the default context menu from showing
+   openContextMenu(event)
+    event.stopPropagation()
+ 
+  };
+
     let isPage = element.instruction === "CONTAINER" ? "page-container" : ""
     
     currentElement = (
@@ -198,7 +215,7 @@ if (settings.showGrid){
     data={{ ...element, specific_style: `${elementStyle}; outline: ${initialBorderStyle};   ${newStyle} `, class_name: element.class_name+` position${startIndex} ${isPage} ${selectedClass} can-select` }}
     children={children}
     onClick={(e) => {
-
+      closeContextMenu()
       handleElementClick(e, startIndex);
     
 
@@ -209,9 +226,11 @@ if (settings.showGrid){
     
 
 
+          onContextMenu={handleRightClick}
 
     
           onMouseOver={(e) => {
+
             /*
             //Makes it better, but doesnt work
             if(!e.target.className?.includes("can-select"))
@@ -289,11 +308,11 @@ if (settings.showGrid){
 };
 
 
-const allElements = (jsonData, index=0, editing, changeElement, chosen,addElements, changeDrag,absoluteDragger, settings  ) => {
+const allElements = (jsonData, index=0, editing, changeElement, chosen,addElements, changeDrag,absoluteDragger, settings, closeContextMenu, openContextMenu ) => {
 
   let allElements = []
   while (true) {
-    let elements = buildElements(jsonData, index, editing, changeElement, chosen, addElements, changeDrag,absoluteDragger, settings );
+    let elements = buildElements(jsonData, index, editing, changeElement, chosen, addElements, changeDrag,absoluteDragger, settings, closeContextMenu, openContextMenu );
     if (elements == null) {
     break
     }
@@ -310,7 +329,7 @@ const allElements = (jsonData, index=0, editing, changeElement, chosen,addElemen
 let n=0
 
 // Main function to initiate the recursive building of elements
-const ElementBuilder = ({ jsonData, editing = false, changeElement, chosen, addElements, changeDrag,absoluteDragger, settings }) => {
+const ElementBuilder = ({ jsonData, editing = false, changeElement, chosen, addElements, changeDrag,absoluteDragger, settings, closeContextMenu, openContextMenu }) => {
 
   console.log("RERENDER TRIGGERED:", n++, jsonData)
 
@@ -349,7 +368,7 @@ const ElementBuilder = ({ jsonData, editing = false, changeElement, chosen, addE
     };
   }, [editing]); // Dependency on editing ensures this effect runs when editing state changes
 */
-  const elements = jsonData.length !== 0 ? allElements(jsonData, 0, editing, changeElement, chosen, addElements, changeDrag, absoluteDragger, settings) : null;
+  const elements = jsonData.length !== 0 ? allElements(jsonData, 0, editing, changeElement, chosen, addElements, changeDrag, absoluteDragger, settings, closeContextMenu, openContextMenu) : null;
 
 if (elements == null || elements.length==0)
   return <p>No resource? 0:</p>

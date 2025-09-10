@@ -2,7 +2,7 @@ import React from 'react';
 import PdfViewer from './pdfViewer';
 import { CVElements } from '../../custom_editor/newClasses/CVElements';
 
-const ElementComponent = ({editing, data, children, onClick, onMouseOver=()=>console.log("MouseOver"), onMouseOut=()=>console.log("MouseOut"), extraElement=null, }) => {
+const ElementComponent = ({editing, data, children, onClick, onMouseOver=()=>console.log("MouseOver"), onMouseOut=()=>console.log("MouseOut"), onContextMenu=()=>console.log("context"),extraElement=null, }) => {
     if (!data) {
         return null;
     }
@@ -87,7 +87,8 @@ const ElementComponent = ({editing, data, children, onClick, onMouseOver=()=>con
         className: class_name,
         onClick,
         onMouseOver,
-        onMouseOut
+        onMouseOut,
+        onContextMenu
     };
 
 
@@ -97,7 +98,7 @@ const ElementComponent = ({editing, data, children, onClick, onMouseOver=()=>con
 
     if (CVelement){
         const RenderElement=CVelement.renderElement
-        return <RenderElement style={elementProps.style} className={elementProps.className} onClick={onClick} onMouseOver={onMouseOver} onMouseOut={onMouseOut} editing={editing} data={data} children={children} extraElement={extraElement}></RenderElement>
+        return <RenderElement style={elementProps.style} className={elementProps.className} onClick={onClick} onMouseOver={onMouseOver} onMouseOut={onMouseOut} onContextMenu={onContextMenu} editing={editing} data={data} children={children} extraElement={extraElement}></RenderElement>
     }
 
 
@@ -105,7 +106,7 @@ const ElementComponent = ({editing, data, children, onClick, onMouseOver=()=>con
  if (html_element === 'img') {
         const fullPath = ensureFullPath(path);
         return (
-        <div style={{position: "relative", height:"fit-content", width: "fit-content"}} onMouseOut={elementProps.onMouseOut} onClick={elementProps.onClick} onMouseOver={elementProps.onMouseOver}>
+        <div style={{position: "relative", height:"fit-content", width: "fit-content"}} onMouseOut={elementProps.onMouseOut} onClick={elementProps.onClick} onMouseOver={elementProps.onMouseOver} onContextMenu={onContextMenu}>
        { React.createElement(html_element, { style:elementProps.style,className:elementProps.className, src: fullPath, alt: content_data })}
          {extraElement}
         </div>
@@ -177,6 +178,7 @@ const ElementComponent = ({editing, data, children, onClick, onMouseOver=()=>con
                 onMouseOver={elementProps.onMouseOver} 
                 onMouseOut={elementProps.onMouseOut} 
                 onClick={elementProps.onClick} 
+                onContextMenu={onContextMenu}
                 style={elementProps.style}
             >
                 {data.name}

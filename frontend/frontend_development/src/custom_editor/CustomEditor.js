@@ -32,6 +32,7 @@ import { useNavigate } from "react-router-dom";
 import Hint from "../containers/components/general/Hint.js";
 import CoolInput from "../containers/components/general/coolInput.js";
 
+import { ContextMenu } from "./contextMenu/contextMenu.js";
 
 
 import findLastDescendantIndex from "./newUtils/findLastDescendant.js";
@@ -261,6 +262,7 @@ and add depth to datastructure
 </li>
 <li> <s> Look at the button element, something about the style of the startingMeta. I should probably make it more generic, so I don't have to repeat the logic.</s></li>
 
+<li> Make sure both backgroundColor and color has some rbga opacity option in some way</li>
           
           </ol>
 
@@ -268,10 +270,16 @@ and add depth to datastructure
 
 
 <li>Something weird happens to the right when you change the width of a border. 
+  <br/>NVM, but border width is style active in the calculation 
 <br/> Not sure why but it has something to do with ChangeDrag.
 </li>
 
-
+<li> Orange margin color does something strange when adding padding top..., only padding-top</li>
+<li> Padding left also behaves strangely</li>
+<li> Margin top makes orange margin color behave strangely too</li>
+<li> Orange margin thing only behaves strangely when dealing with pseudo elements outside the actual element</li>
+<li>Free floating still bugging out first time it happens. Should probably make a function for it or maybe even have elements always have top and left?</li>
+<li> Free float element not selectable?</li>
 </>
         )}
 
@@ -378,7 +386,13 @@ const [title, setTitle] = useState(resource?.title || '');
     updateResourceMeta(updatedResourceMeta, "changeElement 2");
   }
 
-
+  const [contextMenuOpen, setContextMenuOpen] = useState(false)
+  const openContextMenu = (event) => {
+    setContextMenuOpen({x: event.clientX, y: event.clientY})
+  }
+  const closeContextMenu = () => {
+    setContextMenuOpen(false)
+  }
   const handleSetIndex = (index) => {
     setIndex(index);
     
@@ -1590,7 +1604,10 @@ class_name: 'element'
 
           </div>
           <div style={{padding: "30px"}}>
-            <ElementBuilder  jsonData={resourceMeta} editing={true} changeElement={(i)=> handleSetIndex(i) } chosen={index} addElements={toggleModal} changeDrag={changeDrag} absoluteDragger={absoluteDragger} settings={settings}/> 
+            <ElementBuilder  jsonData={resourceMeta} editing={true} changeElement={(i)=> handleSetIndex(i) } chosen={index} addElements={toggleModal} changeDrag={changeDrag} absoluteDragger={absoluteDragger} settings={settings}
+              closeContextMenu={closeContextMenu}
+              openContextMenu={openContextMenu}
+              /> 
             </div>
           </div>
           </div>
@@ -1631,6 +1648,8 @@ class_name: 'element'
 
 
           </Modal>
+
+          <ContextMenu isOpen={contextMenuOpen}  index={index} changeIndex={handleSetIndex} rm={resourceMeta} removeElement={()=>removeElement(index, resourceMeta, updateResourceMeta)} changeElement={changeElement}/>
 
 
          <Modal isOpen={isModalOpen} onClose={toggleModal}>
