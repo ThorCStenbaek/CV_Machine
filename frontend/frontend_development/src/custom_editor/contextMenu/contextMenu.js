@@ -1,7 +1,25 @@
 import React, { useState, useEffect, useMemo } from "react";
-import PropTypes from "prop-types";
+import PropTypes, { element } from "prop-types";
 import findParentIndex from "../newUtils/findParentIndex";
 import { getValue, setValue } from "./../newUtils/getValue";
+import Modal from "../../containers/components/general/modal";
+import NewRowModal from "../NewRowModal";
+import findNextNeighbourIndex from "../newUtils/findNextNeighbour";
+import findLastDescendantIndex from "../newUtils/findLastDescendant";
+
+
+/**
+What do I want in this contextMenu?
+* Select parent X
+* Change element to another element
+* make freeFloat? X
+* Delete X
+* Duplicate
+* Reset Styles / Copy styles?
+
+ */
+
+
 
 export const ContextMenu = ({
   isOpen,
@@ -10,11 +28,19 @@ export const ContextMenu = ({
   changeIndex,
   removeElement,
   changeElement,
-  onRequestClose, // optional
+  onRequestClose, 
+  updateRM,// optional
+  appendNewElements
 }) => {
   const [mousePosition, setMousePosition] = useState(
     isOpen ? { x: isOpen.x, y: isOpen.y } : null
   );
+
+  const [isModalOpen, setIsModalOpen] =useState(false)
+
+  const toggleModal=  ()=>{
+    setIsModalOpen(!isModalOpen)
+  }
 
   useEffect(() => {
     if (!isOpen) return;
@@ -69,6 +95,85 @@ export const ContextMenu = ({
     changeElement(index, element);
   };
 
+  //should at some point probably be transferred or tranformed into 
+  //something else.
+const switchElementWith = () => {
+  const handler = (e) => {
+    const target = e.target.closest(".element");
+    if (!target) return;
+
+    // find the class that matches "positionX"
+    const posClass = Array.from(target.classList).find((cls) =>
+      cls.startsWith("position")
+    );
+
+    if (posClass) {
+      // extract the index number from e.g. "position3"
+      const selectedIndex = parseInt(posClass.replace("position", ""), 10);
+      
+      
+      const thisElement={...rm[index]}
+
+      const chosenElement={...rm[selectedIndex]}
+
+      let copy=[...rm]
+
+      copy[selectedIndex]=thisElement
+      copy[index]=chosenElement
+      
+      updateRM(copy, "Switching...")
+      
+      
+      console.log("Clicked element position index:", selectedIndex);
+    } else {
+      console.log("No position class found on element:", target.classList);
+    }
+
+    e.stopPropagation();
+
+    // remove the listener after first click
+    document.removeEventListener("click", handler, true);
+  };
+
+  // attach listener (capture phase)
+  document.addEventListener("click", handler, true);
+
+  document.addEventListener("on")
+};
+
+
+  const append = (elements = [], DEFAULT_ROW=null, changeFlexTo="") => {
+  
+  
+    let UM = [...rm];
+
+
+let neighbour = findNextNeighbourIndex(index, rm)
+
+  console.log("what is elements", elements, index, neighbour, rm)
+// If no neighbour is found, set `neighbour` to `UM.length` to append at the end.
+neighbour = neighbour !== -1 ? neighbour : findLastDescendantIndex(index, UM)+1
+
+UM = UM.slice(0, index+1)
+.concat(elements)
+.concat(UM.slice(neighbour));
+
+  console.log("what is elements", elements, index, neighbour, UM)
+if (changeFlexTo!=""){
+UM[index].specific_style= setValue("flex-direction",changeFlexTo, UM[index].specific_style, true)
+UM[index].specific_style=setValue("display", "flex", UM[index].specific_style, true)
+
+}
+    if (elements.length>1){
+      UM[index]={...DEFAULT_ROW, depth:DEFAULT_ROW.depth-1}
+    }
+    updateRM(UM, "appendNewElements");
+   }
+
+
+
+
+
   if (!isOpen) return null;
 
   // ——— Inline styles to avoid leaking global button styles ———
@@ -102,7 +207,7 @@ export const ContextMenu = ({
     lineHeight: 1.3,
   };
 
-  const itemHover = { background: "#f2f2f2" };
+  const itemHover = { background: "#f2f2f2", cursor: 'pointer' };
   const itemActive = { background: "#eaeaea" };
   const separatorStyle = { height: 1, background: "#eee", margin: "4px 0" };
 
@@ -139,6 +244,7 @@ export const ContextMenu = ({
   };
 
   return (
+    <>
     <div
       data-role="contextmenu"
       role="menu"
@@ -156,7 +262,18 @@ export const ContextMenu = ({
       <div style={separatorStyle} />
 
       <MenuItem onClick={() => removeElement()}>Delete</MenuItem>
+
+<MenuItem onClick={switchElementWith}>switch element to...</MenuItem>
+
+<MenuItem onClick={toggleModal}>change element to...</MenuItem>
+
+
     </div>
+    
+         <Modal isOpen={isModalOpen} onClose={toggleModal}>
+            <NewRowModal appendNewElements={append} closeModal={toggleModal} resourceMeta={rm} position={index} changeElement={changeElement} updateResourceMeta={updateRM} />
+        </Modal>
+    </>
   );
 };
 

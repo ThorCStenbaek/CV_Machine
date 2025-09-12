@@ -47,21 +47,22 @@ const contentConfig = {
     useEffect(() => {
         setElement(resourceMeta[position]);
         
-        console.log("ELEMENT CHOSEN:", resourceMeta[position])
+      
         }, [position, resourceMeta]);
 
     useEffect(() => {
     
        if (element.instruction!="CONTAINER"){
-        let textRetriever = (position >= resourceMeta.length - 1) ? document.querySelector(`.position${position - 1}`).outerHTML : document.querySelector(`.position${position}`).outerHTML;
+
+      
+        let textRetriever = (position >= resourceMeta.length) ? document.querySelector(`.position${position - 1}`).outerHTML : document.querySelector(`.position${position}`).outerHTML;
         setTimeout(() => {
             
         
             const safeTextRetriever = textRetriever ? textRetriever : ""
-            console.log("ELEMENTID", safeTextRetriever)
+        
         setEditorContent(safeTextRetriever);
-        console.log("EDITOR CONTENT:", editorContent, safeTextRetriever)
-
+   
             }, 100);
         }
     },[elementID, position])

@@ -59,12 +59,12 @@ export class CustomElement{
 
 
         const Component=renderElement
-        const Wrapper = ({style, className, onClick, onMouseOver, onMouseOut, editing, data, children, extraElement})=>{
+        const Wrapper = ({style, className, onClick, onMouseOver, onMouseOut, editing, data, children, extraElement, onContextMenu})=>{
 
         
             console.log("DATA TIME:", data)
-            return <div style={style} className={className} onClick={onClick} onMouseOver={onMouseOver}>
-                <Component style={inheritStyle} className={className} onClick={onClick} onMouseOver={onMouseOver} onMouseOut={onMouseOut} editing={editing} data={data} children={children} extraElement={extraElement}/>
+            return <div style={style} className={className} onClick={onClick} onMouseOver={onMouseOver} onContextMenu={onContextMenu}>
+                <Component style={inheritStyle} className={className} onClick={onClick} onMouseOver={onMouseOver} onMouseOut={onMouseOut} onContextMenu={onContextMenu} editing={editing} data={data} children={children} extraElement={extraElement}/>
                  {extraElement}</div>
         }
 

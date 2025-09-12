@@ -59,6 +59,7 @@ const buildElements = (elements, startIndex = 0, editing, changeElement, chosen,
 
   const handleElementClick= (e, index)=>{
     console.log("eDETAIL", e.detail, element.rules, element, elements[index], index)
+        console.log("what is startIndex left", startIndex, index)
     switch (e.detail) {
    
       case 1:
@@ -80,6 +81,21 @@ const buildElements = (elements, startIndex = 0, editing, changeElement, chosen,
   
   
   }
+    const handleRightClick = (event, index) => {
+           element.rules?.selectable ? changeElement(index) : console.log("ELEMENT IS NOT SELECTABLE");
+
+    console.log("what is startIndex right", startIndex, index)
+    closeContextMenu()
+
+   openContextMenu(event)
+
+
+      if (element.rules?.selectable){
+      event.stopPropagation()
+     event.preventDefault(); 
+
+      }
+  };
 
 
 
@@ -196,14 +212,7 @@ if (settings.showGrid){
 
 
 
-  const handleRightClick = (event) => {
-    changeElement(startIndex)
-    closeContextMenu()
-    event.preventDefault(); // ⛔ prevent the default context menu from showing
-   openContextMenu(event)
-    event.stopPropagation()
- 
-  };
+
 
     let isPage = element.instruction === "CONTAINER" ? "page-container" : ""
     
@@ -226,7 +235,7 @@ if (settings.showGrid){
     
 
 
-          onContextMenu={handleRightClick}
+          onContextMenu={(e)=>handleRightClick(e,startIndex)}
 
     
           onMouseOver={(e) => {

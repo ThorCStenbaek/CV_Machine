@@ -380,11 +380,18 @@ const [title, setTitle] = useState(resource?.title || '');
 
   const [changeElementPanelPage, setChangeElementPanelPage] = useState(false);
 
-  const changeElement=(position, newElement) => {
-    const updatedResourceMeta = [...resourceMeta];
-    updatedResourceMeta[position] = newElement;
-    updateResourceMeta(updatedResourceMeta, "changeElement 2");
-  }
+const changeElement = (position, newElement) => {
+  const lastIndex = findLastDescendantIndex(position, resourceMeta); // inclusive
+  const depth = resourceMeta[position]?.depth ?? newElement.depth;
+  const fixedNew = { ...newElement, depth };
+
+  const updated = [...resourceMeta];
+  // remove (lastIndex - position + 1) items and insert new element
+  updated.splice(position, lastIndex - position + 1, fixedNew);
+
+  updateResourceMeta(updated, "changeElement 2");
+};
+
 
   const [contextMenuOpen, setContextMenuOpen] = useState(false)
   const openContextMenu = (event) => {
@@ -399,7 +406,14 @@ const [title, setTitle] = useState(resource?.title || '');
     //setChangeElementPanelPage(!changeElementPanelPage);
   
   };
+/*
+  const [overWrittenElementEvents,
+    setOverWrittenElementEvents
+  ] = useState({
+    onClick:null,
 
+  })
+*/
   //settings
   const [settings, setSettings] = useState(defaultSettings);
 
@@ -620,7 +634,7 @@ const handleAddNewElement = (index, elements = [], resourceMeta, updateResourceM
 };
   
 
-  const appendNewElements = (elements = [], rows = 1, changeFlexTo="") => {
+  const appendNewElements = (elements = [], DEFAULT_ROW = null, changeFlexTo="") => {
   
     let UM = [...resourceMeta];
 
@@ -1649,7 +1663,7 @@ class_name: 'element'
 
           </Modal>
 
-          <ContextMenu isOpen={contextMenuOpen}  index={index} changeIndex={handleSetIndex} rm={resourceMeta} removeElement={()=>removeElement(index, resourceMeta, updateResourceMeta)} changeElement={changeElement}/>
+          <ContextMenu appendNewElements={appendNewElements} isOpen={contextMenuOpen}  index={index} changeIndex={handleSetIndex} rm={resourceMeta} removeElement={()=>removeElement(index, resourceMeta, updateResourceMeta)} changeElement={changeElement} updateRM={updateResourceMeta}/>
 
 
          <Modal isOpen={isModalOpen} onClose={toggleModal}>

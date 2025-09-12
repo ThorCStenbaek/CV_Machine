@@ -98,7 +98,7 @@ function NewResourceComponent({ postType, resource = null, resourceMeta = null }
       
         
             const safeTextRetriever = textRetriever ? textRetriever : ""
-            console.log("ELEMENTID", safeTextRetriever)
+       
         setEditorContent(safeTextRetriever);
 
             }, 500);

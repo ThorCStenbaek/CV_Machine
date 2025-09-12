@@ -109,6 +109,23 @@ const constructChildren = (number, sizes=null, rows=1) => {
     let elements=[]
     const actuallyHasRow=(initialRows!=1 && !hasNoChildren || alwaysRule)
 
+    const DEFAULT_ROW=
+    {
+        html_element: 'div',
+        number_of_children: number, //padding-left: 10px; padding-right: 10px; 
+        specific_style: ` height: ${alwaysRule ? "100px" :parentHeight };  max-height: 100%;  width: ${parentWidth}; display:flex; align-items: stretch; position: relative; justify-content: center;  max-width: 100%; flex-direction: row; overflow:hidden; z-index:2;`,
+        content_type: '',
+        content_data: '',
+        instruction: 'DEFAULT',
+        depth: parentDepth+1,
+        rules: { ...allRules, 
+            draggable: true, 
+            selectable: true, 
+            newRowButton: true,  
+            freeFloat:false,
+            hasDesign: false
+          }
+    }
 
     if (rows==0 && number>0){
 
@@ -142,22 +159,7 @@ const constructChildren = (number, sizes=null, rows=1) => {
 
     while (rows > 0) {
         if (actuallyHasRow)
-     elements.push({
-        html_element: 'div',
-        number_of_children: number, //padding-left: 10px; padding-right: 10px; 
-        specific_style: ` height: ${alwaysRule ? "100px" :parentHeight };  max-height: 100%;  width: ${parentWidth}; display:flex; align-items: stretch; position: relative; justify-content: center;  max-width: 100%; flex-direction: row; overflow:hidden; z-index:2;`,
-        content_type: '',
-        content_data: '',
-        instruction: 'DEFAULT',
-        depth: parentDepth+1,
-        rules: { ...allRules, 
-            draggable: true, 
-            selectable: true, 
-            newRowButton: true,  
-            freeFloat:false,
-            hasDesign: false
-          }
-    })
+     elements.push(DEFAULT_ROW)
     for (let i = 0; i < number; i++) {
         const percentage = (sizes[i] / totalSum)
       
@@ -183,13 +185,13 @@ rules: { ...allRules,
         }
         rows--
         }
-return elements;
+return {elements, DEFAULT_ROW};
 }
 
 
 
     const AddNewRow = (number, sizes = null, rows=1) => { 
-        let elements = constructChildren(number, sizes, rows)
+        let {elements, DEFAULT_ROW} = constructChildren(number, sizes, rows)
     
         const flex= hasNoChildren ? (rows==0 || alwaysRule ? "column": "row"):""
         /*
@@ -203,7 +205,7 @@ return elements;
             */
 
        
-        appendNewElements(elements, rows, flex)
+        appendNewElements(elements, DEFAULT_ROW, flex)
         closeModal()
 
     }
