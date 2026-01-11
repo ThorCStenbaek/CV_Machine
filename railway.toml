@@ -2,7 +2,7 @@
 builder = "nixpacks"
 
 [build.nixpacks]
-providers = ["node"]
+aptPkgs = ["python3", "make", "g++", "sqlite3", "libsqlite3-dev"]
 
 [deploy]
-startCommand = "cd backend && npm start"
+startCommand = "cd backend && npm rebuild sqlite3 && npm start"
