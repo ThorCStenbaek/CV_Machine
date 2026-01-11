@@ -213,7 +213,7 @@ const uploadFile = (givenFile = null) => {
                                 checked={selectedRight === 0}
                                 style={{ marginRight: '10px' }}
                             />
-                            I own this picture and give Pycipedia the right to use it
+                            I own this picture and give CV Machine the right to use it
                                </label>
                                <h6>
                                      I have the picture from the following source:

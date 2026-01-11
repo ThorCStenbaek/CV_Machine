@@ -31,7 +31,7 @@ function Header(types) {
   return (
     <>
       <header style={styles.header}>
-          <Link to="/" style={styles.link}> <h1 style={styles.title}>Pycipedia
+          <Link to="/" style={styles.link}> <h1 style={styles.title}>CV Machine
 </h1> </Link>
         <nav style={styles.nav}>
         
@@ -44,7 +44,7 @@ function Header(types) {
             return null; // It's good practice to return null for conditional rendering in map
           })}
           <Link to="/bildBank" style={styles.link}>BildBank</Link>
-           <Link to="/about" style={styles.link}>Om Pycipedia</Link>
+           <Link to="/about" style={styles.link}>Om CV Machine</Link>
           <Link to="/profile" style={styles.link}>Profile</Link>
           {isAdmin(userContext) ? <a style={styles.link} onClick={toggleMenu}>Admin Menu</a> : null }
          

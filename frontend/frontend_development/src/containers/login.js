@@ -55,7 +55,7 @@ function Login() {
   
   return (<>
     <div style={{display: 'flex', flexDirection: 'column'}}>
-    <h2>Pycipedia</h2>
+    <h2>CV Machine</h2>
     <div>
       <h2>Login</h2>
         <div>
