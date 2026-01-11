@@ -148,7 +148,7 @@ let Content, Style;
     <button
     style={{ flex: 1, margin: 0, borderRadius: '0px', backgroundColor: activeTab === t ? '#0e7abd' : '#198fd9' }}
     onClick={() => setActiveTab(t)}
-    className={activeTab === t ? 'active' : ''}
+
   >
     {t}
   </button>
@@ -227,10 +227,7 @@ let Content, Style;
 
 <li> Perhaps style itself should have multiple tabs? Always defaulting to just the specific_style
 <br/>Perhaps they could be 
-<li>Pin point</li>
-<li>Color</li>
-<li>Size</li>
-<li>Other?</li>
+
 
 </li>
 </s>
@@ -780,6 +777,9 @@ const absoluteDragger = (position, side, X, show = false) => {
      * 2.a This does create some serious problems tho. What if I want to reduce the side margin, but not the top and bottom margin.
      * 2.b Perhaps there is never a true margin. There only exists margin-top, etc.. but we should have another function that changes one, which changes the others. 
      */
+
+    if (show && (resourceMeta[position].rules?.newRowButton || resourceMeta[position].rules?.newRowButtonAlways))
+      document.querySelector(".addNewElementsBtn").style.display="none"
 
     console.log("CHANGE DRAG out", position, X, side, property ,show)
 
@@ -1666,7 +1666,9 @@ class_name: 'element'
           <ContextMenu appendNewElements={appendNewElements} isOpen={contextMenuOpen}  index={index} changeIndex={handleSetIndex} rm={resourceMeta} removeElement={()=>removeElement(index, resourceMeta, updateResourceMeta)} changeElement={changeElement} updateRM={updateResourceMeta}/>
 
 
-         <Modal isOpen={isModalOpen} onClose={toggleModal}>
+         <Modal isOpen={isModalOpen} onClose={toggleModal}
+         style={{padding: "0px", background: 'none'}}
+         >
             <NewRowModal appendNewElements={appendNewElements} closeModal={toggleModal} resourceMeta={resourceMeta} position={index} changeElement={changeElement} updateResourceMeta={updateResourceMeta} />
         </Modal>
 

@@ -26,7 +26,7 @@ function ProportionalElements({ sizes, onClick, maxWidth= '23%', rows=1 }) {
         width: maxWidth,
         border: '1px solid #000', // Changed to black for better visibility
         cursor: 'pointer', 
-        backgroundColor: '#f0f0f0',
+        backgroundColor: '#f0f0f0ff',
 
     }
 
@@ -34,7 +34,7 @@ function ProportionalElements({ sizes, onClick, maxWidth= '23%', rows=1 }) {
     const childStyle = (size) => ({
         flex: `${size} 0 auto`, // Flex grow is set to the size
         minWidth: '20px', // Minimum width for very small elements
-        backgroundColor: '#bbb', // Grey background
+        backgroundColor: '#c3d7fcff', // Grey background
         display: 'flex',
         alignItems: 'center', // Centers text vertically
         justifyContent: 'center', // Centers text horizontally
@@ -334,16 +334,33 @@ const NewRowModal = ({ appendNewElements, closeModal, resourceMeta, position, ch
         }
     }, [resourceMeta, position]); // Runs when resourceMeta or position changes
 
+    const buttonStyles= {
+       margin: "0px",
+       fontSize: "24px",
+       borderBottomLeftRadius: "0px",
+       borderBottomRightRadius: "0px"
+    }
+    const buttonContainerStyle={
+backgroundColor: 'none',
+ zIndex: 2, 
+ gap: "5px"
+    }
 
     return (
-        <div className="modal-container">
-            <div className="tab-header">
-                <button className={activeTab === "Row" ? "active" : ""} onClick={() => setActiveTab("Row")}>
+        <>
+
+                        <div style={buttonContainerStyle}>
+                        <button style={buttonStyles}  className={activeTab === "Row" ? "active" : ""} onClick={() => setActiveTab("Row")}>
                     Row
                 </button>
-                <button className={activeTab === "Other" ? "active" : ""} onClick={() => setActiveTab("Other")}>
+                <button  style={buttonStyles} className={activeTab === "Other" ? "active" : ""} onClick={() => setActiveTab("Other")}>
                     Other
                 </button>
+                </div>
+
+        <div className="modal-container">
+            <div className="tab-header">
+
             </div>
 
             <div className="tab-content">
@@ -359,6 +376,8 @@ const NewRowModal = ({ appendNewElements, closeModal, resourceMeta, position, ch
                 )}
             </div>
         </div>
+
+        </>
     );
 };
 

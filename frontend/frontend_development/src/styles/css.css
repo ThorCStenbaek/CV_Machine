@@ -201,15 +201,33 @@ td svg {
   align-items: center;
   z-index: 1000;
 }
+.tab-content{
+  overflow: scroll;
+  max-height: inherit;
+  background-color: inherit;
+}
+.modal-container{
+  max-height: inherit;
+ 
+  background-color: white;
+  padding: 20px;
+  padding-right: 0px;
+}
+.active, .active:hover{
 
+background-color: white;
+color: #5e60dc;  
+
+}
 .modal-content {
+  position: relative;
   background-color: #fff;
   padding: 20px;
   border-radius: 5px;
   max-width: 80%;
   
-  overflow: scroll;
-  max-height: 80%;
+  overflow: none;
+  max-height: 80vh;
   z-index: 1001;
 }
 
@@ -320,7 +338,7 @@ form.flex button[type="submit"] {
 
 /* Hover style for the submit button */
 form.flex button[type="submit"]:hover {
-  background-color: #45a049;
+  /*background-color: #45a049; */
 }
 
 /* Message paragraph styling */
@@ -347,7 +365,7 @@ body {
 
 /* Button Styles */
 button {
-  background-color: #4CAF50;
+  background-color: #5e60dc;
   color: white;
   padding: 10px 20px;
   border: none;
@@ -358,7 +376,7 @@ button {
 }
 
 button:hover {
-  background-color: #45a049;
+   background-color: #3e40bf;
 }
 
 /* Input and Textarea Styles */

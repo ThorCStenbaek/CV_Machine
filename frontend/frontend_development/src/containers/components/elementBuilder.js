@@ -118,7 +118,7 @@ const buildElements = (elements, startIndex = 0, editing, changeElement, chosen,
       }
       return (
         <>
-         {((rules.newRowButton && children.length==0) || rules?.newRowButtonAlways) && <button style={{position: "absolute", bottom: "20px", width: "100%", margin:"0px", left:"0px"}} onClick={(e) => { addElements(position) }}>+</button> }
+         {((rules.newRowButton && children.length==0) || rules?.newRowButtonAlways) && <button className="addNewElementsBtn" style={{position: "absolute", bottom: "20px", width: "100%", margin:"0px", left:"0px"}} onClick={(e) => { addElements(position) }}>+</button> }
          
          {rules.draggable && 
          
@@ -186,6 +186,10 @@ const newStyle = applyOrGetPseudoStyles(element, false)
 const selectedClass= settings.showMarginAndPadding && startIndex === chosen&& (hasPadding()  || hasMargin() ) ?  `selected` : " "
 
 
+if ( startIndex === chosen){
+
+  elementStyle=setValue("overflow", "visible", elementStyle, true)
+}
 
 if (element.rules?.freeFloat && startIndex === chosen){
   elementStyle= setValue("position", 

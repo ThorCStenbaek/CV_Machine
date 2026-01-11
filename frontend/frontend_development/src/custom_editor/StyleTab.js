@@ -111,7 +111,7 @@ const StyleTab = ({
         {activeStyleTab === 'color' && (
           <>
             <div className="divBreak">
-              <h4 style={{ marginBottom: '0px' }}>Background Color</h4>
+              <h3 style={{ marginBottom: '0px' }}>Background Color</h3>
               <DynamicColorEditor 
                 position={position} 
                 resourceMeta={resourceMeta} 
@@ -121,7 +121,7 @@ const StyleTab = ({
             </div>
 
             <div className="divBreak">
-              <h4 style={{ marginBottom: '0px' }}>Font/Icon Color</h4>
+              <h3 style={{ marginBottom: '0px' }}>Font/Icon Color</h3>
               <DynamicColorEditor 
                 position={position} 
                 resourceMeta={resourceMeta} 
@@ -131,19 +131,9 @@ const StyleTab = ({
             </div>
             {/* New Border Section */}
             <div className="divBreak">
-              <h4 style={{ marginBottom: '0px' }}>Border Settings</h4>
+              <h3 style={{ marginBottom: '0px' }}>Border Settings</h3>
               
-              <div style={{ marginBottom: '10px' }}>
-                <p>Border Style</p>
-                <DynamicStyleEditor
-                  position={position}
-                  resourceMeta={resourceMeta}
-                  updateResourceMeta={updateResourceMeta}
-                  property={"border-style"}
-                  type="select"
-                  options={lineStyleOptions}
-                />
-              </div>
+
 
               <div style={{ marginBottom: '10px' }}>
                 <p>Border Color</p>
@@ -152,6 +142,19 @@ const StyleTab = ({
                   resourceMeta={resourceMeta}
                   updateResourceMeta={updateResourceMeta}
                   property={"border-color"}
+                />
+              </div>
+
+<div style={{ display: 'flex', gap: '10px' }}>
+                            <div style={{ marginBottom: '10px' }}>
+                <p>Border Style</p>
+                <DynamicStyleEditor
+                  position={position}
+                  resourceMeta={resourceMeta}
+                  updateResourceMeta={updateResourceMeta}
+                  property={"border-style"}
+                  type="select"
+                  options={lineStyleOptions}
                 />
               </div>
 
@@ -168,13 +171,14 @@ const StyleTab = ({
                   changeDrag={changeDrag}
                 />
               </div>
+              </div>
 
 
             </div>
 
 {/* Add these to the color tab */}
 <div className="divBreak">
-  <h4 style={{ marginBottom: '0px' }}>Background Image</h4>
+  <h3 style={{ marginBottom: '0px' }}>Background Image</h3>
   {<DynamicStyleEditor
     position={position}
     resourceMeta={resourceMeta}
@@ -218,7 +222,7 @@ const StyleTab = ({
                {/* Outline Section */}
                {/*
                <div className="divBreak">
-              <h4 style={{ marginBottom: '0px' }}>Outline Settings</h4>
+              <h3 style={{ marginBottom: '0px' }}>Outline Settings</h3>
               
               <div style={{ marginBottom: '10px' }}>
                 <p>Outline Style</p>
@@ -277,7 +281,7 @@ const StyleTab = ({
 
           {/* Add to size tab after existing controls */}
 <div className="divBreak">
-  <h4 style={{ marginBottom: '0px' }}>Dimensions</h4>
+  <h3 style={{ marginBottom: '0px' }}>Dimensions</h3>
   <div style={{ display: 'flex', gap: '10px' }}>
     <DynamicStyleEditor
       inputName="Width"
@@ -356,7 +360,7 @@ const StyleTab = ({
           <>
 {/* Add to other tab */}
 <div className="divBreak">
-  <h4 style={{ marginBottom: '0px' }}>Visual Effects</h4>
+  <h3 style={{ marginBottom: '0px' }}>Visual Effects</h3>
   
   <div style={{ marginBottom: '10px' }}>
     <p>Opacity (0-1) Not working.</p>
@@ -404,7 +408,7 @@ const StyleTab = ({
 </div>
 
 <div className="divBreak">
-  <h4 style={{ marginBottom: '0px' }}>Typography</h4>
+  <h3 style={{ marginBottom: '0px' }}>Typography</h3>
   
   <div style={{ display: 'flex', gap: '10px', marginBottom: '10px' }}>
     <DynamicStyleEditor

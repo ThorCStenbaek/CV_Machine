@@ -74,6 +74,7 @@ export const DynamicStyleEditor = ({
   const inputRef = useRef(null);
   const unitRef = useRef(null);
   const updateTimeoutRef = useRef(null);
+  const showButtonTimeoutRef= useRef(null)
 
   // Extract the value of the specified property from the style string
   const extractPropertyValue = (styleString) => {
@@ -162,6 +163,8 @@ export const DynamicStyleEditor = ({
     
   }
   else{
+    if (document.querySelector(".addNewElementsBtn"))
+    document.querySelector(".addNewElementsBtn").style.display="none";
    [property, ...additionalProperties].forEach(p=>{
 
     const element=document.querySelector(`.position${position}`)
@@ -171,12 +174,33 @@ export const DynamicStyleEditor = ({
    })
 
    deferResourceMeta(updatedResourceMeta)
+   deferShowAddButton()
 
   }
+
+  }
+
+  const deferShowAddButton = () =>{
+
+        if (showButtonTimeoutRef.current) {
+      clearTimeout(showButtonTimeoutRef.current);
+    }
+
+    showButtonTimeoutRef.current = setTimeout(() => {
+      //Make sure to add the stupid fucking variables here --margin-left or whatever they're called
+      if (document.querySelector(".addNewElementsBtn")) 
+      document.querySelector(".addNewElementsBtn").style.display="block";
+
+
+
+      showButtonTimeoutRef.current = null;
+    }, 250);
 
   }
 
   const deferResourceMeta= (data) => {
+   
+
     if (updateTimeoutRef.current) {
       clearTimeout(updateTimeoutRef.current);
     }
@@ -247,7 +271,7 @@ export const DynamicStyleEditor = ({
       {type === "number" && (
         <div style={{ display: "flex", gap: "5px" }}>
           <div style={{display:"flex", flexDirection: 'column', alignItems:alignItems}}>
-            <p style={{marginBottom:'0px', fontSize:"16px"}}>{inputName}</p>
+           {inputName && <p style={{marginBottom:'0px', fontSize:"16px"}}>{inputName}</p>}
             <div style={{display: 'flex', alignItems:'center'}}>
           <input className="input-boxed"
             type="number"

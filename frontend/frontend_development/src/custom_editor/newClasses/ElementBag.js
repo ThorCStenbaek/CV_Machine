@@ -27,4 +27,17 @@ export class ElementBag {
             .map(element => element.buttonElement) // Extract buttonElement
             .filter(button => button !== undefined && button !== null); // Filter out any null/undefined values
     }
+
+getButtonMap() {
+  const map = new Map();
+  for (const [key, element] of this.elements.entries()) {
+    if (element.buttonElement !== undefined && element.buttonElement !== null) {
+      const Button =element.buttonElement
+        map.set(key, Button
+         );
+    }
+  }
+  return map;
+}
+
 }

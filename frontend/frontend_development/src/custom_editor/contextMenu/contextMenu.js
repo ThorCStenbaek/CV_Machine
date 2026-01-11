@@ -262,9 +262,9 @@ UM[index].specific_style=setValue("display", "flex", UM[index].specific_style, t
       <div style={separatorStyle} />
 
       <MenuItem onClick={() => removeElement()}>Delete</MenuItem>
-
+      <div style={separatorStyle} />
 <MenuItem onClick={switchElementWith}>switch element to...</MenuItem>
-
+      <div style={separatorStyle} />
 <MenuItem onClick={toggleModal}>change element to...</MenuItem>
 
 

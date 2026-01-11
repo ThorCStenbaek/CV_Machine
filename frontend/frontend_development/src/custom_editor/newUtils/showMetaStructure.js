@@ -1,3 +1,5 @@
+import { CVElements } from "../newClasses/CVElements";
+
 export const ShowMetaStructure = ({ resourceMeta , changeIndex, index}) => {
     const position=index
     const changeBg = (index) => {
@@ -5,6 +7,8 @@ export const ShowMetaStructure = ({ resourceMeta , changeIndex, index}) => {
       document.querySelector(`.structurePosition${index}`).style.background="rgba(0, 255, 225, 0.3)"
       document.querySelector(`.position${index}`).classList.add("meta-selected");
     };
+
+    const iconMap=CVElements.getButtonMap()
   
     const setToInitial = (index) => {
           document.querySelector(`.structurePosition${index}`).style.background="initial"
@@ -13,7 +17,14 @@ export const ShowMetaStructure = ({ resourceMeta , changeIndex, index}) => {
   
     return (
       <div style={{ overflow: "auto", maxHeight:"100%" }}>
-        {resourceMeta.map((m, index) => (
+        {resourceMeta.map((m, index) => 
+        
+     
+
+        {
+             const IconElement= iconMap.get(m.instruction)
+             console.log("what is Icon Element:", IconElement, iconMap, m.instruction)
+          return(
           <div
             key={index} // Add a key for React's reconciliation
             className={`structurePosition${index}`} // Add a class for targeting
@@ -27,11 +38,16 @@ export const ShowMetaStructure = ({ resourceMeta , changeIndex, index}) => {
               {"\u00A0".repeat(m.depth * 4)} {/* Use non-breaking spaces for indentation */}
             </span>
             {/* Render the content */}
+
+            {IconElement!= undefined &&<IconElement position={0}
+          resourceMeta={[{depth:1}]} changeElement={()=>{}} updateResourceMeta={(e)=>{}} />
+        }
             <p>
+                  
               {m.depth} - {m.instruction}
             </p>
           </div>
-        ))}
+        )})}
       </div>
     );
   };
