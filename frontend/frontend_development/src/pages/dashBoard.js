@@ -22,7 +22,7 @@ const Dashboard= ({}) => {
   return (
     <div className={styles.dashboard}>
       <aside className={styles.sidebar}>
-        <h1 className={styles.logo}>MyApp</h1>
+        <h1 className={styles.logo}>CV Machine</h1>
         <nav className={styles.menu}>
           {menuItems.map((item) => (
             <button
